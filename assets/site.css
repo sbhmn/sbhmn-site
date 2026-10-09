@@ -104,23 +104,36 @@ footer.site a:hover { color: #fff; text-decoration-color: #fff; }
 .home section + section { border-top: 0; }
 .statement { padding: 56px 0 40px; }
 .statement h1 { font-size: clamp(64px, 14vw, 190px); line-height: 0.86; margin: 0; }
-.showcase { padding: 0 0 72px; }
-.feature-shot { position: relative; display: block; max-width: 1400px; margin: 0 auto; background: #0c0b0a; overflow: hidden; }
-.feature-shot img { width: 100%; aspect-ratio: 1024 / 500; object-fit: cover; transition: transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1); }
-.feature-shot:hover img { transform: scale(1.03); }
-.feature-shot .label {
-  position: absolute; left: 0; bottom: 0; display: flex; flex-direction: column; gap: 6px; padding: 18px 22px;
-  background: var(--ink); color: #fff; text-decoration: none;
+.wide, .home .wrap { max-width: 1320px; }
+.games { padding: 0 0 80px; }
+/* A game is a window: a black title bar (name, status, three squares), the picture, one line. */
+.windows { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.window { display: block; border: 3px solid var(--ink); background: var(--bg); color: var(--ink); text-decoration: none; overflow: hidden; }
+.window .bar {
+  display: flex; align-items: center; gap: 14px; padding: 10px 14px; background: var(--ink); color: #fff;
 }
-.feature-shot .label b { font: 800 clamp(32px, 5vw, 60px)/0.9 var(--display); text-transform: uppercase; letter-spacing: 0.01em; }
-.feature-shot .label i { font: 600 14px/1 var(--body); font-style: normal; letter-spacing: 0.2em; text-transform: uppercase; color: #c9c9c9; }
-.feature-shot:hover .label { background: var(--red); }
-.strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; max-width: 1400px; margin: 0 auto; }
-.strip img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-top: 3px solid #fff; }
-.strip img + img { border-left: 3px solid #fff; }
-@media (max-width: 760px) {
-  .strip { grid-template-columns: 1fr; }
-  .strip img + img { border-left: 0; }
+.window .bar b { font: 800 clamp(24px, 2.6vw, 34px)/1 var(--display); text-transform: uppercase; letter-spacing: 0.02em; }
+.window .bar span { margin-left: auto; font: 600 13px/1 var(--body); letter-spacing: 0.16em; text-transform: uppercase; color: #bdbdbd; }
+.window .bar::after { content: ''; flex: none; width: 46px; height: 12px; background:
+  linear-gradient(var(--red), var(--red)) 0 0 / 12px 12px no-repeat,
+  linear-gradient(#fff, #fff) 17px 0 / 12px 12px no-repeat,
+  linear-gradient(#fff, #fff) 34px 0 / 12px 12px no-repeat; }
+.window > img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-bottom: 3px solid var(--ink); transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.window:hover > img { transform: scale(1.025); }
+.window p { margin: 0; padding: 14px 16px 16px; font-size: 18px; color: var(--ink); }
+.window.small { margin-top: 24px; max-width: 640px; }
+.window.small .row { display: flex; align-items: center; gap: 14px; padding: 14px 16px; font-size: 18px; }
+.window.small .row img { width: 48px; height: 48px; border-radius: 11px; flex: none; }
+.window.small .go { margin-left: auto; font: 800 18px/1 var(--display); letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+.window.small:hover .bar { background: var(--red); }
+@media (max-width: 860px) {
+  .windows { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .window .bar::after { display: none; }
+  .window .bar span { font-size: 11px; letter-spacing: 0.1em; }
+  .window.small .row { flex-wrap: wrap; }
+  .window.small .go { margin-left: 62px; }
 }
 
 /* The intro: the bin game on a white stage over the page; it hands the logo to the header when it ends. */
