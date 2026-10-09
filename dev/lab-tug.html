@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SBHMN lab: background tugs</title>
+<!-- Background web test bench (not linked from the site).
+     /dev/lab-tug.html?tug=x,y,strength,t0,t1     something struggles at viewport (x, y) from scene time t0 to t1:
+                                                   a 'tug' is emitted every frame (strength wobbles), like a game stage does
+     &box=w,h                                      draw a dashed stand-in stage of that size centred on the tug point
+     &scroll=px                                    make the page tall and scroll it (parallax check)
+     &shot                                         don't run the loop: dev/shot.cjs steps it (tugs follow scene time)
+     &web3d                                        also a 1000x620 view with web.js in a perspective scene (a tilted web,
+                                                   a struggling "ship" attached to it, strain colour, snaps that mend,
+                                                   the pointer pressing in): the API the game stages build on
+     Without &shot it runs live; click anywhere to pluck, press T to tug at the pointer. -->
+<style>
+  html, body { margin: 0; background: #fff; }
+  .stage-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  .box { position: absolute; z-index: 1; outline: 1px dashed rgba(0, 0, 0, 0.25); pointer-events: none; }
+  #view { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 1000px; height: 620px; max-width: 100vw; z-index: 1; outline: 1px dashed rgba(0, 0, 0, 0.15); }
+  .hud { position: fixed; left: 8px; bottom: 8px; z-index: 2; font: 12px/1.3 monospace; color: #777; pointer-events: none; }
+</style>
+<script type="importmap">{ "imports": { "three": "/assets/vendor/three/three.module.min.js" } }</script>
+</head>
+<body>
+<canvas class="stage-canvas"></canvas>
+<div class="hud"></div>
+<script type="module">
+  import { createStage } from '/assets/home/stage.js';
+  const q = new URLSearchParams(location.search);
+  const tug = q.get('tug')?.split(',').map(Number) ?? null;
+  const stage = createStage({ canvas: document.querySelector('.stage-canvas'), debug: true });
+  if (q.has('scroll')) document.body.style.height = '6000px';
+  if (tug && q.get('box')) {
+    const [bw, bh] = q.get('box').split(',').map(Number);
+    const b = document.createElement('div');
+    b.className = 'box';
+    Object.assign(b.style, { left: `${tug[0] - bw / 2}px`, top: `${tug[1] - bh / 2}px`, width: `${bw}px`, height: `${bh}px`, position: 'fixed' });
+    document.body.append(b);
+  }
+  // A perspective test of web.js, the way a game stage would use it.
+  async function web3d({ THREE, stage: bus }) {
+    const { createWeb } = await import('/assets/home/web.js');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
+    camera.position.set(0.6, 0.5, 7.2);
+    camera.lookAt(0, 0, 0);
+    const sun = new THREE.DirectionalLight(0xffffff, 2.4); sun.position.set(-2, 3, 4);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.4), sun);
+    const web = createWeb({
+      hub: [0, 0.25, 0], radius: 2.3, sides: 6, spokes: 26, seed: 4, normal: [0.18, 0.1, 1], width: 0.009,
+      colors: { hub: 0x6e6e6e, spoke: 0x7c7c7c, spiral: 0x9a9a9a, frame: 0x6a6a6a, moor: 0x5e5e5e, hubring: 0x8a8a8a },
+      strainColor: 0xff2414, strainGain: 5, dew: { count: 40, size: 0.018 }, dangling: 2,
+      wave: { plane: 0.4, normal: 1 }, wind: { amp: 0.008, normal: 0.05 }, breakStrain: 0.55,
+    });
+    scene.add(web.object);
+    const ship = new THREE.Mesh(new THREE.OctahedronGeometry(0.22, 0), new THREE.MeshStandardMaterial({ color: 0x1a1a1a, flatShading: true, roughness: 0.5 }));
+    ship.scale.set(1.6, 0.7, 0.9);
+    scene.add(ship);
+    const home = new THREE.Vector3(0.9, -0.7, 0.15);
+    ship.position.copy(home);
+    // stick it: the 5 nodes nearest the ship follow points on its hull
+    const holds = [];
+    const used = new Set();
+    for (let k = 0; k < 5; k++) {
+      const n = web.nearestNode(home.x, home.y, home.z, (i) => !used.has(i) && web.junction[i] === 1);
+      used.add(n);
+      const off = web.node(n).sub(home).multiplyScalar(0.6);
+      holds.push(web.attach(n, () => ship.position.clone().add(off)));
+    }
+    let snaps = 0;
+    web.onSnap = (t) => { snaps++; setTimeout(() => web.mend(t, 1.5), 2500); };
+    const p = new THREE.Vector3();
+    return {
+      scene, camera,
+      resize(w, h) { camera.aspect = w / h; camera.updateProjectionMatrix(); },
+      update(dt, t, input) {
+        // struggle: lunges away from the web, then rests
+        const lunge = Math.max(0, Math.sin(t * 1.4)) ** 3;
+        ship.position.set(home.x + 0.5 * lunge + Math.sin(t * 7) * 0.03 * lunge, home.y - 0.25 * lunge, home.z + 0.9 * lunge);
+        ship.rotation.set(Math.sin(t * 5) * 0.2 * lunge, t * 0.3, Math.sin(t * 3) * 0.15);
+        const strain = holds.reduce((m, h) => Math.max(m, h.strain), 0);
+        if (lunge > 0.2) bus.emit('tug', { strength: Math.min(1, strain * 3), x: input.rect.left + input.vw * 0.7, y: input.rect.top + input.vh * 0.65 });
+        if (input.inside && web.planePoint(camera, input.x, input.y, p)) web.poke(p.x, p.y, p.z, 0.35, 1, { mode: 'normal' });
+        if (input.clicked && web.planePoint(camera, input.x, input.y, p)) web.pluck(p, 0.08, 0.3);
+        web.update(dt);
+        window.__web3dInfo = { strain: +strain.toFixed(3), snaps, stats: web.stats() };
+      },
+      dispose() { web.dispose(); },
+    };
+  }
+  const emitAt = (t) => {
+    if (!tug) return;
+    const [x, y, s = 0.8, t0 = 1, t1 = 4] = tug;
+    if (t >= t0 && t <= t1) stage.emit('tug', { x, y, strength: s * (0.65 + 0.35 * Math.sin(t * 9.0)) });
+  };
+  window.__ready = (async () => {
+    window.__bg = await stage.setBackground(await import('/assets/home/scenes/background.js'));
+    if (q.has('web3d')) {
+      const view = document.createElement('div');
+      view.id = 'view';
+      document.body.append(view);
+      window.__web3d = await stage.addView(view, web3d);
+    }
+    if (q.has('scroll')) window.scrollTo(0, +q.get('scroll'));
+    if (!q.has('shot')) {
+      stage.start();
+      const hud = document.querySelector('.hud');
+      let lt = 0;
+      (function loop() { requestAnimationFrame(loop); emitAt(stage.clock); const d = window.__bg.debug?.(); if (d && stage.clock - lt > 0.25) { lt = stage.clock; hud.textContent = `${d.mode} ${d.reason ?? ''} t=${stage.clock.toFixed(1)}`; } })();
+      addEventListener('keydown', (e) => { if (e.key === 't') stage.emit('tug', { x: stage.pointer.x, y: stage.pointer.y, strength: 1 }); });
+    } else {
+      // step one frame at a time so tugs land on scene time, exactly like a stage emitting every frame
+      const advance = stage.advance.bind(stage);
+      stage.advance = (s) => { const n = Math.round(s * 60); if (!n) return advance(0); for (let i = 0; i < n; i++) { emitAt(stage.clock + 1 / 60); advance(1 / 60); } };
+      stage.advance(0);
+    }
+    return true;
+  })().catch((e) => { document.body.insertAdjacentHTML('beforeend', `<pre style="position:fixed;left:8px;top:8px;z-index:9;color:#a00">${e.stack}</pre>`); throw e; });
+</script>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SBHMN</title>
-<meta name="description" content="SBHMN makes stuff. Shapeshot: Pool &amp; Snooker, on Android.">
+<meta name="description" content="SBHMN makes stuff. Shapeshot: Pool &amp; Snooker, in closed test on Android. In development: Unruled, Wall Street Wars.">
 <meta property="og:title" content="SBHMN">
 <meta property="og:description" content="We make stuff.">
 <meta property="og:image" content="https://sbhmn.com/assets/img/og-shapeshot.jpg">
@@ -24,52 +24,63 @@
 </script>
 <script type="importmap">{ "imports": { "three": "/assets/vendor/three/three.module.min.js" } }</script>
 <link rel="modulepreload" href="/assets/intro.js">
+<link rel="modulepreload" href="/assets/home/home.js">
 </head>
 <body class="home">
+<canvas class="stage-canvas" aria-hidden="true"></canvas>
 <header class="site">
   <div class="wrap">
     <a class="brand" href="/" aria-label="SBHMN"><img src="/assets/img/sbhmn-mark.svg" alt="SBHMN" width="62" height="58"></a>
-    <nav><a href="/shapeshot/">Shapeshot</a><a href="mailto:contact@sbhmn.com">Contact</a></nav>
+    <span class="tagline">We make stuff<span class="red">.</span></span>
   </div>
 </header>
 
 <main>
-  <section class="statement">
-    <div class="wrap"><h1>We make stuff<span class="red">.</span></h1></div>
+  <section class="hero">
+    <div class="wrap">
+      <h1>Nobody asked<span class="red">.</span></h1>
+      <p class="sub">Here it is anyway.</p>
+    </div>
   </section>
 
-  <section class="games">
-    <div class="wrap wide">
-      <div class="windows">
-        <article class="window">
-          <header class="bar"><b>Unruled</b><span>In development · PC</span></header>
-          <img src="/assets/img/unruled-key.webp" width="1600" height="893" alt="Unruled: a colony world's mining districts glowing under an orbital shipyard and a fleet">
-          <p>Space strategy. Survey worlds, mine them, build fleets, take the galaxy.</p>
-        </article>
-        <article class="window">
-          <header class="bar"><b>Wall Street Wars</b><span>In development</span></header>
-          <img src="/assets/img/wsw-key.webp" width="1600" height="893" alt="Wall Street Wars: brokers whispering on a trading floor at night, in pixel art">
-          <p>Turn-based Wall Street. Work your contacts, spread rumours, climb from runner to partner.</p>
-        </article>
-      </div>
-      <a class="window small" href="/shapeshot/">
-        <header class="bar"><b>Shapeshot</b><span>Android · Closed test</span></header>
-        <span class="row">
-          <img src="/assets/img/shapeshot-icon.webp" width="56" height="56" alt="">
-          <span>Pool &amp; snooker on real physics.</span>
-          <span class="go">Play the test →</span>
-        </span>
-      </a>
+  <section class="games" aria-label="Games">
+    <div class="wrap games-row">
+      <article class="game" id="shapeshot" aria-labelledby="t-shapeshot">
+        <h2 class="sr" id="t-shapeshot">Shapeshot: Pool &amp; Snooker</h2>
+        <div class="stage" data-scene="shapeshot"><img class="still" src="/assets/img/still-shapeshot.webp" width="800" height="1000" alt="Shapeshot: a cue, the cue ball and the 8-ball"></div>
+        <div class="caption">
+          <span class="status live"><i></i>Available now for closed testing</span>
+          <p>Every shot gets a make %. Your excuses don't.</p>
+          <a class="btn primary" href="/shapeshot/#test">Join the test</a>
+        </div>
+      </article>
+      <article class="game" id="unruled" aria-labelledby="t-unruled">
+        <h2 class="sr" id="t-unruled">Unruled</h2>
+        <div class="stage" data-scene="unruled"><img class="still" src="/assets/img/still-unruled.webp" width="800" height="1000" alt="Unruled: a warship caught in a web"></div>
+        <div class="caption">
+          <span class="status">In development</span>
+          <p>Mine planets, build fleets, take the galaxy. The galaxy wasn't consulted.</p>
+        </div>
+      </article>
+      <article class="game" id="wall-street-wars" aria-labelledby="t-wsw">
+        <h2 class="sr" id="t-wsw">Wall Street Wars</h2>
+        <div class="stage" data-scene="wsw"><img class="still" src="/assets/img/still-wsw.webp" width="800" height="1000" alt="Wall Street Wars: a stock arrow climbing, dollars in the air"></div>
+        <div class="caption">
+          <span class="status">In development</span>
+          <p>Start as a runner. Make partner. Integrity optional.</p>
+        </div>
+      </article>
     </div>
   </section>
 </main>
 
 <footer class="site">
   <div class="wrap">
-    <span>© 2026 SBHMN</span>
+    <span>© 2026 SBHMN · Fan mail, hate mail. Same bin.</span>
     <span><a href="mailto:contact@sbhmn.com">contact@sbhmn.com</a><span class="replay-wrap" hidden> · <button class="replay" type="button">Feed the bin again</button></span></span>
   </div>
 </footer>
 <script type="module" src="/assets/intro.js"></script>
+<script type="module" src="/assets/home/home.js"></script>
 </body>
 </html>

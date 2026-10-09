@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper lab</title>
+<!-- The intro's paper, alone (not linked from the site), through its module assets/intro/paper.js, lit like the intro.
+     /dev/lab-paper.html?view=fly        the spit: from the monster's mouth (a stand-in bin) at the intro's front camera,
+                                         unfolding at you, landing on the screen. &seq=full|short (default short)
+                        &land            straight to the landed sheet (paper.land); &parent: inside a transformed group
+                        &page            the live home page (an iframe) behind the canvas, the print landed on its
+                                         headline; after the landing the canvas fades to &fade=0.5 (with &shot; 0
+                                         without): the print and the page at half each, to check they line up
+                        ?view=play       the unfold as stop motion in a fixed frame (the same sequence, no flight)
+                        ?view=grid       every pose side by side (&fit=0: true scale, &yaw=deg &pitch=deg, &back)
+                        ?view=pose&i=K   one pose, framed (&yaw &pitch; i=-1 the flat sheet; &wet=0..1 as just spat)
+                        ?view=ball       the throw's ball (createPaperBall, paper-ball.glb) at the intro's size, turning
+     &phone             portrait (the phone print, the sheet turned), as on a tall screen
+     &bg=RRGGBB         background (default white); &nobin: no stand-in bin in view=fly; &edge=0..1 the ink edge
+     &base=URL/         another bake (a folder with paper.json, paper.glb, paper-ball.glb; e.g. a variant served elsewhere)
+     &shot              don't run the clock: dev/paper-lab.cjs steps it with window.__lab.advance(s)
+     Screenshots: node dev/paper-lab.cjs "view=fly" <out prefix> 0.5,1.0,2.0 [--size 1280x800] [--dpr 1] -->
+<style>
+  html, body { margin: 0; height: 100%; background: #fff; overflow: hidden; }
+  canvas { position: fixed; inset: 0; display: block; width: 100%; height: 100%; z-index: 2; }
+  iframe { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; z-index: 1; pointer-events: none; }
+  #hud { position: fixed; left: 10px; bottom: 8px; z-index: 3; font: 12px/1.35 ui-monospace, Consolas, monospace; color: #999; white-space: pre; pointer-events: none; }
+</style>
+<script type="importmap">{ "imports": { "three": "/assets/vendor/three/three.module.min.js" } }</script>
+</head>
+<body>
+<div id="hud"></div>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from '/assets/vendor/three/addons/loaders/GLTFLoader.js';
+import { createPaper, createPaperBall } from '/assets/intro/paper.js';
+
+const q = new URLSearchParams(location.search);
+const VIEW = q.get('view') ?? 'fly';
+const PHONE = q.has('phone');
+const SHOT = q.has('shot');
+const base = q.get('base') ?? '/assets/3d/';
+const edge = +(q.get('edge') ?? 0.5);
+const hud = document.getElementById('hud');
+const deg = THREE.MathUtils.degToRad;
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.prepend(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(q.has('bg') ? `#${q.get('bg')}` : '#ffffff');
+// The intro's lights.
+scene.add(new THREE.HemisphereLight(0xffffff, 0x9a9a9a, 2.2));
+const sun = new THREE.DirectionalLight(0xffffff, 2.6);
+sun.position.set(-2.2, 5, 3.2);
+sun.castShadow = true;
+sun.shadow.mapSize.set(1024, 1024);
+Object.assign(sun.shadow.camera, { left: -2.5, right: 2.5, top: 2.5, bottom: -2.5, near: 1, far: 12 });
+sun.shadow.radius = 4;
+scene.add(sun);
+const camera = new THREE.PerspectiveCamera(30, 1, 0.02, 100);
+const size = () => [window.innerWidth, window.innerHeight];
+function resize() { const [w, h] = size(); renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+resize();
+window.addEventListener('resize', resize);
+
+let update = () => {};
+let clock = 0;
+
+if (VIEW === 'ball') {
+  // the throw's ball at the intro's size (radius 0.07) from the throw camera's distance
+  const ball = await createPaperBall({ portrait: PHONE, base });
+  scene.add(ball.object3d);
+  camera.fov = 30;
+  update = () => {
+    ball.object3d.rotation.set(0.3 + deg(+(q.get('pitch') ?? 0)), deg(+(q.get('yaw') ?? 0)) + clock * 0.5, 0);
+    const d = 0.07 * 1.25 / Math.sin(deg(15));
+    camera.position.set(0, d * 0.33, d); camera.lookAt(0, 0, 0); camera.updateProjectionMatrix();
+    hud.textContent = `ball (paper-ball.glb)  t ${clock.toFixed(2)}`;
+  };
+} else {
+  // with &page the live page is in an iframe: land the print on ITS headline
+  let iframe = null;
+  const paper = await createPaper({ portrait: PHONE, base, viewport: size, edge, anchor: () => iframe?.contentDocument?.querySelector('.hero h1') ?? null });
+  const { info } = paper;
+  const T = paper.poses.length;
+  const sheet = PHONE ? [0.21, 0.297] : [0.297, 0.21];
+  const S = paper.object3d.scale.x; // radius / ballRadius
+  if (VIEW === 'grid' || VIEW === 'pose') {
+    // pose views: show each pose with the lab's own copies (the module's paper for one pose, clones for the grid)
+    const fit = q.get('fit') !== '0';
+    const list = VIEW === 'grid' ? [...Array(T).keys(), -1] : [+(q.get('i') ?? 0)];
+    const cols = VIEW === 'grid' ? Math.ceil(Math.sqrt(list.length * 1.6)) : 1, rows = Math.ceil(list.length / cols);
+    const cell = 1;
+    const yaw = deg(+(q.get('yaw') ?? 0)) + (q.has('back') ? Math.PI : 0), pitch = deg(+(q.get('pitch') ?? 0));
+    const geo = paper.object3d.getObjectByProperty('isMesh', true).geometry;
+    const P = geo.attributes.position, M = geo.morphAttributes.position;
+    const bounds = (k) => {
+      const box = new THREE.Box3(), v = new THREE.Vector3(), d = new THREE.Vector3();
+      for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i); if (k >= 0) v.add(d.fromBufferAttribute(M[k], i)); box.expandByPoint(v); }
+      return box.getBoundingSphere(new THREE.Sphere());
+    };
+    const papers = [];
+    for (let n = 0; n < list.length; n++) {
+      const p = n === 0 ? paper : await createPaper({ portrait: PHONE, base, viewport: size, seed: 7 + n, edge });
+      p.setPose(list[n], { wet: +(q.get('wet') ?? 0) }); p.object3d.visible = true;
+      const b = bounds(list[n]);
+      const holder = new THREE.Group();
+      p.object3d.scale.setScalar(fit ? (cell * 0.46) / b.radius : S * 0.9);
+      const c = PHONE ? new THREE.Vector3(-b.center.y, b.center.x, b.center.z) : b.center; // the turn's frame
+      p.object3d.children[0].position.copy(c).multiplyScalar(-1); // jig: centre the pose
+      p.object3d.rotation.set(pitch, yaw, 0);
+      holder.add(p.object3d);
+      holder.position.set(((n % cols) - (cols - 1) / 2) * cell, ((rows - 1) / 2 - Math.floor(n / cols)) * cell * 0.86, 0);
+      scene.add(holder); papers.push(p);
+    }
+    camera.fov = 20;
+    const w = cols * cell, h = rows * cell * 0.86;
+    update = () => {
+      const t = Math.tan(deg(camera.fov / 2));
+      const d = Math.max(h / 2 / t, w / 2 / (t * camera.aspect)) * 1.04;
+      camera.position.set(0, 0, d); camera.near = d / 20; camera.far = d * 5; camera.lookAt(0, 0, 0); camera.updateProjectionMatrix();
+      hud.textContent = VIEW === 'grid' ? `${T} poses + flat  ${info.names[0]} .. ${info.names[T - 1]}` : `pose ${list[0]} ${info.names[list[0]] ?? 'flat'}`;
+    };
+  } else if (VIEW === 'play') {
+    // the sequence in a fixed frame: the flat sheet fills ~85% of the view; no flight
+    const seq = info.sequences?.[q.get('seq') ?? 'full'] ?? [];
+    const fps = info.fps ?? 12;
+    scene.add(paper.object3d); paper.object3d.visible = true;
+    const rand = (() => { let a = 99; return () => ((a = (a * 1664525 + 1013904223) >>> 0) / 4294967296); })();
+    let last = -1;
+    update = () => {
+      const f = Math.floor(clock * fps);
+      let n = 0, step = seq.length - 1;
+      for (let i = 0; i < seq.length; i++) { if (f < n + seq[i][1]) { step = i; break; } n += seq[i][1]; }
+      const k = seq[step]?.[0] ?? -1;
+      if (f !== last) {
+        last = f;
+        paper.setPose(k);
+        const j = Math.max(0, 1 - step / seq.length);
+        paper.object3d.children[0].position.set((rand() - 0.5) * 0.004 * j, (rand() - 0.5) * 0.004 * j, 0);
+        paper.object3d.children[0].rotation.set((rand() - 0.5) * 0.05 * j, (rand() - 0.5) * 0.05 * j, (rand() - 0.5) * 0.05 * j);
+      }
+      camera.fov = 30;
+      const t = Math.tan(deg(15));
+      const d = Math.max(sheet[1] * S / 2 / t, sheet[0] * S / 2 / (t * camera.aspect)) / 0.85;
+      camera.position.set(0, 0, d); camera.near = d / 50; camera.far = d * 10; camera.lookAt(0, 0, 0); camera.updateProjectionMatrix();
+      hud.textContent = `play ${q.get('seq') ?? 'full'}  step ${step}  ${k < 0 ? 'flat' : `pose ${k} ${info.names[k]}`}  t ${clock.toFixed(2)}s`;
+    };
+  } else {
+    // fly: the intro's front view (assets/intro.js view.front) and a stand-in for the bin and the thing in it
+    const MARK = { top: 1.076, bottom: -0.0773, left: -0.62, right: 0.6213 };
+    const front = () => {
+      const t = 2 * Math.tan(deg(9));
+      const d = Math.max((MARK.top - MARK.bottom) / 0.5 / t, (MARK.right - MARK.left) / 0.62 / (t * camera.aspect));
+      const cy = (MARK.top + MARK.bottom) / 2;
+      camera.fov = 18; camera.position.set(0, cy, d); camera.near = 0.05; camera.far = 100; camera.lookAt(0, cy, 0); camera.updateProjectionMatrix();
+    };
+    front();
+    if (!q.has('nobin')) {
+      const gltf = await new GLTFLoader().loadAsync('/assets/3d/bin.glb');
+      const binMat = new THREE.MeshStandardMaterial({ color: 0x171717, roughness: 0.75, flatShading: true });
+      const voidMat = new THREE.MeshBasicMaterial({ color: 0x050505, side: THREE.DoubleSide });
+      const parts = {};
+      gltf.scene.traverse((o) => { if (o.isMesh) parts[o.name] = o; });
+      for (const [name, m] of Object.entries(parts)) {
+        m.material = name === 'inside' ? voidMat : binMat; m.castShadow = name !== 'inside'; m.receiveShadow = true;
+        if (name === 'lid') { const hinge = new THREE.Group(); hinge.position.copy(m.position); m.position.set(0, 0, 0); hinge.add(m); hinge.rotation.x = -0.55; scene.add(hinge); }
+        else scene.add(m);
+      }
+      // the thing in the bin: a black block risen to the rim, red eyes
+      const monster = new THREE.Mesh(new THREE.BoxGeometry(0.84, 0.3, 0.76), binMat);
+      monster.position.set(0, 0.78 + 0.02, 0); scene.add(monster);
+      for (const x of [-0.17, 0.17]) {
+        const eye = new THREE.Mesh(new THREE.IcosahedronGeometry(0.045, 0), new THREE.MeshBasicMaterial({ color: 0xff2414 }));
+        eye.position.set(x, 0.86, 0.385); eye.scale.set(1.4, 0.8, 0.4); scene.add(eye);
+      }
+      const floor = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), new THREE.ShadowMaterial({ opacity: 0.13 }));
+      floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+    }
+    if (q.has('parent')) { // a transformed parent: the module still lands the sheet on the screen
+      const g = new THREE.Group(); g.position.set(0.3, -0.2, 0.5); g.rotation.set(0.2, 0.4, -0.1); g.scale.setScalar(1.7);
+      scene.add(g); g.add(paper.object3d);
+    } else scene.add(paper.object3d);
+    const mouth = new THREE.Vector3(0, 0.84, 0.42);
+    if (q.has('page')) {
+      try { sessionStorage.setItem('sbhmn-intro', 'done'); } catch (e) {}
+      iframe = document.createElement('iframe');
+      iframe.src = '/?debug';
+      document.body.prepend(iframe);
+      await new Promise((r) => iframe.addEventListener('load', r, { once: true }));
+      await new Promise((r) => setTimeout(r, 600));
+    }
+    const fade = iframe ? +(q.get('fade') ?? (SHOT ? 0.5 : 0)) : 1;
+    let state = 'spit', landedAt = 0, frames = 0;
+    // the page's 3D starts when the intro hands over: hold it at 0 until the landing, then run it with the lab clock
+    const st = () => iframe?.contentWindow?.__stage;
+    if (st()) { st().stop(); }
+    if (q.has('land')) paper.land(camera); // straight to the landed sheet
+    else paper.spit({ camera, from: mouth, sequence: q.get('seq') ?? 'short', onFrame: () => { frames++; } });
+    update = (dt) => {
+      paper.update(dt);
+      if (paper.landed && state !== 'landed') { state = 'landed'; landedAt = clock; } // (the promise resolves later)
+      if (state === 'landed') {
+        const s = st();
+        if (s && dt) s.advance(dt);
+        renderer.domElement.style.opacity = String(1 - (1 - fade) * Math.min(1, (clock - landedAt) / 0.3));
+      }
+      hud.textContent = `fly ${q.get('seq') ?? 'short'}  ${state}  frame ${frames}  t ${clock.toFixed(2)}s`;
+    };
+  }
+}
+
+function tick(dt) { clock += dt; update(dt); }
+let last = performance.now();
+function loop(now) { requestAnimationFrame(loop); tick(Math.min(0.05, (now - last) / 1000)); last = now; renderer.render(scene, camera); }
+window.__lab = {
+  advance(s) { const n = Math.round(s * 60); for (let i = 0; i < n; i++) tick(1 / 60); if (!n) tick(0); renderer.render(scene, camera); },
+  get clock() { return clock; }, scene,
+};
+window.__ready = true;
+if (!SHOT) requestAnimationFrame(loop); else { tick(0); renderer.render(scene, camera); }
+</script>
+</body>
+</html>

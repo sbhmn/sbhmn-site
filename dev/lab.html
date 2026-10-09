@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SBHMN lab</title>
+<!-- Scene lab (not linked from the site): one scene, alone, for building and screenshots.
+     /dev/lab.html?scene=unruled           a view the size of a home page game stage, over the background web
+     &bg=none                              plain white behind it instead of the web
+     &scene=background                     the background alone, full window
+     &size=full | WxH                      the view's size (default 1000x620, centred)
+     &shot                                 don't run the loop: dev/shot.cjs steps it with __stage.advance(s) -->
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+  html, body { margin: 0; height: 100%; background: transparent; }
+  .stage-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  #view { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 1; outline: 1px dashed rgba(0,0,0,0.12); }
+  #view.full { inset: 0; left: 0; top: 0; transform: none; width: 100%; height: 100%; outline: 0; }
+</style>
+<script type="importmap">{ "imports": { "three": "/assets/vendor/three/three.module.min.js" } }</script>
+</head>
+<body>
+<canvas class="stage-canvas"></canvas>
+<div id="view"></div>
+<script type="module">
+  import { createStage } from '/assets/home/stage.js';
+  const q = new URLSearchParams(location.search);
+  const name = q.get('scene') ?? 'background';
+  const size = q.get('size') ?? '1000x620';
+  const view = document.getElementById('view');
+  if (size === 'full') view.classList.add('full');
+  else { const [w, h] = size.split('x').map(Number); view.style.width = `${w}px`; view.style.height = `${h}px`; }
+  const stage = createStage({ canvas: document.querySelector('.stage-canvas'), debug: true });
+  window.__ready = (async () => {
+    if (name === 'background') await stage.setBackground(await import('/assets/home/scenes/background.js'));
+    else {
+      if (q.get('bg') !== 'none') await stage.setBackground(await import('/assets/home/scenes/background.js'));
+      await stage.addView(view, await import(`/assets/home/scenes/${name}.js`));
+    }
+    if (!q.has('shot')) stage.start(); else stage.advance(0);
+    return true;
+  })().catch((e) => { document.body.insertAdjacentHTML('beforeend', `<pre style="position:fixed;left:8px;bottom:8px;z-index:9;color:#a00">${e.stack}</pre>`); throw e; });
+</script>
+</body>
+</html>

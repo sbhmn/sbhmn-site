@@ -1,0 +1,346 @@
+{
+ "mesh": "paper",
+ "version": 2,
+ "targets": 17,
+ "names": [
+  "ball",
+  "open01",
+  "open02",
+  "open03",
+  "open04",
+  "open05",
+  "open06",
+  "open07",
+  "open08",
+  "open09",
+  "open10",
+  "open11",
+  "open12",
+  "open13",
+  "creased",
+  "slap",
+  "settle"
+ ],
+ "fps": 12,
+ "sequences": {
+  "short": [
+   [
+    0,
+    1
+   ],
+   [
+    1,
+    1
+   ],
+   [
+    0,
+    1
+   ],
+   [
+    2,
+    1
+   ],
+   [
+    4,
+    1
+   ],
+   [
+    6,
+    2
+   ],
+   [
+    8,
+    1
+   ],
+   [
+    9,
+    1
+   ],
+   [
+    11,
+    1
+   ],
+   [
+    13,
+    1
+   ],
+   [
+    14,
+    1
+   ],
+   [
+    15,
+    1
+   ],
+   [
+    16,
+    2
+   ],
+   [
+    -1,
+    2
+   ]
+  ],
+  "full": [
+   [
+    0,
+    3
+   ],
+   [
+    1,
+    1
+   ],
+   [
+    0,
+    2
+   ],
+   [
+    1,
+    1
+   ],
+   [
+    2,
+    1
+   ],
+   [
+    3,
+    1
+   ],
+   [
+    4,
+    1
+   ],
+   [
+    5,
+    2
+   ],
+   [
+    6,
+    2
+   ],
+   [
+    7,
+    2
+   ],
+   [
+    8,
+    2
+   ],
+   [
+    9,
+    1
+   ],
+   [
+    10,
+    1
+   ],
+   [
+    11,
+    1
+   ],
+   [
+    12,
+    1
+   ],
+   [
+    13,
+    1
+   ],
+   [
+    14,
+    1
+   ],
+   [
+    15,
+    2
+   ],
+   [
+    16,
+    2
+   ],
+   [
+    -1,
+    3
+   ]
+  ]
+ },
+ "landingPose": 15,
+ "unlit": [
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0.05,
+  0.25,
+  0.6
+ ],
+ "ballRadius": 0.0353,
+ "core": {
+  "radius": 0.0216,
+  "poses": [
+   0
+  ]
+ },
+ "sheet": [
+  0.297,
+  0.21
+ ],
+ "vertices": 1910,
+ "triangles": 3624,
+ "ball": {
+  "file": "paper-ball.glb",
+  "vertices": 1433,
+  "triangles": 2157
+ },
+ "orientation": "Base mesh = the flat sheet, A4 landscape 0.297 x 0.21 units, centred on the origin in the XY plane, printed side facing +Z. UV (0,0) = bottom-left, (1,1) = top-right (three.js convention, v up: TextureLoader with the default flipY). Morph targets = the poses, one-hot, positions only (flatShading): 0 = the ball ... creased, slap, settle; all influences 0 = the perfectly flat sheet. Poses are centred on the origin and de-rotated (no tumble baked in; the late poses face +Z, upright). Sequences are [pose, frames] at fps, pose -1 = the flat sheet. unlit[k]: 0 = lit paper, 1 = the plain print. Played by assets/intro/paper.js.",
+ "prints": [
+  {
+   "kind": "desktop",
+   "url": "/assets/img/paper-desktop.webp",
+   "css": [
+    1920,
+    960
+   ],
+   "dpr": 1.25,
+   "size": [
+    2400,
+    1697
+   ],
+   "rect": [
+    0,
+    248,
+    2400,
+    1200
+   ],
+   "clock": 0.3,
+   "column": {
+    "max": 1280,
+    "pad": 20
+   },
+   "anchor": {
+    "selector": ".hero h1",
+    "left": 312.5,
+    "top": 180.39,
+    "font": 200
+   }
+  },
+  {
+   "kind": "desktop",
+   "url": "/assets/img/paper-desktop-1366.webp",
+   "css": [
+    1366,
+    650
+   ],
+   "dpr": 1.5,
+   "size": [
+    2049,
+    1449
+   ],
+   "rect": [
+    0,
+    237,
+    2049,
+    975
+   ],
+   "clock": 0.3,
+   "column": {
+    "max": 1280,
+    "pad": 20
+   },
+   "anchor": {
+    "selector": ".hero h1",
+    "left": 35.5,
+    "top": 152.5,
+    "font": 177.58
+   }
+  },
+  {
+   "kind": "phone",
+   "url": "/assets/img/paper-phone.webp",
+   "css": [
+    390,
+    844
+   ],
+   "dpr": 2.5,
+   "size": [
+    1492,
+    2110
+   ],
+   "rect": [
+    258,
+    0,
+    975,
+    2110
+   ],
+   "clock": 0.3,
+   "column": {
+    "max": 1280,
+    "pad": 20
+   },
+   "anchor": {
+    "selector": ".hero h1",
+    "left": 20,
+    "top": 157.95,
+    "font": 58.5
+   }
+  },
+  {
+   "kind": "phone",
+   "url": "/assets/img/paper-phone-360.webp",
+   "css": [
+    360,
+    740
+   ],
+   "dpr": 2.5,
+   "size": [
+    1308,
+    1850
+   ],
+   "rect": [
+    204,
+    0,
+    900,
+    1850
+   ],
+   "clock": 0.3,
+   "column": {
+    "max": 1280,
+    "pad": 20
+   },
+   "anchor": {
+    "selector": ".hero h1",
+    "left": 20,
+    "top": 148.59,
+    "font": 54
+   }
+  }
+ ],
+ "seed": 11,
+ "frames": [
+  0,
+  64,
+  94,
+  117,
+  141,
+  165,
+  179,
+  196,
+  213,
+  224,
+  231,
+  238,
+  246,
+  253,
+  260
+ ]
+}
