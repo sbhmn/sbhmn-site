@@ -1,28 +1,31 @@
 // The testers' corner on the home page: a low-poly kid of fourteen or so (a kid's proportions: a big round head, a
 // small face with big eyes, a button nose, a short round chin; red hoodie, a full head of messy brown hair, a red
 // headset over it), hunched at his desk in a black racing chair with the studio's SBHMN lettering across its back,
-// playing on a big chunky CRT; past his mouse hand his Game Boy stands propped against his energy can, leaning back,
-// its screen turned to him in his seat (as he put it down mid-game), its green light on the desk in front of it.
-// Seen from high up behind him, over his right shoulder: the screen over his shoulder, his hands on the keyboard and
-// the mouse, his back and the back of his head, the chair's lettering, the Game Boy's face at a slant (turned to him,
-// away from us). His face stays turned away (a sliver of cheek at most, even when he rages). The whole set floats in
-// the box, the chair down to its casters: nothing is cut by the box's edges.
+// playing on a big chunky CRT, his keyboard square in front of him, the mouse to its right; past his mouse hand his
+// Game Boy stands propped against his energy can, leaning back, its screen turned to him in his seat (as he put it down
+// mid-game), its green light on the desk in front of it.
+// Seen from high up behind him, over his right shoulder: the screen over his shoulder, his hands on the keyboard (the
+// left mostly behind his head from here) and the mouse, his back and the back of his head, the hood of his hoodie down
+// in a roll round his neck (under his head and his headset: never through them), the chair's lettering, the Game Boy's
+// face at a slant (turned to him, away from us). His face stays turned away (a sliver of cheek at most, even when he
+// rages). The whole set floats in the box, the chair down to its casters: nothing is cut by the box's edges.
 // The screen runs a little MOBA of our own (see "The game on the screen"): a lane, a river, creep waves, his robed mage
 // farming and casting a fireball, chain lightning, a blink and a golden nova, and every round he dies, a different way
 // each loop: ganked by three heroes out of the fog, diving under their tower, caught in their warlock's meteor. The
 // screen goes grey: a respawn counter, a kill-feed line. He plays along (mashing Q W E R as the spells go off, the mouse
 // hand flicking and clicking where his cursor clicks, leaning in as it heats up), tension building.
-// Then he loses it, every loop, all of it told from behind: he freezes; his shoulders come up round his ears, his head
-// sinks between them, his back rounds, his fists clench over the keys and the mouse, he breathes hard; both fists go up
-// and come down on the desk (the keys, the can, the CRT jump); his head snaps round to the Game Boy; he snatches it,
-// half stands, leans back and cocks it up by his right ear (its back to us: the cartridge with its red label, the
-// ridged battery cover) and HURLS it: it leaves his hand early in the swing and flies on alone, tumbling, across the
-// desk into its far right corner (his hand stops short, open), where it bursts (a fireball of faceted
-// white-hot/orange/red shards turning to black smoke, sparks, the shells, the cartridge, the battery cover, the AAs,
-// the red A/B buttons thrown up high and raining back onto the desk). He flinches from it, then sits glaring at the
-// bits, fists on the desk, shoulders heaving, as the smoke drifts off to the right, away from the screen. He respawns;
-// a fresh Game Boy drops into its spot against the can, turned to him; the bits vanish in the clearing smoke and he
-// goes back to his game.
+// Dead, he hammers GG LOSERS into the game's chat with both hands, the line on the screen growing a letter with each
+// key that goes down, and slams Enter. Then he loses it anyway, every loop, all of it told from behind: he freezes; his
+// shoulders come up, his head sinks between them, his back rounds, his fists clench over the keys, he breathes hard;
+// both fists go up, out to his sides, and come down on the desk in front of him (the keys, the can, the CRT jump); his
+// head snaps round to the Game Boy; he snatches it, half stands, leans back twisting away and cocks it up behind his
+// head, the elbow up and out (its back to us: the cartridge with its red label, the ridged battery cover) and HURLS it:
+// it leaves his hand early in the swing and flies on alone, tumbling, across the desk into its far right corner (his
+// hand stops short, open), where it bursts (a fireball of faceted white-hot/orange/red shards turning to black smoke,
+// sparks, the shells, the cartridge, the battery cover, the AAs, the red A/B buttons thrown up high and raining back
+// onto the desk). He flinches from it, then sits glaring at the bits, fists on the desk, shoulders heaving, as the
+// smoke drifts off to the right, away from the screen. He respawns; a fresh Game Boy drops into its spot against the
+// can, turned to him; the bits vanish in the clearing smoke and he goes back to his game.
 // Comic timing: anticipation (the freeze, the fists, the wind-up), impact (a tug on the page's web, a camera kick),
 // hold, aftermath, a clean reset. Hover: he glances back over his shoulder at you, annoyed at being watched (his
 // profile, a narrowed side-eye up at you), then back to his game. Click: the rage right now (once it's under way, the
@@ -32,6 +35,7 @@
 // front); smoke, sparks, flames and the flash all fade or shrink before the box's edges, which are invisible on the page.
 import { ConvexGeometry } from '/assets/vendor/three/addons/geometries/ConvexGeometry.js';
 import { mergeGeometries } from '/assets/vendor/three/addons/utils/BufferGeometryUtils.js';
+import { v } from '/assets/v.js';
 
 const clamp = (x, a, b) => (x < a ? a : x > b ? b : x);
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -55,8 +59,9 @@ const SW = 80, SH = 60, SX = 3;
 const FONT = {
   0: '111101101101111', 1: '010110010010111', 2: '111001111100111', 3: '111001111001111', 4: '101101111001001',
   5: '111100111001111', 6: '111100111101111', 7: '111001001001001', 8: '111101111101111', 9: '111101111001111',
-  A: '010101111101101', E: '111100110100111', N: '110101101101101', P: '110101110100100', R: '110101110101101',
-  S: '011100010001110', W: '101101111111101', '!': '010010010000010', '+': '000010111010000', ' ': '000000000000000',
+  A: '010101111101101', E: '111100110100111', G: '011100101101011', L: '100100100100111', N: '110101101101101',
+  O: '111101101101111', P: '110101110100100', R: '110101110101101', S: '011100010001110', W: '101101111111101',
+  '!': '010010010000010', '+': '000010111010000', ':': '000010000010000', ' ': '000000000000000',
 };
 
 /** A spring on one value: k stiffness, z damping ratio (below 1 it overshoots: weight). */
@@ -74,7 +79,7 @@ export async function create({ THREE, stage, reduced }) {
   scene.background = null;
   const camera = new THREE.PerspectiveCamera(24, 1.37, 0.1, 60);
   const rand = rng(1907);
-  const lettersP = fetch('/assets/3d/bin-letters.json').then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  const lettersP = fetch(v('/assets/3d/bin-letters.json')).then((r) => (r.ok ? r.json() : null)).catch(() => null);
 
   // ---- light: a white key from high up behind his right shoulder, a cool fill, a rim; the screen's own coloured light on
   // his hands and the desk; the explosion's flash
@@ -173,7 +178,7 @@ export async function create({ THREE, stage, reduced }) {
   // The set. World units ~ metres. Origin on the floor under the chair; +x toward the desk (his forward), +z his right
   // (the side we watch from), +y up.
   const DESK_Y = 0.74, DX0 = 0.42, DX1 = 1.02, DZ = 0.6;
-  const PAD = { x: 0.62, z: 0.25 };
+  const PAD = { x: 0.6, z: 0.31, r: 0.11 };                               // the mouse pad: right of the keyboard
 
   // ---- the desk
   const desk = new THREE.Group(); scene.add(desk);
@@ -188,7 +193,7 @@ export async function create({ THREE, stage, reduced }) {
     }
     k.add(box(0.03, 0.05, 2 * DZ - 0.1, [DX1 - 0.05, DESK_Y - 0.07, 0]), 'gun');                 // a back rail
     k.add(box(DX1 - DX0 - 0.1, 0.05, 0.03, [(DX0 + DX1) / 2, DESK_Y - 0.07, DZ - 0.05]), 'gun');
-    k.add(slab(PAD.x - 0.12, PAD.x + 0.12, DESK_Y, DESK_Y + 0.004, PAD.z - 0.12, PAD.z + 0.12, 0.003), 'graphite');   // the mouse pad
+    k.add(slab(PAD.x - PAD.r, PAD.x + PAD.r, DESK_Y, DESK_Y + 0.004, PAD.z - PAD.r, PAD.z + PAD.r, 0.003), 'graphite');   // the mouse pad
     k.build(desk);
   }
 
@@ -215,7 +220,7 @@ export async function create({ THREE, stage, reduced }) {
   })();
 
   // ---- the keyboard: black base, bone keycaps (one instanced batch), Q W E R in red (his four spells)
-  const KB = { x: 0.55, z: -0.34, yaw: 0.26 };                           // off to his left, angled: his left hand shows past his head
+  const KB = { x: 0.535, z: -0.06, yaw: 0.04 };                          // square in front of him, the mouse to its right
   const keyboard = new THREE.Group(); keyboard.position.set(KB.x, DESK_Y, KB.z); keyboard.rotation.y = KB.yaw; scene.add(keyboard);
   kit().add(hull(sym([[-0.085, 0, 0.235], [0.085, 0, 0.235], [-0.085, 0.016, 0.235], [0.085, 0.026, 0.235], [-0.08, 0.02, 0.24], [0.08, 0.03, 0.24]])), 'ink').build(keyboard);
   const KP = 0.031, KCOLS = 14, KROWS = 4;
@@ -325,8 +330,9 @@ export async function create({ THREE, stage, reduced }) {
   // face at a slant (the green screen, the D-pad, the red A/B, all turned away from us toward him), its side and its
   // cartridge; its screen's green light falls on the desk in front of it, toward him
   const GB_LEAN = 0.35, GB_HH = 0.074 * GBS, GB_HT = (GB_T * GBS) / 2;
-  const GB_F = new V(0.2 - 0.54, 0, 0.1 - 0.47).normalize();               // flat, toward his seat
-  const GB_HOME = new V(0.54, DESK_Y + GB_HH * Math.cos(GB_LEAN) + GB_HT * Math.sin(GB_LEAN), 0.47);   // on its back bottom edge
+  const GB_AT = { x: 0.57, z: 0.5 };
+  const GB_F = new V(0.2 - GB_AT.x, 0, 0.1 - GB_AT.z).normalize();          // flat, toward his seat
+  const GB_HOME = new V(GB_AT.x, DESK_Y + GB_HH * Math.cos(GB_LEAN) + GB_HT * Math.sin(GB_LEAN), GB_AT.z);   // on its back bottom edge
   const GB_HOME_Q = (() => {
     const z = GB_F.clone().multiplyScalar(Math.cos(GB_LEAN)).setY(Math.sin(GB_LEAN)), y = GB_F.clone().multiplyScalar(-Math.sin(GB_LEAN)).setY(Math.cos(GB_LEAN));
     return new Q().setFromRotationMatrix(new THREE.Matrix4().makeBasis(new V().crossVectors(y, z), y, z));
@@ -439,24 +445,30 @@ export async function create({ THREE, stage, reduced }) {
   const hips = new THREE.Group(); hips.position.set(0.02, 0.12, 0); chairTop.add(hips);
   const spine = new THREE.Group(); spine.position.set(0, 0.04, 0); hips.add(spine);
   const chest = new THREE.Group(); chest.position.set(0, 0.2, 0); chest.rotation.order = 'YZX'; spine.add(chest);
-  const neck = new THREE.Group(); neck.position.set(0.035, 0.23, 0); neck.rotation.order = 'YZX'; chest.add(neck);
+  const NECK_Y = 0.245;
+  const neck = new THREE.Group(); neck.position.set(0.05, NECK_Y, 0); neck.rotation.order = 'YZX'; chest.add(neck);
   const HS = 1.4;                                                            // his head: a touch big for his body (stylised, still a kid's)
   const head = new THREE.Group(); head.name = 'head'; head.position.set(0.015, 0.056, 0); head.rotation.order = 'YZX'; head.scale.setScalar(HS); neck.add(head);
 
-  // body: a red hoodie on a skinny frame: the ribbed hem, the kangaroo pocket, the hood bunched behind his neck. Its
-  // upper half (torso) stretches up when he shrugs: the shoulders and the hood rise round his sinking head
+  // body: a red hoodie on a skinny frame: the ribbed hem, the kangaroo pocket; the hood down, lying in a thick roll
+  // round the back of his neck, low on his shoulders, under the back of his head and the headset's cups (never up into
+  // his hair, the cups or the mic, whatever his head does). Its upper half (torso) stretches up a little when he shrugs:
+  // his shoulders rise round his sinking head; the hood (collar) sinks with his head, so it keeps its place under it
   const torso = new THREE.Group(); chest.add(torso);
+  const collar = new THREE.Group(); chest.add(collar);
   kit()
     .add(hull(sym([[0.1, -0.05, 0.112], [0.11, 0.08, 0.118], [0.098, 0.2, 0.12], [-0.1, -0.05, 0.112], [-0.11, 0.1, 0.118], [-0.1, 0.22, 0.122], [0.114, 0.05, 0], [-0.116, 0.08, 0]])), 'hood')
     .add(hull(sym([[0.102, -0.072, 0.115], [-0.102, -0.072, 0.115], [0.107, -0.036, 0.118], [-0.107, -0.036, 0.118], [0.117, -0.054, 0], [-0.118, -0.054, 0]])), 'hoodD')
     .add(hull(sym([[0.1165, -0.012, 0.0], [0.114, -0.012, 0.078], [0.12, 0.072, 0.0], [0.117, 0.074, 0.062], [0.104, -0.012, 0.088], [0.106, 0.08, 0.072]])), 'hoodD')
     .build(spine);
   kit()
-    .add(hull(sym([[0.09, -0.02, 0.118], [0.1, 0.09, 0.128], [0.07, 0.185, 0.122], [-0.11, -0.02, 0.122], [-0.13, 0.09, 0.132], [-0.11, 0.19, 0.13],
-      [-0.02, 0.225, 0.168], [0.03, 0.205, 0.172], [-0.075, 0.21, 0.165], [0.025, 0.255, 0.072], [-0.065, 0.255, 0.078]])), 'hood')
-    .add(hull(sym([[-0.05, 0.2, 0.1], [0.02, 0.24, 0.1], [-0.15, 0.2, 0.08], [-0.165, 0.27, 0.07], [-0.12, 0.325, 0.06], [-0.06, 0.3, 0.09], [0.0, 0.27, 0.08], [-0.15, 0.3, 0.0]])), 'hood')
-    .add(hull(sym([[-0.03, 0.24, 0.06], [0.04, 0.25, 0.058], [-0.1, 0.25, 0.05], [-0.1, 0.3, 0.04], [0.0, 0.29, 0.06]])), 'hoodD')
+    .add(hull(sym([[0.09, -0.02, 0.118], [0.1, 0.09, 0.128], [0.07, 0.185, 0.122], [-0.11, -0.02, 0.122], [-0.13, 0.09, 0.132], [-0.12, 0.17, 0.13],
+      [-0.02, 0.215, 0.168], [0.03, 0.2, 0.172], [-0.08, 0.19, 0.165], [0.03, 0.235, 0.07], [-0.07, 0.205, 0.078]])), 'hood')
     .build(torso);
+  kit()                                                                      // the hood's roll, its dark inside on top
+    .add(hull(sym([[-0.06, 0.19, 0.1], [0.0, 0.205, 0.092], [-0.15, 0.17, 0.085], [-0.185, 0.2, 0.06], [-0.16, 0.225, 0.045], [-0.1, 0.225, 0.08], [-0.19, 0.205, 0.0], [-0.15, 0.232, 0.0]])), 'hood')
+    .add(hull(sym([[-0.03, 0.212, 0.062], [0.01, 0.216, 0.06], [-0.09, 0.215, 0.05], [-0.13, 0.228, 0.03], [-0.13, 0.228, 0.0], [-0.05, 0.218, 0.065]])), 'hoodD')
+    .build(collar);
   kit().add(new THREE.CylinderGeometry(0.039, 0.044, 0.096, 7), 'skin', xf([0.0, 0.025, 0])).build(neck);   // a short neck: a kid's
   const strings = [-1, 1].map((s) => {
     const m = new THREE.Mesh(own(clean(new THREE.CylinderGeometry(0.004, 0.004, 1, 4).translate(0, -0.5, 0))), M.bone);
@@ -1892,18 +1904,29 @@ export async function create({ THREE, stage, reduced }) {
     for (const u of sim.units) if (u.alive && u.kind === 'hero' && u.team === 1 && u.vis > 0.5 && !u.invis) px(...mm(u.x, u.y), P.red);
     px(...mm(h.x, h.y), Math.floor(t * 4) % 2 ? P.white : P.sel);
     { const [x0, y0] = mm(cx, cy), [x1, y1] = mm(cx + SW, cy + FH); for (let x = Math.round(x0); x <= Math.round(x1); x++) { px(x, y0, P.white, 0.45); px(x, y1, P.white, 0.45); } for (let y = Math.round(y0) + 1; y < Math.round(y1); y++) { px(x0, y, P.white, 0.45); px(x1, y, P.white, 0.45); } }
-    // dead: the picture goes grey (his cursor stays gold); the respawn counter over it; the kill feed
+    // dead: the picture goes grey (his cursor stays gold); the respawn counter over it; the kill feed; and when he
+    // types (opts.chat), the chat box along the bottom, the counter a size smaller above it
     const [mx, my] = cursorAt(sim.ri, t);
     if (sim.death >= 0) {
-      const g = smooth(0, 0.45, t - sim.death);
+      const g = smooth(0, 0.45, t - sim.death), chat = opts.chat;
       for (let i = 0; i < SW * SH * 3; i += 3) { const l = 0.3 * FB[i] + 0.59 * FB[i + 1] + 0.11 * FB[i + 2]; FB[i] += (l * 0.74 - FB[i]) * g; FB[i + 1] += (l * 0.74 - FB[i + 1]) * g; FB[i + 2] += (l * 0.8 - FB[i + 2]) * g; }
       drawSprite(CURSOR, mx, my, { tl: true });
       const k = t - sim.death - 0.3;
       if (k > 0) {
-        const n = String(Math.max(1, Math.ceil(opts.respawn ?? 9 - (t - sim.death))));
-        disc(SW / 2, 29, 16, P.black, 0.5 * clamp(k * 4, 0, 1));
-        text('RESPAWN', SW / 2 - textW('RESPAWN') / 2, 15, C(0xd8d8d8), 1, P.black);
-        text(n, SW / 2 - textW(n, 4) / 2, 23 + pop(k), P.white, 4, P.black);
+        const n = String(Math.max(1, Math.ceil(opts.respawn ?? 9 - (t - sim.death)))), sz = chat ? 3 : 4, y0 = chat ? 11 : 15;
+        disc(SW / 2, y0 + (chat ? 12 : 14), chat ? 11 : 16, P.black, 0.5 * clamp(k * 4, 0, 1));
+        text('RESPAWN', SW / 2 - textW('RESPAWN') / 2, y0, C(0xd8d8d8), 1, P.black);
+        text(n, SW / 2 - textW(n, sz) / 2, y0 + (chat ? 6 : 8) + pop(k), P.white, sz, P.black);
+      }
+      // the chat: his tag in his side's teal, the line in big white capitals typed in as he hits the keys, a caret
+      // blinking while he types; sent (Enter), the box's frame goes and the line stays up
+      if (chat) {
+        const a = clamp((t - sim.death) * 6, 0, 1);
+        rect(2, 33, SW - 4, 17, P.black, 0.62 * a);
+        if (!chat.sent) { rect(2, 33, SW - 4, 1, P.hudE, a); rect(2, 33, 1, 17, P.hudE, a); rect(SW - 3, 33, 1, 17, P.hudE, a); }
+        text('PRO:', 4, 34, P.teal, 1, P.black, a);
+        text(chat.text, 4, 40, P.white, 2, P.black);
+        if (!chat.sent && Math.floor(t * 4) % 2 === 0) rect(4 + chat.text.length * 8, 49, 6, 1, P.white, a);
       }
       const e = outQ((t - sim.death - 0.5) / 0.22);
       if (e > 0) {
@@ -1990,9 +2013,10 @@ export async function create({ THREE, stage, reduced }) {
   }
 
   // =====================================================================================================================
-  // The loop: each cycle he plays a round (the rounds, his three deaths, rotate), dies, fumes, throws the Game Boy.
-  const SEQ = [['play', 0], ['seethe', 0.95], ['slam', 0.55], ['snap', 0.3], ['grab', 0.42], ['windup', 0.55], ['throw', 0.6], ['flinch', 0.55], ['after', 1.75], ['reset', 1.35], ['resume', 0.45]];
-  const cyc = { i: 0, game: ROUNDS[0], ph: [], pi: 0, pu: 0, gu: 0, rush: false, slammed: false };
+  // The loop: each cycle he plays a round (the rounds, his three deaths, rotate), dies, types GG LOSERS into the game's
+  // chat, fumes, throws the Game Boy.
+  const SEQ = [['play', 0], ['type', 1.55], ['seethe', 0.95], ['slam', 0.55], ['snap', 0.3], ['grab', 0.42], ['windup', 0.55], ['throw', 0.6], ['flinch', 0.55], ['after', 1.75], ['reset', 1.35], ['resume', 0.45]];
+  const cyc = { i: 0, game: ROUNDS[0], ph: [], pi: 0, pu: 0, gu: 0, rush: false, slammed: false, typing: true };
   const cur = () => cyc.ph[cyc.pi];
   const phase = () => cyc.ph[cyc.pi].n;
 
@@ -2014,19 +2038,44 @@ export async function create({ THREE, stage, reduced }) {
   keyboard.updateMatrixWorld(true);
   const KEY_HOME = new V(); kbLocal(QWER[1], KEY_HOME).lerp(kbLocal(QWER[2], _p), 0.5);   // over W and E
   const LH_HOME = KEY_HOME.clone().add(new V(-0.085, 0.01, 0.0));
-  const RH_HOME = MOUSE0.clone().add(new V(-0.125, 0.044, -0.005));       // a claw grip: the palm behind the mouse
-  // the rage's marks: where his fists come down (the left on the keys, the right by the mouse) and rest after; where his
-  // hand takes the Game Boy (in front of its screen); where it lands and goes off (the desk's far right corner, right of
-  // the monitor: in clear view, well clear of his hand and the screen). The wind-up: off the desk low and back by his
-  // side (CARRY), then up, cocked by his right ear (WIND; in the picture: beside his head, by his headset's cup, its back
-  // to us), never forward past the screen. The throw: whipped forward and down and let go early in the swing (REL, at
-  // REL_T into the throw); the hand follows through a little way (FOLLOW) and stops there while the Game Boy flies on
-  // alone, tumbling, for T_FLY
-  const SLAM_L = new V(0.52, DESK_Y + 0.045, -0.12), SLAM_R = new V(0.5, DESK_Y + 0.03, 0.17);
+  const GRIP = 0.1;                                                         // wrist to mouse: his palm over its back, the fingers on the buttons
+  const RH_HOME = MOUSE0.clone().add(new V(-GRIP, 0.048, -0.005));
+  // the rage's marks: where his fists go up (head high, out to the sides, clear of his head: both of them seen past it)
+  // and come down (in front of him: the left on the keys, the right beside them, by the mouse) and rest after; where
+  // his hand takes the Game Boy (in front of its screen); where it lands and goes off (the desk's far right corner,
+  // right of the monitor: in clear view, well clear of his hand and the screen). The wind-up: off the desk low and back
+  // by his side (CARRY), then up and back, cocked behind his head with the elbow up and out (WIND; in the picture: up
+  // behind his head against the desk, its back to us; never held by his ear, which reads as a phone call), never
+  // forward past the screen. The throw: whipped forward and down and let go early in the swing (REL, at REL_T into the
+  // throw); the hand follows through a little way (FOLLOW) and stops there while the Game Boy flies on alone, tumbling,
+  // for T_FLY
+  const SLAM_L = new V(0.53, DESK_Y + 0.045, 0.0), SLAM_R = new V(0.5, DESK_Y + 0.03, 0.2);
+  const UP_L = new V(0.33, DESK_Y + 0.36, -0.3), UP_R = new V(0.31, DESK_Y + 0.38, 0.31);
   const EDGE_L = new V(DX0 + 0.05, DESK_Y + 0.035, -0.15), EDGE_R = new V(DX0 + 0.05, DESK_Y + 0.035, 0.17);
   const GRAB_AT = GB_HOME.clone().addScaledVector(GB_F, 0.085).add(new V(0, 0.045, 0));
   const SPIKE = new V(0.86, DESK_Y + 0.035, 0.44);
-  const WIND = new V(-0.1, 1.36, 0.4), CARRY = new V(0.06, 1.0, 0.5), REL = new V(0.18, 1.12, 0.48), REL_T = 0.06, FOLLOW = new V(0.33, 1.02, 0.3), T_FLY = 0.26;
+  const WIND = new V(-0.22, 1.4, 0.3), CARRY = new V(-0.04, 0.98, 0.58), REL = new V(0.18, 1.12, 0.48), REL_T = 0.06, FOLLOW = new V(0.33, 1.02, 0.3), T_FLY = 0.26;
+  // GG LOSERS: dead, before the rage, he hammers it into the game's chat with both hands, a key every TYPE_DT (the
+  // screen's line grows a letter with each one), and slams Enter with his right. Each press: its key (row, column on
+  // the board), the hand that hits it (0 left, 1 right), when (seconds into the beat)
+  const keyAt = (r, c) => keyList.findIndex((kk) => kk.r === r && kk.c === c);
+  const TYPE_LINE = 'GG LOSERS', TYPE_T0 = 0.2, TYPE_DT = 0.1;
+  const TYPE_KEYS = [[2, 5, 0], [2, 5, 0], [4, 6, 1], [2, 9, 1], [1, 9, 1], [2, 2, 0], [1, 3, 0], [1, 4, 0], [2, 2, 0], [2, 13, 1]]
+    .map(([r, c, hand], i) => ({ key: keyAt(r, c), hand, at: TYPE_T0 + i * TYPE_DT + (i === 9 ? 0.14 : 0) }));
+  const TYPE_SENT = TYPE_KEYS[TYPE_KEYS.length - 1].at;
+  const TYPE_PALM = new V(-0.075, 0.012, 0);                                 // the palm behind the key it hits
+  const typePos = (p, out) => { kbLocal(p.key, out).add(TYPE_PALM); if (keyList[p.key].r === 4) out.z += 0.05; return out; };   // the space bar: his right thumb, on its right half
+  const ENTER_AT = typePos(TYPE_KEYS[TYPE_KEYS.length - 1], new V());
+  /** The chat line on the screen this frame (null: he isn't typing this cycle). */
+  function chatNow() {
+    if (!cyc.typing) return null;
+    const ti = cyc.ph.findIndex((q) => q.n === 'type');
+    if (cyc.pi < ti) return cyc.gu >= cyc.game.fail ? { text: '', sent: false } : null;   // dead, about to type
+    const pu = cyc.pi === ti ? cyc.pu : 99;
+    let n = 0;
+    for (let i = 0; i < TYPE_LINE.length; i++) if (TYPE_KEYS[i].at <= pu) n = i + 1;
+    return { text: TYPE_LINE.slice(0, n), sent: pu >= TYPE_SENT };
+  }
   const G3 = new V(0, -9.8, 0);
   const SCREEN_W = new V();
   const gaze = new V();                                                      // what his eyes are on (world)
@@ -2045,7 +2094,7 @@ export async function create({ THREE, stage, reduced }) {
   function newCycle(i, rushed) {
     cyc.i = i; cyc.game = ROUNDS[i % ROUNDS.length];
     cyc.ph = SEQ.map(([n, d]) => ({ n, d: n === 'play' ? cyc.game.fail + 0.2 : d }));
-    cyc.pi = 0; cyc.pu = 0; cyc.gu = 0; cyc.slammed = false;
+    cyc.pi = 0; cyc.pu = 0; cyc.gu = 0; cyc.slammed = false; cyc.typing = true;
     if (rushed) rage(true);
   }
   function jumpTo(name) { cyc.pi = cyc.ph.findIndex((p) => p.n === name); cyc.pu = 0; enter(name); }
@@ -2055,7 +2104,7 @@ export async function create({ THREE, stage, reduced }) {
   function rage(fromStart = false) {
     const n = phase();
     if (!fromStart && n === 'after') { cyc.rush = true; jumpTo('reset'); return; }
-    if (fromStart || n === 'play') { cyc.gu = Math.max(cyc.gu, cyc.game.fail + 0.05); setD('seethe', 0.45); jumpTo('seethe'); }
+    if (fromStart || n === 'play') { cyc.gu = Math.max(cyc.gu, cyc.game.fail + 0.05); cyc.typing = false; setD('seethe', 0.45); jumpTo('seethe'); }   // (no time for the chat)
     else cyc.rush = true;
   }
 
@@ -2209,13 +2258,37 @@ export async function create({ THREE, stage, reduced }) {
     const inChair = (out, x, y, z = 0) => chairTop.localToWorld(out.set(x, y, z));
 
     // ---- the rage, beat by beat (all of it reads from behind: his shoulders, his back, his arms, the turn of his head)
-    if (n === 'seethe') {
-      // he died. A freeze; then it builds: the shoulders come right up round his ears, his head sinks between them, his
-      // back rounds over the desk, both hands come up off the keys and the mouse balled into fists, trembling; he
-      // breathes hard (his shoulders heave)
-      mashOn = 0; onMouse = k < 0.15 ? 1 : 0;
+    if (n === 'type') {
+      // GG LOSERS: his right hand off the mouse, both over the keys, each hammering its letters: up between them (higher
+      // the longer the wait), down hard on the beat; Enter with the right, hardest. Hunched in at the screen, teeth bared;
+      // sent, a beat, glaring at it
+      mashOn = 0; onMouse = 0;
+      for (const hi of [0, 1]) {
+        let prev = null, next = null;
+        for (const p of TYPE_KEYS) if (p.hand === hi) { if (p.at <= pu) prev = p; else if (!next) next = p; }
+        const out = hi ? rh : lh;
+        if (prev) typePos(prev, _a); else _a.copy(out);                      // (before its first key: from where it was)
+        if (next) {
+          const t0 = prev ? prev.at : 0, f = clamp((pu - t0) / (next.at - t0), 0, 1);
+          out.copy(_a).lerp(typePos(next, _b), smooth(0.25, 0.9, f));
+          out.y += Math.min(0.08, 0.4 * (next.at - t0)) * Math.sin(Math.PI * f);
+        } else out.copy(_a).setY(_a.y + 0.035 * smooth(0, 0.25, pu - prev.at));   // done: up off the keys a little
+      }
+      const sent = smooth(TYPE_SENT, TYPE_SENT + 0.2, pu);
+      lean = lerp(0.26, 0.18, sent); hunch = lerp(0.52, 0.48, sent); shrug = lerp(0.3, 0.2, sent); twist = 0.02;
+      pitch = toScreen.pitch - 0.04;
+      cL = 0.7; cR = pu > TYPE_SENT - 0.12 ? 1 : 0.7;
+      browT = lerp(-1.0, -0.75, sent); lidsT = lerp(0.12, 0.3, sent); jawT = 0.03; gritT = lerp(0.85, 0, sent);
+      kL = kR = 1400; zL = zR = 0.8;
+      sp.lean.set(160, 0.8);
+    } else if (n === 'seethe') {
+      // GG sent; a freeze; then it builds anyway: the shoulders come right up round his ears, his head sinks between
+      // them, his back rounds over the desk, both hands come up off the keys (and the mouse, when he didn't type) balled
+      // into fists, trembling; he breathes hard (his shoulders heave)
+      if (cyc.typing) rh.copy(ENTER_AT);
+      mashOn = 0; onMouse = !cyc.typing && k < 0.15 ? 1 : 0;
       const c = smooth(0.1, 0.45, k), br = Math.sin(pu * 11);
-      shrug = lerp(0.15, 1.3, c) + 0.28 * br * c; hunch = 0.5 + 0.16 * c + 0.05 * br * c; lean = lerp(lean, 0.3, c);
+      shrug = lerp(0.15, 1.1, c) + 0.2 * br * c; hunch = 0.5 + 0.16 * c + 0.05 * br * c; lean = lerp(lean, 0.3, c);
       lh.add(_t.set(-0.06 * c, 0.075 * c, 0.03 * c)); rh.add(_t.set(-0.07 * c, 0.08 * c, -0.02 * c));
       lh.y += 0.006 * c * Math.sin(pu * 71); rh.y += 0.006 * c * Math.sin(pu * 63); rh.z += 0.004 * c * Math.sin(pu * 57);
       cL = lerp(0.34, 1, smooth(0.15, 0.4, k)); cR = lerp(0.4, 1, smooth(0.12, 0.35, k));
@@ -2226,7 +2299,7 @@ export async function create({ THREE, stage, reduced }) {
       // both fists up, and down on the desk: the left on the keys, the right by the mouse. Everything jumps.
       mashOn = 0; onMouse = 0;
       const up = pu < 0.24;
-      if (up) { lh.copy(SLAM_L).add(_t.set(-0.16, 0.3, -0.03)); rh.copy(SLAM_R).add(_t.set(-0.17, 0.32, 0.03)); } else { lh.copy(SLAM_L); rh.copy(SLAM_R); }
+      if (up) { lh.copy(UP_L); rh.copy(UP_R); } else { lh.copy(SLAM_L); rh.copy(SLAM_R); }
       // (going up, his back stays bent over the desk, his chin down and his teeth gritted: the back of his head to us,
       // never his face)
       lean = up ? 0.22 : 0.34; hunch = up ? 0.5 : 0.62; shrug = up ? 0.8 : 1; rise = up ? 0.03 : 0; recline = up ? 0.02 : 0;
@@ -2258,9 +2331,9 @@ export async function create({ THREE, stage, reduced }) {
       gaze.copy(gbs.p);
       kL = 200; kR = 320;
     } else if (n === 'windup') {
-      // half up out of the chair, leaning back and turning, the Game Boy carried back low by his side and cocked up by
-      // his right ear (the elbow up and out to his side), a last pull back; the left hand braced on the desk's edge, eyes
-      // on the spot (his head turned only part way to it: his face stays away from us)
+      // half up out of the chair, leaning back and twisting away, the Game Boy carried back low by his side and cocked
+      // up behind his head (the elbow up and out to his side), a last pull back; the left hand braced on the desk's
+      // edge, eyes on the spot (his head turned only part way to it: his face stays away from us)
       mashOn = 0; onMouse = 0; gbHold = true;
       const w = smooth(0, 0.6, k), v = 1 - w;
       lh.copy(EDGE_L);
@@ -2270,7 +2343,7 @@ export async function create({ THREE, stage, reduced }) {
       rh.y += 0.006 * Math.sin(pu * 60) * w;
       rh.addScaledVector(_a.set(-0.06, 0.03, 0.01), smooth(0.7, 1, k));
       cock = w;
-      rise = 0.08 * w; lean = lerp(0.16, -0.1, w); recline = 0.06 * w; hunch = lerp(0.5, 0.32, w); twist = lerp(-0.25, -0.5, w); shrug = 0.35;
+      rise = 0.08 * w; lean = lerp(0.16, -0.15, w); recline = 0.06 * w; hunch = lerp(0.5, 0.32, w); twist = lerp(-0.25, -0.65, w); shrug = 0.35;
       yaw = toSpike.yaw * 0.5; pitch = toSpike.pitch + 0.08 * w;
       jawT = 0.9; browT = -1.1; lidsT = 0; gritT = 0;
       cR = 0.85; cL = 0.6; gaze.copy(SPIKE);
@@ -2337,6 +2410,12 @@ export async function create({ THREE, stage, reduced }) {
       if (look.t > 0.75 && look.t < 1.1) rollH = 0.08 * Math.sin((look.t - 0.75) * 28) * L;
     }
 
+    // ---- typing: each key goes down on its beat (Enter: the whole desk jumps)
+    if (n === 'type') for (const p of TYPE_KEYS) if (pu - h < p.at && pu >= p.at) {
+      keyList[p.key].press = 1; wob.kb.v += 0.08;
+      if (p.at === TYPE_SENT) { jolt(0.3); monJ.vh += 0.15; mon.rock.v += 0.8; }
+    }
+
     // ---- mashing: the left hand hops between Q, W, E and R; each press drops the key under it. A spell going off on
     // the screen is its own key, struck right then.
     mash.rate = act.mash * mashOn;
@@ -2367,7 +2446,7 @@ export async function create({ THREE, stage, reduced }) {
     for (const hd of hands) if (hd.x.x > DX0 - 0.02 && hd.y.x < DESK_Y + 0.03) { hd.y.x = DESK_Y + 0.03; if (hd.y.v < 0) hd.y.v *= -0.15; }
     if (onMouse > 0.5) {                                                       // the mouse goes where his palm is (it rides under his hand)
       const hd = arms[1].hand;
-      _p.set(0.125, 0, 0).applyQuaternion(hd.quaternion).add(hd.position); _a.set(1, 0, 0).applyQuaternion(hd.quaternion);
+      _p.set(GRIP, 0, 0).applyQuaternion(hd.quaternion).add(hd.position); _a.set(1, 0, 0).applyQuaternion(hd.quaternion);
       mouseAt.x += (_p.x - mouseAt.x) * 0.5; mouseAt.z += (_p.z - mouseAt.z) * 0.5; mouseDir.yaw += (Math.atan2(-_a.z, _a.x) - mouseDir.yaw) * 0.5;
     }
 
@@ -2503,8 +2582,12 @@ export async function create({ THREE, stage, reduced }) {
     spine.rotation.z = -sp.lean.x;
     chest.rotation.set(0, sp.twist.x, -sp.hunch.x);
     const shrug = sp.shrug.x;
-    neck.position.y = 0.23 - 0.05 * shrug;                                    // his head sinks between his shoulders
-    torso.scale.y = 1 + 0.14 * clamp(shrug, 0, 1.5);
+    // hunched over the desk his neck cranes forward and up (his head ahead of his rounded back, not sunk into it); his
+    // head sinks between his shoulders when he shrugs
+    const crane = clamp(sp.hunch.x + sp.lean.x - 0.55, 0, 0.6);
+    neck.position.set(0.05 + 0.08 * crane, NECK_Y + 0.06 * crane - 0.012 * shrug, 0);
+    collar.position.y = neck.position.y - NECK_Y;
+    torso.scale.y = 1 + 0.05 * clamp(shrug, 0, 1.5);
     const yaw = sp.yaw.x, pitch = sp.pitch.x;
     neck.rotation.set(0, yaw * 0.35, pitch * 0.3 - 0.25);
     head.rotation.set(sp.roll.x, yaw * 0.65, pitch * 0.7 + 0.25 * 0.95);
@@ -2528,14 +2611,12 @@ export async function create({ THREE, stage, reduced }) {
     }
 
     arms.forEach((arm, i) => {
-      arm.sh.set(-0.01 - 0.01 * shrug, 0.2 + 0.06 * shrug, arm.s * (0.155 - 0.012 * shrug)); chest.localToWorld(arm.sh);
+      arm.sh.set(-0.01 - 0.01 * shrug, 0.2 + 0.035 * shrug, arm.s * (0.155 + 0.004 * shrug)); chest.localToWorld(arm.sh);   // (a shrug: up and a touch out, under the cups)
       getHand(i, arm.tgt);
       const up = smooth(DESK_Y + 0.12, DESK_Y + 0.32, arm.tgt.y);           // playing: elbows in and down; hands up: out
       lpole.set(lerp(-0.3, -0.35, up), lerp(-0.95, -0.6, up), arm.s * lerp(0.08, 0.9, up));
-      // the left one on the keys (off to his left): the elbow forward and in, the forearm angled across to the keyboard
-      if (i === 0) lpole.lerp(_d.set(0.4, -0.75, 0.6), 1 - up);
       lpole.normalize();
-      if (i === 1 && sp.cock.x > 0.001) lpole.lerp(_d.set(-0.05, 0.25, 1), clamp(sp.cock.x, 0, 1)).normalize();   // cocked to throw: the elbow up and out to his side
+      if (i === 1 && sp.cock.x > 0.001) lpole.lerp(_d.set(-0.35, 0.3, 1), clamp(sp.cock.x, 0, 1)).normalize();   // cocked to throw: the elbow up and out to his side
       ik(arm.sh, arm.tgt, UA, FA, lpole, arm.el, arm.wr);
       seg(arm.upper, arm.sh, arm.el);
       _c.subVectors(arm.wr, arm.el).normalize();
@@ -2674,7 +2755,7 @@ export async function create({ THREE, stage, reduced }) {
     const n = phase(), next = ROUNDS[(cyc.i + 1) % ROUNDS.length];
     const t0 = performance.now();
     if (n === 'reset' || n === 'resume') next.draw(-toEnd(), { fade: n === 'reset' ? 1 - cyc.pu / 0.18 : 0 });
-    else cyc.game.draw(cyc.gu, { respawn: toPhase('reset') });
+    else cyc.game.draw(cyc.gu, { respawn: toPhase('reset'), chat: chatNow() });
     screenTex.needsUpdate = true;
     const ms = performance.now() - t0; scrStat.ms += ms; scrStat.n++; scrStat.max = Math.max(scrStat.max, ms);
   }
