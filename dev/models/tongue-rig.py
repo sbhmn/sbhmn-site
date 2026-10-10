@@ -21,16 +21,24 @@
 #     --patch U,V,R  a disc of the colour and normal maps (UV centre, radius) filled smoothly from around it: the dark,
 #                    spotty stain baked in next to the model's small holes (default 0.692,0.773,0.034; none = off)
 #     --smooth S     how smooth the found spine is (Gaussian, model units; default 0.05)
+#     --centre C     how much of each cross-section's offset from the found spine is taken out (default 1: centred;
+#                    0 = as before: a wavy top, the tip curled up toward its top into a lobe)
+#     --dome D       its top raised toward each section's convex hull by D (default 1: the valley between the groove's
+#                    crests filled, one rounded dome; the groove stays painted on)   --dome-under U  the same for its
+#                    underside (default 0.8: its long folds smoothed)
+#     --unshade U    the sculpt's baked lighting taken out of the colour map (default 1; 0 = the map as Tripo baked it)
+#     --keep-pits    leave the crumpled patch round the model's small holes as holes_fill makes it (default: rebuilt)
 #     --render DIR   also render the rest pose and a test pose (Workbench, textured) into DIR, for a look
 #
 # What it does:
 #   1. Imports the FBX, applies its transform, keeps the largest piece (the rest are a few loose crumbs inside),
-#      fills the small holes (each filled face gets one UV, its neighbour's: their corners sat on different islands),
-#      smooth shading.
+#      cuts out the crumpled patch round its small holes and rebuilds it as a smooth disc (see --keep-pits), its
+#      corners' UVs taken from their neighbours' island, smooth shading.
 #   2. Finds the tongue's centreline: a harmonic field over the surface (0 on the root's cap, 1 on the tip's cap), its
 #      level sets are cross-sections; their centroids are the spine. A frame at every point of the spine: the tangent,
 #      the width across (the cross-section's long axis, unwrapped and smoothed), the top (width x tangent), and every
-#      vertex in that frame's coordinates.
+#      vertex in that frame's coordinates. The sections are centred on the spine (--centre) and their top and
+#      underside rounded (--dome, --dome-under).
 #   3. Relaxes it into the rest pose: the bends and the roll between spine frames are scaled down (swing/twist), the
 #      root end is stretched into a stalk (it lives in the bin), the body is stretched a little, and every vertex is
 #      put back in its frame on the new spine. An exact remap (no skinning), so no volume loss or tearing.
@@ -43,7 +51,7 @@
 #   6. PBR material (base colour, normal, roughness, a wet clear coat), textures downscaled (the colour map's baked
 #      white glare capped to pink and its darkest baked occlusion lifted, see --lift: they read as stains once the
 #      tongue moves; the dark, spotty stain baked into the colour and normal maps beside the holes filled, see
-#      --patch), GLB with the skin, no animation, meshopt-compressed geometry (EXT_meshopt_compression: load it
+#      --patch; the luminance that varies over a few centimetres of the surface taken out, see --unshade), GLB with the skin, no animation, meshopt-compressed geometry (EXT_meshopt_compression: load it
 #      with GLTFLoader.setMeshoptDecoder) and WebP textures (EXT_texture_webp). The armature carries the rig as JSON in
 #      its extras ("rig"): per joint the rest position, the top vector and the half width/height of the tongue there
 #      (glTF coordinates), and the cup twins, for the procedural animation.
@@ -69,6 +77,7 @@ def cli():
         'smooth': opt('--smooth', 0.05), 'quality': opt('--quality', 86), 'meshopt': '--plain' not in a,
         'lift': opt('--lift', 0.45),
         'patch': None if opt('--patch', '') == 'none' else [float(x) for x in opt('--patch', '0.692,0.773,0.034').split(',')],
+        'pits': '--keep-pits' not in a, 'centre': opt('--centre', 1.0), 'dome': opt('--dome', 1.0), 'dome_under': opt('--dome-under', 0.8), 'unshade': opt('--unshade', 1.0),
     }
 
 
@@ -109,17 +118,183 @@ for v in bm.verts:
 main = int(np.argmax(sizes))
 bmesh.ops.delete(bm, geom=[v for v in bm.verts if comp[v.index] != main], context='VERTS')
 bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-6)
+# The model's few small holes sit in a crumpled little patch on its underside, halfway along: slivers, a ring of 25
+# vertices within a millimetre, a dangling edge, edges shared by three faces. Filled as they were (and smoothed), the
+# patch kept faces turned inside out, which showed as dark pits on the hanging tongue. So (unless --keep-pits) each
+# such mess is cut out whole, a disc round it 1.6 cm wider than it, and the disc rebuilt: rings of new vertices from its
+# edge in to its middle, on a smooth surface fitted to the skin round it (a quadric over the plane of its mean normal),
+# their UVs eased in from the edge's.
 holes = [e for e in bm.edges if e.is_boundary]
-if holes:
-    filled = bmesh.ops.holes_fill(bm, edges=holes, sides=0)['faces']
-    centres = [fa.calc_center_median() for fa in filled]
+nfill = len(holes)
+centres, fset = [], set()
+uvl = bm.loops.layers.uv.active
+
+
+def taubin(zone, n):
+    """Smooth (v, weight) pairs: a step toward the neighbours' mean, then a slightly bigger step back (Taubin's), so
+    a patch doesn't shrink into a dent."""
+    for it in range(n):
+        k = 0.5 if it % 2 == 0 else -0.53
+        nc = {v: sum((e.other_vert(v).co for e in v.link_edges), Vector((0, 0, 0))) / max(1, len(v.link_edges)) for v, a in zone}
+        for v, a in zone:
+            v.co = v.co + (nc[v] - v.co) * (k * a)
+
+
+def folds():
+    """Vertices whose normal turns away from their neighbours' (a pit, a spike, faces turned inside out)."""
+    bm.normal_update()
+    return [v for v in bm.verts if v.link_edges and v.normal.dot(
+        (sum((e.other_vert(v).normal for e in v.link_edges), Vector()) / len(v.link_edges)).normalized()) < 0.9]
+
+
+if holes and A['pits']:
+    bad = [v.co.copy() for e in bm.edges if not e.is_manifold for v in e.verts]
+    cl = []
+    for b in bad:  # (the mess, in clusters: points within 2 cm of each other)
+        near = [c for c in cl if any((b - x).length < 0.02 for x in c)]
+        for c in near:
+            cl.remove(c)
+        cl.append(sum(near, []) + [b])
+    discs = [[sum(c, Vector()) / len(c), c] for c in cl]
+    discs = [[C, max((b - C).length for b in c) + 0.016, c] for C, c in discs]
+    merged = True
+    while merged:  # (discs that overlap are one disc round both)
+        merged = False
+        for i in range(len(discs)):
+            for j in range(i + 1, len(discs)):
+                if (discs[i][0] - discs[j][0]).length < discs[i][1] + discs[j][1] + 0.01:
+                    c = discs[i][2] + discs[j][2]; C = sum(c, Vector()) / len(c)
+                    discs[i] = [C, max((b - C).length for b in c) + 0.016, c]; del discs[j]; merged = True
+                    break
+            if merged:
+                break
+    for C0, R, c in discs:
+        bm.normal_update()
+        skin = [f for f in bm.faces if R < (f.calc_center_median() - C0).length < R + 0.025]
+        nz = sum((f.normal * f.calc_area() for f in skin), Vector()).normalized()
+        nx = nz.orthogonal().normalized(); ny = nz.cross(nx)
+        bmesh.ops.delete(bm, geom=[v for v in bm.verts if (v.co - C0).length < R], context='VERTS')
+        for it in range(30):  # (and what that leaves hanging: loose edges, vertices whose faces meet them in two fans,
+            # faces jutting into the hole (two of their edges on it): the hole's edge left a smooth curve, not jagged)
+            wire = [e for e in bm.edges if not e.link_faces]
+            if wire:
+                bmesh.ops.delete(bm, geom=wire, context='EDGES')
+            badv = [v for v in bm.verts if not v.link_faces or sum(e.is_boundary for e in v.link_edges) > 2
+                    or any(len(e.link_faces) > 2 for e in v.link_edges)]
+            if badv:
+                bmesh.ops.delete(bm, geom=badv, context='VERTS')
+                continue
+            ears = [f for f in bm.faces if sum(e.is_boundary for e in f.edges) >= 2 and (f.calc_center_median() - C0).length < R + 0.02]
+            if not ears:
+                break
+            bmesh.ops.delete(bm, geom=ears, context='FACES_ONLY')
+        bm.normal_update()
+        # the skin round the disc, w = f(u, v) over the plane through C0 across nz: least squares
+        pts = [v.co - C0 for v in bm.verts if R - 0.004 < (v.co - C0).length < R + 0.03 and v.normal.dot(nz) > 0.3]
+        Uq = np.array([[q.dot(nx), q.dot(ny), q.dot(nz)] for q in pts])
+        Aq = np.stack([np.ones(len(Uq)), Uq[:, 0], Uq[:, 1], Uq[:, 0] ** 2, Uq[:, 0] * Uq[:, 1], Uq[:, 1] ** 2], 1)
+        cq = np.linalg.lstsq(Aq, Uq[:, 2], rcond=None)[0]
+        on = lambda u, w: C0 + nx * u + ny * w + nz * float(cq @ np.array([1, u, w, u * u, u * w, w * w]))
+        seen = set()
+        for e0 in [e for e in bm.edges if e.is_boundary and (e.verts[0].co - C0).length < R + 0.02]:
+            if e0 in seen:
+                continue
+            a = e0.verts[0]; loop = [a]; e = e0
+            while True:  # (round the hole, in order)
+                seen.add(e)
+                v = e.other_vert(loop[-1])
+                if v is a:
+                    break
+                loop.append(v)
+                e = next(x for x in v.link_edges if x.is_boundary and x is not e)
+            n = len(loop)
+            # (the new faces run round the edge the other way from the old face on it)
+            ls = [lp.vert for lp in e0.link_faces[0].loops]; ia = ls.index(loop[0])
+            if ls[(ia + 1) % len(ls)] is loop[1]:
+                loop.reverse()
+            uv0 = {v: (next(iter(v.link_loops))[uvl].uv.copy() if uvl else Vector((0, 0))) for v in loop}
+            P = [Vector(((v.co - C0).dot(nx), (v.co - C0).dot(ny))) for v in loop]
+            for it in range(4):  # (the edge's zig-zag eased out in the plane: each edge vertex slides a little, not up or down)
+                P = [P[i] + ((P[i - 1] + P[(i + 1) % n]) * 0.5 - P[i]) * 0.5 for i in range(n)]
+            for i, v in enumerate(loop):
+                d = P[i] - Vector(((v.co - C0).dot(nx), (v.co - C0).dot(ny)))
+                v.co = v.co + nx * d.x + ny * d.y
+            wq = lambda q: float(cq @ np.array([1, q.x, q.y, q.x * q.x, q.x * q.y, q.y * q.y]))
+            dev = {v: (v.co - C0).dot(nz) - wq(P[i]) for i, v in enumerate(loop)}  # (the edge's height off the fitted skin)
+            pc = sum(P, Vector((0, 0))) / n; uc = sum(uv0.values(), Vector((0, 0))) / n
+            # rings of new vertices in to the middle, each with as many vertices as its length needs (as dense as the
+            # mesh round it: denser, the patch would pull the spine's centroids and the sections' axes toward it), each
+            # zipped to the next
+            K = max(2, int(round(R / 0.006)))
+            cum = [0.0]
+            for i in range(n):
+                cum.append(cum[-1] + (P[(i + 1) % n] - P[i]).length)
+            def along(a):  # (the edge's point and UV a of the way round it)
+                x = (a % 1.0) * cum[-1]
+                i = max(0, min(n - 1, next(k for k in range(n) if cum[k + 1] >= x)))
+                f = (x - cum[i]) / max(1e-12, cum[i + 1] - cum[i]); j = (i + 1) % n
+                return P[i] * (1 - f) + P[j] * f, uv0[loop[i]] * (1 - f) + uv0[loop[j]] * f
+            rings = [loop]; uvs = dict(uv0); par = [[cum[i] / cum[-1] for i in range(n)]]
+            for k in range(1, K + 1):
+                t = 1 - k / (K + 1)
+                nk = max(6, int(round(n * t)))
+                ring, pr = [], []
+                for i in range(nk):
+                    a = (i + 0.5 * (k % 2)) / nk
+                    q, uq = along(a)
+                    v = bm.verts.new(on(*(pc + (q - pc) * t))); ring.append(v); uvs[v] = uc + (uq - uc) * t; pr.append(a % 1.0)
+                rings.append(ring); par.append(pr)
+            hub = bm.verts.new(on(pc.x, pc.y)); uvs[hub] = uc
+            new_f = []
+            for k in range(K):  # (zip ring k to ring k+1: always step on the one whose next vertex comes first round)
+                ra, rb, pa, pb = rings[k], rings[k + 1], par[k], par[k + 1]
+                ia = 0; ib = min(range(len(rb)), key=lambda j: ((pb[j] - pa[0]) % 1.0))
+                na, nb_ = len(ra), len(rb); sa = sb = 0
+                while sa < na or sb < nb_:
+                    a0, b0 = ra[(ia + sa) % na], rb[(ib + sb) % nb_]
+                    na_ = 1.0 if sa + 1 >= na else (pa[(ia + sa + 1) % na] - pa[ia]) % 1.0
+                    nb2 = (1.0 if sb + 1 >= nb_ else 0.0) + (pb[(ib + sb + 1) % nb_] - pa[ia]) % 1.0
+                    if sb >= nb_ or (sa < na and na_ <= nb2):
+                        new_f.append(bm.faces.new((a0, ra[(ia + sa + 1) % na], b0))); sa += 1
+                    else:
+                        new_f.append(bm.faces.new((a0, rb[(ib + sb + 1) % nb_], b0))); sb += 1
+            r1 = rings[-1]
+            for i in range(len(r1)):
+                new_f.append(bm.faces.new((r1[i], r1[(i + 1) % len(r1)], hub)))
+            # (laid out flat first, the edge held, each new vertex at the mean of its neighbours till it settles (Tutte's
+            # embedding: no face turned over), then lifted onto the fitted skin)
+            q2 = {v: P[i] for i, v in enumerate(loop)}
+            inner = [v for r in rings[1:] for v in r] + [hub]
+            for v in inner:
+                q2[v] = Vector(((v.co - C0).dot(nx), (v.co - C0).dot(ny)))
+            nb = {v: [e.other_vert(v) for e in v.link_edges] for v in inner}
+            for v in inner:
+                dev[v] = 0.0
+            for it in range(600):
+                q2.update({v: sum((q2[w] for w in nb[v]), Vector((0, 0))) / len(nb[v]) for v in inner})
+                dev.update({v: sum(dev[w] for w in nb[v]) / len(nb[v]) for v in inner})
+            for v in inner:  # (on the fitted skin, plus the edge's own offset from it eased in: no step at the edge)
+                v.co = C0 + nx * q2[v].x + ny * q2[v].y + nz * (wq(q2[v]) + dev[v])
+            for f in new_f:
+                f.smooth = True
+                if uvl:
+                    for lp in f.loops:
+                        lp[uvl].uv = uvs[lp.vert]
+            fset |= set(new_f)
+        centres.append(C0)
+        # (the disc's edge blended into the skin round it: a gentle smoothing over a band either side of it)
+        taubin([(v, 1 - abs((v.co - C0).length - R) / 0.01) for v in bm.verts if abs((v.co - C0).length - R) < 0.01], 6)
+    nfill = len(fset)
+    print('rebuilt %d patches round the holes (radius %s): %d faces' % (len(discs), ', '.join('%.3f' % d[1] for d in discs), len(fset)))
+elif holes:
+    fset = set(bmesh.ops.holes_fill(bm, edges=holes, sides=0)['faces'])
+    centres = [fa.calc_center_median() for fa in fset]
+if centres:
     # Around the holes the UVs are a patchwork: the new faces take their corners' UVs from wherever those sat, and a
     # few slivers of the model there are mapped to other islands (stray texture, glints). Each face within 3 cm of a
     # hole: each corner takes, of the UVs its vertex has, the one nearest the island most of them share (a proper
     # little triangle of it: one UV for a whole face would leave the normal map without a tangent frame).
-    uvl = bm.loops.layers.uv.active
     if uvl:
-        fset = set(filled)
         zone_f = [fa for fa in bm.faces if any((fa.calc_center_median() - c).length < 0.03 for c in centres)]
         fixed_n = 0
         for fa in zone_f:
@@ -130,21 +305,39 @@ if holes:
                 best = min(c, key=lambda u: (u - ref).length)
                 if (best - lp[uvl].uv).length > 1e-6:
                     lp[uvl].uv = best; fixed_n += 1
-        print('UV corners moved onto their neighbours\' island around the holes: %d' % fixed_n)
-    # around the holes the surface is crumpled into tiny folds (they glint): smooth everything within 2 cm of each
-    zone_v = [v for v in bm.verts if any((v.co - c).length < 0.02 for c in centres)]
-    for it in range(12):
-        new_co = {v: sum((e.other_vert(v).co for e in v.link_edges), Vector((0, 0, 0))) / max(1, len(v.link_edges)) for v in zone_v}
-        for v, c in new_co.items():
-            v.co = v.co * 0.4 + c * 0.6
-    print('smoothed %d vertices around the holes' % len(zone_v))
-print('pieces', len(sizes), 'kept', sizes[main], 'boundary edges filled', len(holes))
+        print("UV corners moved onto their neighbours' island around the holes: %d" % fixed_n)
+    if not A['pits']:
+        # around the holes the surface is crumpled into tiny folds (they glint): smooth everything within 2 cm of each
+        zone_v = [v for v in bm.verts if any((v.co - c).length < 0.02 for c in centres)]
+        for it in range(12):
+            new_co = {v: sum((e.other_vert(v).co for e in v.link_edges), Vector((0, 0, 0))) / max(1, len(v.link_edges)) for v in zone_v}
+            for v, c in new_co.items():
+                v.co = v.co * 0.4 + c * 0.6
+        print('smoothed %d vertices around the holes' % len(zone_v))
+    print('folds left round the holes: %d' % len(folds()))
+nm = sum(1 for e in bm.edges if not e.is_manifold)
+print('non-manifold edges left: %d' % nm)
+print('pieces', len(sizes), 'kept', sizes[main], 'boundary edges filled', nfill)
 bm.to_mesh(me)
 bm.free()
 if me.has_custom_normals:
     with bpy.context.temp_override(object=ob, active_object=ob):
         bpy.ops.mesh.customdata_custom_splitnormals_clear()
 me.shade_smooth()
+if A['pits'] and centres:
+    # (the patch still has a few sub-millimetre folds; shaded by their own normals they are dark specks: its normals
+    # are the surface's round them instead, the mean of the faces within 1.5 cm, blended back to its own at its edge)
+    vc = np.array([v.co[:] for v in me.vertices]); vn = np.array([v.normal[:] for v in me.vertices])
+    fc = np.array([q.center[:] for q in me.polygons]); fn = np.array([q.normal[:] for q in me.polygons])
+    fa = np.array([q.area for q in me.polygons]); Cc = np.array([c[:] for c in centres])
+    dz = np.min(np.linalg.norm(vc[:, None, :] - Cc[None], axis=2), axis=1)
+    for i in np.where(dz < 0.045)[0]:
+        d = np.linalg.norm(fc - vc[i], axis=1)
+        n = (fn * (fa * np.clip(1 - d / 0.015, 0, None))[:, None]).sum(0)
+        k = float(np.clip((0.045 - dz[i]) / 0.015, 0, 1))
+        m = (1 - k) * vn[i] + k * n / max(1e-12, np.linalg.norm(n))
+        vn[i] = m / max(1e-12, np.linalg.norm(m))
+    me.normals_split_custom_set_from_vertices([tuple(x) for x in vn])
 
 co = np.array([v.co[:] for v in me.vertices])
 NV = len(co)
@@ -264,6 +457,91 @@ def interp_frame(Cs, Rs, s):
 P0, R0 = interp_frame(Cm, R, sv)
 local = np.einsum('nji,nj->ni', R0, co - P0)  # (width, along, top) in the vertex's own spine frame
 
+# The cross-sections, centred on the spine. The found spine (centroids, smoothed) runs off the middle of the sculpt's
+# sections in a slow S: its top sits high over the root and low halfway along, and its tip curls up toward its top by
+# a good fifth of its thickness (and it banana-curves a little to one side). Relaxing the spine leaves that in the
+# offsets, so the straightened tongue was still wavy: lying flat on its top down the bin's front, its tip pushed off
+# the bin and stood out as a lobe under a ledge across its lower third, and the root's high top made the fold over the
+# lid's edge a lump. Each section is moved (as one: its shape kept) by --centre of its middle's offset (between its
+# extremes, eased along the length), fading in over the stalk's end (it lives in the dark bin).
+hw0 = np.array([np.percentile(np.abs(local[np.abs(sv - sm[m]) < 0.02, 0]), 98) if (np.abs(sv - sm[m]) < 0.02).sum() > 8 else 0
+                for m in range(M)])
+if A['centre'] > 0:
+    cz = np.zeros(M); cx = np.zeros(M); ok = np.zeros(M, bool)
+    for m in range(M):
+        sel = np.abs(sv - sm[m]) < 0.02
+        if sel.sum() < 12:
+            continue
+        cz[m] = 0.5 * (np.percentile(local[sel, 2], 98) + np.percentile(local[sel, 2], 2))
+        cx[m] = 0.5 * (np.percentile(local[sel, 0], 98) + np.percentile(local[sel, 0], 2))
+        ok[m] = True
+    cz = np.interp(sm, sm[ok], cz[ok]); cx = np.interp(sm, sm[ok], cx[ok])
+    sg = 0.03 * L0
+    ker = lambda c: np.array([(np.exp(-0.5 * ((sm - sm[m]) / sg) ** 2) * c).sum() / np.exp(-0.5 * ((sm - sm[m]) / sg) ** 2).sum() for m in range(M)])
+    cz, cx = ker(cz), ker(cx)
+    ramp = lambda a, b, x: np.clip((x - a) / (b - a), 0, 1) ** 2 * (3 - 2 * np.clip((x - a) / (b - a), 0, 1))
+    k = A['centre'] * ramp(0.12 * L0, 0.24 * L0, sm)
+    local[:, 2] -= np.interp(sv, sm, k * cz)
+    local[:, 0] -= np.interp(sv, sm, k * cx)
+    print('sections centred: top offset taken out %.3f..%.3f, across %.3f..%.3f (model units)' % ((k * cz).min(), (k * cz).max(), (k * cx).min(), (k * cx).max()))
+    co = np.einsum('nij,nj->ni', R0, local) + P0  # (the debug renders of the found spine show it centred)
+
+# Its top, rounded: in the sculpt the groove down its middle runs between two rounded crests, deepest over the root.
+# Seen edge-on (folded over the lid's edge, reared up) the crests read as two lobes and the valley as a cleft, the
+# tongue as something else entirely. Each section's top is raised to its upper convex hull (eased along the length and
+# across), by --dome: the valley filled, the crests' shoulders rounded into one dome. The groove stays painted on (the
+# colour and normal maps are untouched). The underside and the sides are left as sculpted.
+def dome(sg, k):
+    """Raise the section's skin on one side (sg: +1 its top, -1 its underside) toward that side's convex hull, by k."""
+    NX = 41
+    nl = np.einsum('nji,nj->ni', R0, np.array([v.normal[:] for v in me.vertices]))  # (normals in the spine frames)
+    xw_ = np.zeros(M); Hm = np.full((M, NX), np.nan)
+    for m in range(M):
+        sel = np.abs(sv - sm[m]) < 0.015
+        if sel.sum() < 12:
+            continue
+        xw_[m] = np.percentile(np.abs(local[sel, 0]), 99.5)
+        tp = sel & (sg * local[:, 2] > 0)
+        u = np.clip(local[tp, 0] / xw_[m], -1, 1); z = sg * local[tp, 2]
+        j = np.round((u + 1) / 2 * (NX - 1)).astype(int)
+        prof = np.full(NX, -np.inf); np.maximum.at(prof, j, z)
+        ok = np.isfinite(prof)
+        if ok.sum() < 4:
+            continue
+        pts = sorted(zip(np.linspace(-1, 1, NX)[ok], prof[ok]))
+        hull = []
+        for q in pts:  # (the upper hull: Andrew's monotone chain)
+            while len(hull) >= 2 and (hull[-1][0] - hull[-2][0]) * (q[1] - hull[-2][1]) - (hull[-1][1] - hull[-2][1]) * (q[0] - hull[-2][0]) >= 0:
+                hull.pop()
+            hull.append(q)
+        hx, hz = np.array(hull).T
+        Hm[m] = np.interp(np.linspace(-1, 1, NX), hx, hz)
+    ok = ~np.isnan(Hm[:, 0])
+    for jj in range(NX):
+        Hm[:, jj] = np.interp(sm, sm[ok], Hm[ok, jj])
+    xw_ = np.interp(sm, sm[ok], xw_[ok])
+    g = lambda m: np.exp(-0.5 * ((sm - sm[m]) / (0.02 * L0)) ** 2)
+    Hs = np.array([(g(m)[:, None] * Hm).sum(0) / g(m).sum() for m in range(M)])
+    Hs[:, 1:-1] = 0.25 * Hs[:, :-2] + 0.5 * Hs[:, 1:-1] + 0.25 * Hs[:, 2:]
+    xwv = np.interp(sv, sm, xw_)
+    uv_ = np.clip(local[:, 0] / np.maximum(1e-6, xwv), -1, 1)
+    fm = np.interp(sv, sm, np.arange(M)); m0 = np.clip(np.floor(fm).astype(int), 0, M - 2); tm = fm - m0
+    fj = (uv_ + 1) / 2 * (NX - 1); j0 = np.clip(np.floor(fj).astype(int), 0, NX - 2); tj = fj - j0
+    H = ((Hs[m0, j0] * (1 - tj) + Hs[m0, j0 + 1] * tj) * (1 - tm) + (Hs[m0 + 1, j0] * (1 - tj) + Hs[m0 + 1, j0 + 1] * tj) * tm)
+    side = (sg * local[:, 2] > 0) & (sg * nl[:, 2] > 0.15)
+    up = np.where(side, np.maximum(0, H - sg * local[:, 2]), 0) * k
+    local[:, 2] += sg * up
+    print('%s rounded: %d vertices raised, at most %.4f (model units), mean %.4f' % ('top' if sg > 0 else 'underside', (up > 1e-5).sum(), up.max(), up[up > 1e-5].mean()))
+
+
+# The underside too (by --dome-under): its long folds either side of the middle cut the wet highlight across the hanging
+# tongue into a row of even blocks, like teeth.
+if A['dome'] > 0:
+    dome(1, A['dome'])
+if A['dome_under'] > 0:
+    dome(-1, A['dome_under'])
+co = np.einsum('nij,nj->ni', R0, local) + P0
+
 
 def stripes(mesh, s, name='s'):
     """Debug: stripes along the spine parameter, left/right halves tinted, as a colour attribute."""
@@ -338,7 +616,7 @@ for m in range(M):
     sel = np.abs(sv - sm[m]) < h
     hw[m] = np.percentile(np.abs(local[sel, 0]), 98) if sel.sum() > 8 else 0
     hh[m] = np.percentile(np.abs(local[sel, 2]), 98) if sel.sum() > 8 else 0
-sigma = A['width'] / (2 * hw.max())
+sigma = A['width'] / (2 * hw0.max())  # (its size as before the sections were centred: their extremes as sculpted)
 D = A['stalk'] / sigma  # stalk, in model units
 ds = np.diff(sm)
 g = np.where(sm < zone, sm * (zone + D) / zone, sm + D)  # remapped length (model units, before the body stretch)
@@ -556,10 +834,80 @@ for n in list(nt.nodes):
 out = nt.nodes.new('ShaderNodeOutputMaterial')
 bsdf = nt.nodes.new('ShaderNodeBsdfPrincipled')
 nt.links.new(bsdf.outputs[0], out.inputs[0])
+def unshade(im):
+    """Tripo bakes the sculpt's lighting into the colour map: a pale sheen along each crest of the top and a dark line
+    in the groove between them, shaded bands where it twisted. On the moving tongue (its top rounded, see --dome) they
+    still read as two lobes and a cleft, whatever the real light does. So the luminance that varies over a few
+    centimetres of the surface is taken out, measured on the mesh (the map's islands don't bleed into each other):
+    every texel is scaled, its hue kept, by how much lighter or darker its neighbourhood is than the wider surface
+    round it (--unshade of that). The taste buds' speckle and the colour's slow drift (the underside's paler pink)
+    stay."""
+    if A['unshade'] <= 0:
+        return
+    W, H = im.size
+    px = np.array(im.pixels[:], dtype=np.float32).reshape(H, W, 4)
+    lin = np.where(px[..., :3] <= 0.04045, px[..., :3] / 12.92, ((px[..., :3] + 0.055) / 1.055) ** 2.4)
+    lum = lin @ np.array([0.2126, 0.7152, 0.0722], np.float32)
+    r = max(1, W // 300)  # (a little blurred first: the speckle is not shading)
+    pad = np.pad(lum, r, mode='edge')
+    lb = np.lib.stride_tricks.sliding_window_view(pad, (2 * r + 1, 2 * r + 1)).mean(axis=(2, 3))
+    nl_ = len(me.loops); nv = len(me.vertices)
+    lv = np.zeros(nl_, np.int64); me.loops.foreach_get('vertex_index', lv)
+    uv = np.zeros(nl_ * 2, np.float32); me.uv_layers.active.data.foreach_get('uv', uv); uv = uv.reshape(-1, 2)
+    tx = np.clip((uv[:, 0] * W).astype(int), 0, W - 1); ty = np.clip((uv[:, 1] * H).astype(int), 0, H - 1)
+    acc = np.zeros(nv); cnt = np.zeros(nv)
+    np.add.at(acc, lv, lb[ty, tx]); np.add.at(cnt, lv, 1)
+    L0_ = acc / np.maximum(1, cnt)
+    ev = np.zeros(len(me.edges) * 2, np.int64); me.edges.foreach_get('vertices', ev); ev = ev.reshape(-1, 2)
+    vn_ = np.zeros(nv * 3, np.float32); me.vertices.foreach_get('normal', vn_); vn_ = vn_.reshape(-1, 3)
+    we = np.clip((vn_[ev[:, 0]] * vn_[ev[:, 1]]).sum(1), 0, 1) ** 4  # (across a sharp turn, the top and the underside: little)
+    def blur(x, n):
+        for it in range(n):
+            sx = np.bincount(ev[:, 0], we * x[ev[:, 1]], nv) + np.bincount(ev[:, 1], we * x[ev[:, 0]], nv)
+            sw = np.bincount(ev[:, 0], we, nv) + np.bincount(ev[:, 1], we, nv)
+            x = (x + sx) / (1 + sw)
+        return x
+    near, wide = blur(L0_, 3), blur(L0_, 60)
+    cv = np.clip(wide / np.maximum(1e-4, near), 0.5, 2.0) ** A['unshade']
+    # the scale texel by texel: each triangle of the mesh painted into the map's space with its corners' scales
+    me.calc_loop_triangles()
+    nt_ = len(me.loop_triangles)
+    tl = np.zeros(nt_ * 3, np.int64); me.loop_triangles.foreach_get('loops', tl); tl = tl.reshape(-1, 3)
+    C = np.zeros((H, W), np.float32); Wt = np.zeros((H, W), np.float32)
+    P = uv[tl] * np.array([W, H], np.float32) - 0.5; cl = cv[lv[tl]]
+    for k in range(nt_):
+        (x0, y0), (x1, y1), (x2, y2) = P[k]
+        d = (y1 - y2) * (x0 - x2) + (x2 - x1) * (y0 - y2)
+        if abs(d) < 1e-9:
+            continue
+        bx0, bx1 = int(max(0, np.floor(min(x0, x1, x2)))), int(min(W - 1, np.ceil(max(x0, x1, x2))))
+        by0, by1 = int(max(0, np.floor(min(y0, y1, y2)))), int(min(H - 1, np.ceil(max(y0, y1, y2))))
+        gy, gx = np.mgrid[by0:by1 + 1, bx0:bx1 + 1]
+        a = ((y1 - y2) * (gx - x2) + (x2 - x1) * (gy - y2)) / d
+        b = ((y2 - y0) * (gx - x2) + (x0 - x2) * (gy - y2)) / d
+        c = 1 - a - b
+        ins = (a >= -0.02) & (b >= -0.02) & (c >= -0.02)
+        C[gy[ins], gx[ins]] += (a * cl[k, 0] + b * cl[k, 1] + c * cl[k, 2])[ins]; Wt[gy[ins], gx[ins]] += 1
+    m = Wt > 0
+    C[m] /= Wt[m]
+    for it in range(12):  # (out into the padding round the islands, for the mipmaps)
+        sC = sum(np.roll(np.roll(C * m, dy, 0), dx, 1) for dy in (-1, 0, 1) for dx in (-1, 0, 1))
+        sM = sum(np.roll(np.roll(m.astype(np.float32), dy, 0), dx, 1) for dy in (-1, 0, 1) for dx in (-1, 0, 1))
+        grow = (~m) & (sM > 0)
+        C[grow] = sC[grow] / sM[grow]; m = m | grow
+    C[~m] = 1
+    lin *= C[..., None]
+    srgb = np.where(lin <= 0.0031308, lin * 12.92, 1.055 * np.power(np.maximum(lin, 0), 1 / 2.4) - 0.055)
+    px[..., :3] = np.clip(srgb, 0, 1)
+    im.pixels[:] = px.ravel()
+    print('unshaded: the scale on the mesh %.2f..%.2f (5..95%%: %.2f..%.2f)' % (cv.min(), cv.max(), np.percentile(cv, 5), np.percentile(cv, 95)))
+
+
 def fix_color(im):
     if A['lift'] >= 0:
         deglare(im)
     inpaint(im)
+    unshade(im)
 
 
 tc = nt.nodes.new('ShaderNodeTexImage'); tc.image = small(src['color'], A['tex'], 'tongue_color', 'sRGB', fix_color)

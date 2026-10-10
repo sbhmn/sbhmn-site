@@ -261,9 +261,9 @@ async function start() {
   // How far back a camera at elevation el (radians), straight in front, looking at T must be to frame every corner of
   // box ([x0, x1, y0, y1, z0, z1], bin space) with margin (a share of the frame) kept clear at the edges.
   // (the box: what the tongue does, measured every 1/60 s: ~0.1 past the rim's sides, ~0.6 above the rim, down the
-  // bin's front to the base, with room to spare at the sides; its swoop down the front comes ~0.5 toward the camera,
-  // past the box, for a moment: the frame holds it anyway, and boxing it too would back the camera off. The camera
-  // looks at the bin's middle line)
+  // bin's front to the base, with room to spare at the sides; as it flops down the front it comes ~0.4 toward the
+  // camera, past the box, for a moment: the frame holds it anyway, and boxing it too would back the camera off. The
+  // camera looks at the bin's middle line)
   const LICK_BOX = [-0.8, 0.74, 0.2, 1.42, -0.45, 0.8], LICK_EL = THREE.MathUtils.degToRad(32), LICK_T = new THREE.Vector3(0, 0.8, 0.16);
   function fitOrbit(el, T, fov, aspect, box, margin) {
     const f = new THREE.Vector3(0, -Math.sin(el), -Math.cos(el)), r = new THREE.Vector3(1, 0, 0), u = new THREE.Vector3().crossVectors(r, f);
@@ -765,7 +765,7 @@ async function start() {
       // The camera cranes up over the bin for the tongue (from the throw camera the lid's top is a sliver): one slow,
       // gentle move, eased in and out (a sine: no lurch), starting as the slammed lid settles, so it is well up (~25
       // degrees) by the first roll-over above the lid and settled (32) as the tongue leaves the top; it holds while the
-      // tongue swoops down the front, licks the bottom, rests and slurps in, and the pan to the front starts from there
+      // tongue flops down the front, licks the bottom, rests and slurps in, and the pan to the front starts from there
       // the moment the lid has slammed.
       phase = 'lick';
       const c0 = { pos: cam.pos.clone(), target: cam.target.clone(), fov: cam.fov };
@@ -780,10 +780,11 @@ async function start() {
     pitch.rotation.x = 0;
     if (gap) {
       await wait(60); if (aborted) return;
-      // One quick take (~3 s): the tongue's base rides the gap round the lid's edge (out of the middle of the right
-      // side, round the front, to the left side, back round the front-left corner and on to the middle of the front)
-      // while it licks the top and rolls over above it twice, then rises off it and swoops down the front in one arc,
-      // turning round as it goes, licks the bottom, rests, slurps in, and the lid slams. lid(p) lifts the front;
+      // One quick take (~2.7 s): the tongue's base rides the gap round the lid's edge (out of the middle of the right
+      // side, round the front, to the left side, back round the front-left corner and on to the middle of the front),
+      // the lid riding up on it, while it licks the top (tilted licks) and rolls over above it twice, then rises off it,
+      // curls over to the left and flops down the front in one arc (never turning about its length), licks the bottom,
+      // rests, slurps in, and the lid slams. lid(p) lifts the front;
       // roll(r) tips the lid toward the tongue's side (r > 0: the right side up, pivoting on the left edge; r < 0: the
       // left side up, pivoting on the right edge). The last roll(0) leaves the pivot on the left, where the monster's
       // tipped-lid pose expects it.

@@ -275,8 +275,12 @@
     tongue.update(dt);
   }
 
-  // Where does the tongue go through the bin or the lid? Skinned vertices (CPU, plus the shader's clamp in the gap)
-  // against the bin's solid parts and the lid, object3d space. raw: the same before the shader's clamp.
+  // a vertex as drawn: squashed as the shader squashes it (in the rest pose), then skinned
+  const skinned = (i, v) => (dbg.restVertex ? tmesh.applyBoneTransform(i, dbg.restVertex(i, v)) : tmesh.getVertexPosition(i, v));
+
+  // Where does the tongue go through the bin or the lid? Its vertices as drawn (squashed as the shader squashes them,
+  // skinned on the CPU, plus the shader's clamp in the gap) against the bin's solid parts and the lid, object3d space.
+  // raw: the same before the shader's clamp.
   const OX = 0.439, OZ = 0.395, UX = 0.554, UZ = 0.5, FLOOR = -0.78;
   function check() {
     if (!tmesh || !tmesh.visible) return { visible: false };
@@ -307,7 +311,7 @@
       return null;
     };
     for (let i = 0; i < p.count; i++) {
-      tmesh.getVertexPosition(i, v); v.applyMatrix4(tmesh.matrixWorld).applyMatrix4(inv);
+      skinned(i, v); v.applyMatrix4(tmesh.matrixWorld).applyMatrix4(inv);
       if (solid(v)) out.raw++;
       { // the shader's clamp (as in tongue-model.js: under the lid, in from its outline as it is now; on the rim)
         const ss = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
@@ -320,7 +324,7 @@
         }
         const rimSd = Math.max(ax - UX, az - UZ, (ax + az - 0.974) * Math.SQRT1_2);
         const fb = ss(0.015, -0.01, rimSd) * ss(-0.012, 0.002, Math.max(ax - OX, az - OZ));
-        if (fb > 0) { const u = 0.004 - v.y; if (u > 0) v.y += fb * (u < 0.04 ? u : Math.max(0, 0.04 - (u - 0.04))); }
+        if (fb > 0) { const u = 0.004 - v.y; if (u > 0) v.y += fb * (u < 0.05 ? u : Math.max(0, 0.05 - (u - 0.05))); }
       }
       const hit = solid(v);
       if (hit) { out[hit]++; if ((out.at[hit] ??= []).length < 4) out.at[hit].push([+v.x.toFixed(3), +v.y.toFixed(3), +v.z.toFixed(3)]); }
@@ -339,7 +343,7 @@
     const inv = new THREE.Matrix4().copy(tongue.object3d.matrixWorld).invert();
     const ze = -0.5 + Math.cos(-pitch.rotation.x), out = {};
     for (let i = 0; i < p.count; i += 2) {
-      tmesh.getVertexPosition(i, v); v.applyMatrix4(tmesh.matrixWorld).applyMatrix4(inv);
+      skinned(i, v); v.applyMatrix4(tmesh.matrixWorld).applyMatrix4(inv);
       if (v.z < ze + 0.02 && v.y < 0.12 && v.y > -0.1 && Math.abs(v.x) < 0.53) continue; // (in the gap, wherever on the track)
       if (v.y < 0.02 && Math.abs(v.x) < OX + 0.02 && Math.abs(v.z) < OZ + 0.02) continue; // (down in the bin: hidden)
       const s = dbg.sdf(v.x, v.y, v.z);
