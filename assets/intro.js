@@ -803,12 +803,9 @@ async function start() {
       cam.pos.lerpVectors(a.pos, b.pos, t); cam.target.lerpVectors(a.target, b.target, t); cam.fov = a.fov + (b.fov - a.fov) * t;
     }, easeInOut); if (aborted) return;
     phase = 'front';
-    // Something inside loses it: one short fit that builds and goes crazy. The bin rocks hard from wheel to wheel,
-    // barely leaving the ground, the lid clatters as the thing slams it from below; one last bang and it all drops still.
-    await shakeFit(950); if (aborted) return;
-    await wait(80); if (aborted) return;
-    // It rises, lifting the lid on its head, tipped up on the right like the logo; the eyes open in the dark.
-    sfx.play('growl', { gain: 0.9, delay: 0.3, vary: 0.02 });
+    // No shaking (the owner cut it): it growls and rises straight away, lifting the lid on its head, tipped up on the
+    // right like the logo; the eyes open in the dark.
+    sfx.play('growl', { gain: 0.9, delay: 0.1, vary: 0.02 });
     // SBHMN slams into the bin, letter by letter, from the camera's side, while the teeth are coming down.
     let lettersP = null;
     const slamLetters = async () => {
@@ -831,43 +828,6 @@ async function start() {
     await (lettersP ?? slamLetters()); if (aborted) return;
     await wait(220); if (aborted) return;
     await spit();
-  }
-
-  // The fit: an envelope that builds (0 -> 1 over ~70%), peaks, then a final slam at ~86% and a quick settle.
-  // Rocking pivots on the wheel that stays down (the other side lifts a little), plus small kicks off the floor (the
-  // owner: it shouldn't come up high), a forward/back tilt, the lid clattering on the monster's head, and thumps on a
-  // quickening beat.
-  async function shakeFit(ms) {
-    // the recording is longer than the fit: it is faded out under the final bang
-    const rattle = sfx.play('shake', { gain: 0.95, vary: 0.02 });
-    let nextHit = 0, phase = 0, hop = 0, hopV = 0, prevRaw = 0, banged = false;
-    const W = 0.47; // half the wheelbase: the pivot when one side lifts
-    await tween(ms, (t, raw) => {
-      const dtl = Math.max(0, raw - prevRaw) * ms / 1000; prevRaw = raw;
-      const build = Math.min(1, raw / 0.6), env = raw < 0.86 ? 0.25 + 0.75 * build * build : Math.max(0, 1 - (raw - 0.86) / 0.14);
-      // rocking: frequency rises from ~6 to ~13 Hz, amplitude follows the envelope, a little noise
-      phase += dtl * Math.PI * 2 * (6 + 7 * build);
-      const rock = Math.sin(phase) * 0.075 * env + (Math.random() - 0.5) * 0.02 * env;
-      // hops: kicked from inside on each hit, gravity brings it down hard
-      hopV -= 9.8 * dtl; hop = Math.max(0, hop + hopV * dtl); if (hop === 0 && hopV < 0) hopV = 0;
-      bin.rotation.z = rock;
-      bin.position.x = -Math.sign(rock) * W * (1 - Math.cos(rock)) + (Math.random() - 0.5) * 0.01 * env;
-      bin.position.y = Math.abs(Math.sin(rock)) * W + hop;
-      bin.rotation.x = Math.sin(phase * 0.47 + 1.3) * 0.05 * env;
-      bin.rotation.y = Math.sin(phase * 0.71 + 0.4) * 0.07 * env + (Math.random() - 0.5) * 0.03 * env; // it twists on the spot
-      bin.position.z = Math.max(0, Math.sin(phase * 0.33)) * 0.05 * env; // and lunges forward
-      // the lid bangs on the thing's head
-      const bang = Math.max(0, Math.sin(phase * 1.7)) * 0.07 * env + (raw > 0.5 && raw < 0.86 ? Math.random() * 0.03 : 0);
-      monster.position.y = bang;
-      pitch.rotation.x = lift(bang);
-      shake = Math.max(shake, 0.026 * env);
-      if (raw >= nextHit && raw < 0.86) {
-        hopV = Math.max(hopV, (0.1 + 0.32 * build) * (Math.random() < 0.6 ? 1 : 0.45));
-        nextHit = raw + (0.13 - 0.06 * build) + Math.random() * 0.03;
-      }
-      if (raw >= 0.86 && !banged) { banged = true; nextHit = 1; rattle?.stop(90); sfx.play('bang'); shake = 0.05; hopV = 0; }
-    });
-    bin.rotation.set(0, 0, 0); bin.position.set(0, 0, 0); monster.position.y = 0; pitch.rotation.x = 0;
   }
 
   // One letter: from near the camera, spinning, it accelerates into the bin's face; on impact it squashes, the bin

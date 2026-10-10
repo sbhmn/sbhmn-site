@@ -8,13 +8,13 @@
 //   const sfx = createSfx();           // starts fetching every clip
 //   sfx.attach(audioContext);          // on the first pointerdown / key (browsers need a gesture), decodes them all
 //   sfx.play('lid-slam', { gain, rate, delay, pan, offset }); // offset: start that far in (s; it fades in 25 ms)
-//   const h = sfx.play('shake'); h?.stop(80);       // play returns a handle (or null): stop(ms) fades it out early
+//   const h = sfx.play('slurp'); h?.stop(80);       // play returns a handle (or null): stop(ms) fades it out early
 //   sfx.any(['lick1', 'lick2', 'lick3'], { gain }); // a random one of several, never the same twice in a row (its handle)
 // Every play gets a little random pitch and level variation (vary: 0.06 by default) so repeats don't sound pasted.
 // A clip that hasn't decoded yet is simply skipped.
 const NAMES = [
   'throw', 'paper-in', 'lid-slam', 'lid-clap', 'squeeze', 'lick1', 'lick2', 'lick3', 'slurp', 'drip1', 'drip2', 'drip3',
-  'shake', 'bang', 'growl', 'thud1', 'thud2', 'spit1', 'spit2', 'splat1', 'splat2', 'splat3',
+  'growl', 'thud1', 'thud2', 'spit1', 'spit2', 'splat1', 'splat2', 'splat3',
   'crinkle1', 'crinkle2', 'crinkle3', 'crinkle4', 'splash1', 'splash2', 'splash3', 'goo1', 'goo2',
 ];
 
