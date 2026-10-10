@@ -11,6 +11,7 @@
 //          down, clicked   button held; a click landed in the view this frame
 //          vw, vh, rect    the view's size and DOMRect in CSS px; visible: share of it on screen (0..1)
 // A view's scene is drawn with a transparent background over the background scene (depth cleared, colour kept).
+// A scene can be made again (rewind(), on the intro's replay): dispose() must undo everything create() did.
 import * as THREE from 'three';
 
 export function createStage({ canvas, debug = false } = {}) {
@@ -38,6 +39,8 @@ export function createStage({ canvas, debug = false } = {}) {
   let background = null;
   const views = [];
   const ctx = { THREE, stage: bus, reduced };
+  const maker = (modOrCreate) => modOrCreate.create ?? modOrCreate;
+  let retired = []; // scenes replaced by rewind(), disposed after the new ones' first frame (their shaders carry over)
 
   function inputFor(rect, state) {
     const px = pointer.x - rect.left, py = pointer.y - rect.top;
@@ -63,15 +66,18 @@ export function createStage({ canvas, debug = false } = {}) {
   }
 
   let clock = 0, last = performance.now(), raf = 0, running = false, dirty = true;
-  function tick(dt) {
+  // One step of every scene, and (draw) the frame. A step without drawing moves the scenes just the same.
+  function tick(dt, draw = true) {
     fit();
     clock += dt;
-    renderer.setScissorTest(false);
-    renderer.setViewport(0, 0, W, H);
-    renderer.clear(true, true, true);
+    if (draw) {
+      renderer.setScissorTest(false);
+      renderer.setViewport(0, 0, W, H);
+      renderer.clear(true, true, true);
+    }
     if (background) {
       background.inst.update(dt, clock, inputFor({ left: 0, top: 0, right: W, bottom: H, width: W, height: H }, background.state));
-      renderer.render(background.inst.scene, background.inst.camera);
+      if (draw) renderer.render(background.inst.scene, background.inst.camera);
     }
     for (const v of views) {
       const r = v.el.getBoundingClientRect();
@@ -79,6 +85,7 @@ export function createStage({ canvas, debug = false } = {}) {
       v.offscreen = false;
       if (r.width !== v.w || r.height !== v.h) { v.w = r.width; v.h = r.height; v.inst.resize(r.width, r.height); }
       v.inst.update(dt, clock, inputFor(r, v.state));
+      if (!draw) continue;
       const x = Math.round(r.left), y = Math.round(H - r.bottom), w = Math.round(r.width), h = Math.round(r.height);
       renderer.setViewport(x, y, w, h);
       renderer.setScissor(x, y, w, h);
@@ -88,10 +95,13 @@ export function createStage({ canvas, debug = false } = {}) {
     }
     renderer.setScissorTest(false);
     pointer.clickAt = null;
+    if (draw && retired.length) { retired.forEach((i) => i.dispose?.()); retired = []; }
   }
   function frame(now) {
     raf = requestAnimationFrame(frame);
-    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    // (never below 0: a frame's timestamp is when the frame began, which can be before start() when start() ran late in
+    // a busy frame; seen at load, the clock at -0.2 s: a step backwards for every scene)
+    const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now;
     if (reduced) { if (!dirty) return; dirty = false; tick(0); return; }
     if (document.hidden) return;
     tick(dt);
@@ -104,17 +114,41 @@ export function createStage({ canvas, debug = false } = {}) {
     THREE, renderer, reduced, on: bus.on, emit: bus.emit, pointer,
     /** The whole-viewport scene behind everything. */
     async setBackground(modOrCreate) {
-      const inst = await (modOrCreate.create ?? modOrCreate)(ctx);
-      background = { inst, state: { hover: 0 } };
+      const make = maker(modOrCreate), inst = await make(ctx);
+      background = { inst, make, state: { hover: 0 } };
       W = H = 0; dirty = true;
       return inst;
     },
     /** A scene drawn inside `el`'s box. */
     async addView(el, modOrCreate) {
-      const inst = await (modOrCreate.create ?? modOrCreate)(ctx);
-      views.push({ el, inst, state: { hover: 0 }, w: 0, h: 0, offscreen: true });
+      const make = maker(modOrCreate), inst = await make(ctx);
+      views.push({ el, inst, make, state: { hover: 0 }, w: 0, h: 0, offscreen: true });
       dirty = true;
       return inst;
+    },
+    /** Back to the start while stopped: every scene made afresh and the clock at 0, as when the page loaded. The
+        intro's replay does it: its paper is a print of the page's first moments (dev/paper-shots.cjs), and the page it
+        hands over to must be that page again, not wherever the scenes had got to. */
+    async rewind() {
+      const bg = background, list = views.slice();
+      const fresh = await Promise.all([bg?.make(ctx), ...list.map((v) => v.make(ctx))]);
+      if (running) { fresh.forEach((i) => i?.dispose?.()); return; } // the page came back first: leave it be
+      if (bg) { retired.push(bg.inst); bg.inst = fresh[0]; bg.state = { hover: 0 }; }
+      list.forEach((v, k) => { retired.push(v.inst); v.inst = fresh[k + 1]; v.state = { hover: 0 }; v.w = v.h = 0; v.offscreen = true; });
+      clock = 0; W = H = 0; dirty = true;
+    },
+    /** While stopped: step the scenes on to `at` seconds in, 1/60 s at a time (drawing only the last step, like
+        advance(), so it is the same frame), with no pointer, and hold that frame until start(). The intro lays the page
+        under its landed paper this way: the paper is a print of the page at that moment (dev/paper-shots.cjs), so the
+        page under it is that print, still, while the paper fades off it; then it comes alive. */
+    hold(at) {
+      if (running) return;
+      const n = Math.max(0, Math.round((at - clock) * 60));
+      const was = { ...pointer };
+      Object.assign(pointer, { x: -1e4, y: -1e4, down: false, clickAt: null, seen: false });
+      for (let i = 0; i < n; i++) tick(1 / 60, i === n - 1);
+      if (!n) tick(0);
+      Object.assign(pointer, was, { clickAt: null });
     },
     start() { if (running) return; running = true; last = performance.now(); raf = requestAnimationFrame(frame); },
     stop() { running = false; cancelAnimationFrame(raf); },

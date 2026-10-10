@@ -13,11 +13,13 @@
 // sheet so the print's headline lies on the live headline (same place, same type size), or failing that on the content
 // column; exact at the print's own viewport. The bake (dev/models/paper.py) keeps "prints" when it rewrites the file.
 //
-// WHICH MOMENT: the home page's 3D starts its clock when the intro hands over (sbhmn:reveal), at the same instant the
-// intro's canvas starts its 650 ms fade. So the print is the page at stage clock --at seconds (default 0.3, the middle
-// of the fade): requestAnimationFrame is held from the first script on, so nothing runs in real time, then
-// window.__stage.advance(at) steps the scenes deterministically from 0 (the same pixels every run). CSS animations are
-// frozen at their start (the "live" badge's pulse). Pass --raw <dir> to also keep the plain viewport PNGs.
+// WHICH MOMENT: the print is the page at stage clock --at seconds (default 0.3: the scenes under way), saved as each
+// print's "clock". When the intro hands over, the page goes in under the landed paper with its 3D stepped to that
+// clock and held there (sbhmn:handoff, assets/home/stage.js hold()) while the paper fades off it, so the paper fades
+// over the very same picture; then the page comes alive (sbhmn:reveal). Here requestAnimationFrame is held from the
+// first script on, so nothing runs in real time, then window.__stage.advance(at) steps the scenes deterministically
+// from 0 (the same pixels every run). CSS animations are frozen at their start (the "live" badges' pulse: on the page
+// it starts from there once the paper is gone). Pass --raw <dir> to also keep the plain viewport PNGs.
 // Re-run it whenever the home page changes. Needs the local server (python -m http.server 8787 --directory <site>).
 const fs = require('fs');
 const path = require('path');

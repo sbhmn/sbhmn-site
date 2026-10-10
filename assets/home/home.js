@@ -27,7 +27,14 @@ async function boot() {
   if (!document.documentElement.classList.contains('intro-on')) stage.start();
 }
 
-// The intro tells us when the page shows (start) and when it plays again (pause).
+// The intro tells us when the page goes in under its landed paper (hand-off: draw the page as the paper prints it,
+// detail.at seconds in, and hold it while the paper fades off it), when the page shows (start: it comes alive) and when
+// the intro plays again (pause, and back to the start: the page it hands over to must be its first moments again).
+document.addEventListener('sbhmn:handoff', (e) => stage?.hold(e.detail?.at ?? 0));
 document.addEventListener('sbhmn:reveal', () => stage?.start());
-document.addEventListener('sbhmn:intro-start', () => stage?.stop());
+document.addEventListener('sbhmn:intro-start', () => {
+  if (!stage) return;
+  stage.stop();
+  if (stage.clock > 0) stage.rewind().catch((e) => console.warn('rewind', e));
+});
 boot();

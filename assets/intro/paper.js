@@ -12,7 +12,8 @@
 //   scene.add(paper.object3d);                   // the scene root, or any parent: world placement is handled
 //   each frame of your loop, before rendering:   paper.update(dt);       // dt in seconds
 //   await paper.spit({ camera, from: mouth, onFrame });   // resolves on the first flat frame, the sheet on the screen
-//   then reveal the page and fade the canvas: the print is the page at the middle of that fade (stage clock 0.3 s).
+//   then put the page in under the sheet (at once: the sheet covers it), drawn as printed (its 3D at print.clock),
+//   and fade only the canvas off it (assets/intro.js, the end of spit()).
 //
 // WHAT spit() DOES (stop motion at 12 fps: the poses, the flight and the nudges change only on its frames):
 //   the ball leaves `from` (a world point: the monster's mouth, (0, 0.84, 0.42)) tumbling; it twitches open and
@@ -24,12 +25,12 @@
 //   edge where facets turn edge-on) to the plain print: the last frame is the page's own pixels.
 //   Timing (paper.json "sequences", [pose, frames] at 12 fps): 'short' 17 frames = 1.42 s (default), 'full' 31 = 2.58 s.
 //
-// WHERE IT LANDS: one print is loaded, the one nearest the viewport (paper.json "prints": the page at 1920x960 and
-// 1366x650 for desktops, 390x844 and 360x740 for phones). At landing the print's headline is put on the live
-// headline (`anchor`, measured live: the page is laid out under the intro), same place and same type size; without
-// one, its content column on the live column. If the sheet would leave a gap at an edge it grows until it covers.
-// Exact at a print's own viewport; elsewhere the headline matches and the rest is within some px (the page is fluid).
-// It stays registered to the camera after landing (camera shake, resize).
+// WHERE IT LANDS: one print is loaded, the one nearest the window (paper.json "prints": the page at 1920x960 and
+// 1366x650 for desktops, 390x844 and 360x740 for phones; whole windows, a desktop scrollbar's gutter included). At
+// landing the print's headline is put on the live headline (`anchor`, measured live: the page is laid out under the
+// intro), same place and same type size; without one, its content column on the live column. If the sheet would leave a
+// gap at an edge it grows until it covers. Exact at a print's own viewport; elsewhere the headline matches and the rest
+// is within some px (the page is fluid). It stays registered to the camera after landing (camera shake, resize).
 //
 // createPaper(opts) / createPaperBall(opts), opts (all optional):
 //   portrait     boolean  default innerWidth < innerHeight: the sheet stands up (turned 90 degrees) with a phone
@@ -38,7 +39,10 @@
 //   seed         7        the jitter, tumble and wet splotches (same seed + same update(dt) steps = same frames)
 //   castShadow   true
 //   anisotropy   4        for the print
-//   viewport     () => [innerWidth, innerHeight]   the canvas's CSS size (picks the print; the landing fits it)
+//   viewport     () => [innerWidth, innerHeight]   the canvas's CSS size (the landing fits it). Pass the canvas's own
+//                         box: on a desktop with a classic scrollbar a fixed, inset 0 canvas stops at the scrollbar's
+//                         gutter, ~15 px short of innerWidth
+//   screen       () => [innerWidth, innerHeight]   the window's size (picks the print, as the prints are windows)
 //   anchor       '.hero h1'   (createPaper) the live headline: a selector, an element or a function returning one
 //   edge         0.5      (createPaper) the ink edge's strength
 //   base         '/assets/3d/'   where paper.json, paper.glb and paper-ball.glb live
@@ -70,6 +74,7 @@
 // 128 px wet mask. Per frame: a few matrix ops (and one getBoundingClientRect while landed).
 import * as THREE from 'three';
 import { GLTFLoader } from '/assets/vendor/three/addons/loaders/GLTFLoader.js';
+import { v } from '/assets/v.js';
 
 const W = 0.297, H = 0.21; // A4 landscape, paper units
 const TAU = Math.PI * 2;
@@ -77,8 +82,8 @@ const TAU = Math.PI * 2;
 // --- loading, shared by the ball and the paper
 const cache = new Map();
 function once(key, make) { if (!cache.has(key)) cache.set(key, make()); return cache.get(key); }
-const loadInfo = (base) => once(`info:${base}`, () => fetch(`${base}paper.json`).then((r) => { if (!r.ok) throw new Error('paper.json'); return r.json(); }));
-const loadGltf = (url) => once(`glb:${url}`, () => new GLTFLoader().loadAsync(url));
+const loadInfo = (base) => once(`info:${base}`, () => fetch(v(`${base}paper.json`)).then((r) => { if (!r.ok) throw new Error('paper.json'); return r.json(); }));
+const loadGltf = (url) => once(`glb:${url}`, () => new GLTFLoader().loadAsync(v(url)));
 
 // The prints (dev/paper-shots.cjs): the page at a few real viewports, each on its A4 sheet. One is loaded: of the right
 // kind (phone when portrait), whose sheet covers the viewport at the page's own scale, the widest no wider than the
@@ -105,7 +110,7 @@ function choosePrint(info, portrait, [vw, vh]) {
   return under[0] ?? [...pool].sort((a, b) => a.css[0] - b.css[0])[0];
 }
 function loadPrint(P, portrait, anisotropy) {
-  return once(`tex:${P.url}:${portrait}`, () => new THREE.TextureLoader().loadAsync(P.url).then((t) => {
+  return once(`tex:${P.url}:${portrait}`, () => new THREE.TextureLoader().loadAsync(v(P.url)).then((t) => {
     t.colorSpace = THREE.SRGBColorSpace;
     t.anisotropy = anisotropy;
     // the sheet is turned +90 degrees on a portrait screen: turn the portrait print back so it reads upright
@@ -193,10 +198,10 @@ function uniforms(wetTex) {
 export async function createPaperBall(opts = {}) {
   const {
     portrait = innerWidth < innerHeight, radius = 0.07, castShadow = true, anisotropy = 4, base = '/assets/3d/', seed = 7,
-    viewport = () => [innerWidth, innerHeight],
+    screen = () => [innerWidth, innerHeight],
   } = opts;
   const info = await loadInfo(base);
-  const P = choosePrint(info, portrait, viewport());
+  const P = choosePrint(info, portrait, screen());
   const [gltf, tex] = await Promise.all([loadGltf(`${base}${info.ball?.file ?? 'paper-ball.glb'}`), loadPrint(P, portrait, anisotropy)]);
   let src = null;
   gltf.scene.traverse((o) => { if (o.isMesh && !src) src = o; });
@@ -233,10 +238,11 @@ function makeCore(info, U, castShadow) {
 export async function createPaper(opts = {}) {
   const {
     portrait = innerWidth < innerHeight, radius = 0.07, seed = 7, castShadow = true, anisotropy = 4,
-    viewport = () => [innerWidth, innerHeight], base = '/assets/3d/', edge = 0.5, anchor = '.hero h1',
+    viewport = () => [innerWidth, innerHeight], screen = () => [innerWidth, innerHeight], base = '/assets/3d/', edge = 0.5,
+    anchor = '.hero h1',
   } = opts;
   const info = await loadInfo(base);
-  const P = choosePrint(info, portrait, viewport());
+  const P = choosePrint(info, portrait, screen());
   const [gltf, tex] = await Promise.all([loadGltf(`${base}paper.glb`), loadPrint(P, portrait, anisotropy)]);
   let src = null;
   gltf.scene.traverse((o) => { if (o.isMesh && o.name === 'paper') src = o; });

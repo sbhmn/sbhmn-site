@@ -12,6 +12,7 @@ import { mergeVertices } from '/assets/vendor/three/addons/utils/BufferGeometryU
 import { createPaper, createPaperBall } from '/assets/intro/paper.js';
 import { createDrips } from '/assets/intro/drips.js';
 import { createSfx } from '/assets/intro/sfx.js';
+import { v } from '/assets/v.js';
 
 const html = document.documentElement;
 const replayWrap = document.querySelector('.replay-wrap');
@@ -28,7 +29,7 @@ function markDone() { try { sessionStorage.setItem('sbhmn-intro', 'done'); } cat
 // The home page's own 3D (assets/home/home.js) listens: it runs only while the intro doesn't.
 const announce = (type) => document.dispatchEvent(new Event(type));
 function reveal() {
-  html.classList.remove('intro-on', 'logo-flying');
+  html.classList.remove('intro-on', 'logo-flying', 'intro-handoff');
   if (replayWrap) replayWrap.hidden = false;
   announce('sbhmn:reveal');
 }
@@ -56,6 +57,10 @@ async function start() {
   canvas.setAttribute('aria-label', 'A paper toss game: grab the paper and flick it up into the bin, or press Enter');
   stage.prepend(canvas);
   document.body.append(stage);
+  // The picture is drawn for the canvas's own box, not the window: on a desktop with a classic scrollbar the stage
+  // stops at the scrollbar's gutter (scrollbar-gutter: stable), ~15 px short of innerWidth. Drawn for the window, it
+  // was squeezed into that box, and the landed paper lay up to 15 px left of the page it turns into.
+  const size = () => [canvas.clientWidth || innerWidth, canvas.clientHeight || innerHeight];
   const hint = stage.querySelector('.hint span');
   const hintBox = stage.querySelector('.hint');
 
@@ -86,8 +91,8 @@ async function start() {
   let gltf, glyphs;
   try {
     [gltf, glyphs] = await Promise.all([
-      new GLTFLoader().loadAsync('/assets/3d/bin.glb'),
-      fetch('/assets/3d/bin-letters.json').then((r) => { if (!r.ok) throw new Error('letters'); return r.json(); }),
+      new GLTFLoader().loadAsync(v('/assets/3d/bin.glb')),
+      fetch(v('/assets/3d/bin-letters.json')).then((r) => { if (!r.ok) throw new Error('letters'); return r.json(); }),
     ]);
   } catch (e) {
     stage.remove(); renderer.dispose(); markDone(); reveal(); return;
@@ -96,7 +101,7 @@ async function start() {
   const sfx = createSfx(); // real recorded sounds (CC0), fetched now, decoded on the first touch
   const ballP = createPaperBall().catch((e) => { console.warn('paper ball', e); return null; });
   let sheet = null, tongue = null, drips = null;
-  const sheetP = createPaper().then((s) => { sheet = s; scene.add(s.object3d); return s; }).catch((e) => { console.warn('paper', e); return null; });
+  const sheetP = createPaper({ viewport: size }).then((s) => { sheet = s; scene.add(s.object3d); return s; }).catch((e) => { console.warn('paper', e); return null; });
 
   // --- the bin
   const binMat = new THREE.MeshStandardMaterial({ color: 0x171717, roughness: 0.75, metalness: 0, flatShading: true });
@@ -302,7 +307,7 @@ async function start() {
   };
   let phase = 'throw';
   function resize() {
-    const w = window.innerWidth, h = window.innerHeight;
+    const [w, h] = size();
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     if (phase === 'throw') Object.assign(cam, view.throw());
@@ -852,7 +857,8 @@ async function start() {
 
   // The finale: the thing rears up and spits the paper back at you. Spit hits the screen and runs down the glass while
   // the paper comes at the camera in stop motion (assets/intro/paper.js: the crumpled homepage, baked in Blender) and
-  // unfolds flat onto the screen, exactly where the live page sits. That sheet is the page: the site fades in on it.
+  // unfolds flat onto the screen, exactly where the live page sits. That sheet is the page: the page goes in under it
+  // and the sheet fades off it.
   async function spit() {
     const m0 = monster.position.y;
     await tween(240, (t) => {
@@ -880,9 +886,18 @@ async function start() {
       if (aborted) return;
       await wait(140); if (aborted) return;
     }
+    // The hand-off. The page goes in under the paper at once, all of it (html.intro-handoff cuts its fade-in: the
+    // opaque canvas hides it), its 3D drawn right now as the paper prints it (sbhmn:handoff: the home page's scenes
+    // stepped to the print's moment, its clock in paper.json, and held there), and only then does the paper fade: the
+    // only thing that fades, over that same picture. When it is gone the page comes alive (end(): sbhmn:reveal).
+    // (The paper used to fade out while the page faded in, and two layers fading against each other let the white
+    // behind them through: a third of the way to white at worst, ~0.2 s in. That was the flash. And the page's 3D,
+    // already moving, ghosted through the still print, after a first frame that a slow GPU, compiling its shaders, may
+    // take a while to draw: the fade now starts only once it has.)
+    html.classList.add('intro-handoff');
     html.classList.remove('intro-on');
-    announce('sbhmn:reveal');
     stage.classList.add('leaving');
+    document.dispatchEvent(new CustomEvent('sbhmn:handoff', { detail: { at: sp?.print?.clock ?? 0 } }));
     const fade = canvas.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 650, easing: 'ease-out', fill: 'forwards' });
     await fade.finished.catch(() => {});
     end();

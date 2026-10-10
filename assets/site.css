@@ -215,13 +215,23 @@ footer.site a:hover { color: #fff; text-decoration-color: #fff; }
   background: #fff; color: var(--ink); border: 3px solid var(--ink); cursor: pointer;
 }
 .intro .skip:hover { background: var(--ink); color: #fff; }
-.intro.leaving { transition: background-color 0.6s; background-color: rgba(255, 255, 255, 0); pointer-events: none; }
-.intro.leaving .hint, .intro.leaving .skip { opacity: 0; }
+/* Leaving: the paper lies on the screen and the page is already whole under it; only the intro's canvas fades off it
+   (assets/intro.js). Its white backdrop goes at once (the canvas is opaque: behind a fading canvas it could only wash
+   the page out); Skip and the hint fade with the paper, nothing vanishes in one frame. */
+.intro.leaving { background: none; pointer-events: none; }
+.intro.leaving .hint, .intro.leaving .skip { opacity: 0; transition: opacity 0.4s; }
 .flying-logo { position: fixed; left: 0; top: 0; z-index: 60; transform-origin: 0 0; pointer-events: none; will-change: transform; }
 html.intro-on { overflow: hidden; }
 html.intro-on header.site .brand img, html.logo-flying header.site .brand img { visibility: hidden; }
 html.intro-on main, html.intro-on footer.site, html.intro-on header.site nav, html.intro-on .tagline, html.intro-on .stage-canvas { opacity: 0; }
 main, footer.site, header.site nav, .tagline, .stage-canvas { transition: opacity 0.7s ease; }
+/* The end of the show: the page goes in under the landed paper at once, no fade (the paper covers it, then fades off
+   it). A page fading in under a paper fading out let the white behind both show through mid way: a flash. (The fade
+   above stays for Skip, the replay and the fallbacks.) */
+html.intro-handoff main, html.intro-handoff footer.site, html.intro-handoff header.site nav, html.intro-handoff .tagline, html.intro-handoff .stage-canvas { transition: none; }
+/* The live badges hold still until the paper is gone, then pulse from their first keyframe: the paper's print shows
+   them there. */
+html.intro-on .status.live, html.intro-on .status.live i, html.intro-handoff .status.live, html.intro-handoff .status.live i { animation: none; }
 
 @media (max-width: 760px) {
   body { font-size: 17px; }
