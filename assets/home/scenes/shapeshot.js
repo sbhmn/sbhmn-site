@@ -310,9 +310,10 @@ ${role === 'face' ? '' : 'totalEmissiveRadiance += vec3(0.62, 0.6, 0.56) * smoot
   pocket.add(new THREE.Mesh(wellGeo, M.well));
   const floor = new THREE.Mesh(new THREE.CircleGeometry(HR * 0.93, SEG).rotateX(-Math.PI / 2), M.floor); floor.position.y = -0.6; pocket.add(floor);
 
-  // ---- the cue: lathe-turned, tip at the origin pointing +x
+  // ---- the cue: lathe-turned, tip at the origin pointing +x. The profiles run tip to butt (y falling); the lathe wants
+  // them climbing in y for its faces to point outward, so they're turned around before it spins them.
   const cue = new THREE.Group();
-  const cueLathe = (pts, mat) => { const g = new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), 9).rotateZ(-Math.PI / 2); return new THREE.Mesh(g, mat); };
+  const cueLathe = (pts, mat) => { const g = new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)).reverse(), 9).rotateZ(-Math.PI / 2); return new THREE.Mesh(g, mat); };
   cue.add(cueLathe([[0, 0.004], [0.026, 0.002], [0.046, -0.008], [0.05, -0.034]], M.tip));
   cue.add(cueLathe([[0.05, -0.034], [0.051, -0.13]], M.ferrule));
   cue.add(cueLathe([[0.052, -0.13], [0.0575, -1.1]], M.shaft));
