@@ -1,5 +1,7 @@
 /* SBHMN: black ink on white, one dark red (the bin's eyes). Square corners, heavy condensed type. Self-hosted OFL
-   fonts, no external requests. The logo: /assets/img/sbhmn-mark.svg (its letters are holes: they show the page). */
+   fonts, no external requests. The logo: /assets/img/sbhmn-mark.svg (its letters are holes: they show the page).
+   A second accent, toxic green (--go), for good news only: a live status and the main action. Not Shapeshot's
+   palette (its soft green #6bd694 is the game's, not the studio's). */
 @font-face { font-family: 'Big Shoulders Display'; src: url('fonts/big-shoulders-display-800.woff2') format('woff2'); font-weight: 800; font-display: swap; }
 @font-face { font-family: 'Barlow Semi Condensed'; src: url('fonts/barlow-semi-condensed-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
 @font-face { font-family: 'Barlow Semi Condensed'; src: url('fonts/barlow-semi-condensed-600.woff2') format('woff2'); font-weight: 600; font-display: swap; }
@@ -14,6 +16,9 @@
   --panel: #f4f4f3;
   --red: #7c080b;
   --red-hi: #a3121a;
+  --go: #39ff14;      /* toxic green: live status, primary buttons. Nothing else. */
+  --go-ink: #0b0b0b;  /* type and marks on --go (14.5:1) */
+  --arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 9.5h13.2L10 4.3 13.4 1 24 12 13.4 23 10 19.7l5.2-5.2H2z'/%3E%3C/svg%3E");
   --display: 'Big Shoulders Display', 'Oswald', Impact, sans-serif;
   --body: 'Barlow Semi Condensed', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
@@ -55,8 +60,38 @@ section + section { border-top: 1px solid var(--line); }
   border: 3px solid var(--ink); color: var(--ink); background: var(--bg);
 }
 .btn:hover { color: #fff; background: var(--ink); }
-.btn.primary { background: var(--ink); color: #fff; }
-.btn.primary:hover { background: var(--red); border-color: var(--red); color: #fff; }
+.btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+/* Buttons, loudest first: the primary (a toxic green slab on a hard ink shadow, an arrow; it lifts on hover and
+   presses into its shadow on click), the plain outline .btn (flat), then text links. */
+.btn.primary {
+  min-height: 58px; padding: 16px 22px 16px 26px; gap: 14px; font-size: 23px; letter-spacing: 0.07em;
+  background: var(--go); color: var(--go-ink); border-color: var(--ink); box-shadow: 6px 6px 0 var(--ink);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.btn.primary::after {
+  content: ''; flex: none; width: 22px; height: 22px; background: currentColor; transition: transform 0.12s ease;
+  -webkit-mask: var(--arrow) center / contain no-repeat; mask: var(--arrow) center / contain no-repeat;
+}
+.btn.primary[target='_blank']::after { transform: rotate(-45deg); } /* it leaves the site */
+.btn.primary:hover { background: var(--go); color: var(--go-ink); border-color: var(--ink); }
+@media (hover: hover) {
+  .btn.primary:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--ink); }
+  .btn.primary:hover::after { transform: translateX(4px); }
+  .btn.primary[target='_blank']:hover::after { transform: translate(3px, -3px) rotate(-45deg); }
+}
+.btn.primary:active { transform: translate(6px, 6px); box-shadow: 0 0 0 var(--ink); }
+.btn.primary:focus-visible { outline-offset: 9px; } /* clear of the shadow */
+/* One line, arrow beside the label: a smaller slab where the column is narrow (the home page's two-column testers
+   row, 861-960 px wide, and the smallest phones), so the label never breaks. */
+@media (min-width: 861px) and (max-width: 960px) {
+  .home .btn.primary { min-height: 54px; padding: 14px 18px 14px 22px; gap: 10px; font-size: 20px; }
+}
+@media (max-width: 359px) {
+  .btn.primary { min-height: 54px; padding: 14px 16px 14px 20px; gap: 10px; font-size: 20px; }
+}
+/* High contrast (Windows): the arrow is a mask over a fill, and that mode drops fills; paint it in the system's link
+   colour, like the label (the primary buttons are links). */
+@media (forced-colors: active) { .btn.primary::after { forced-color-adjust: none; background: LinkText; } }
 .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
 
 .game-card { display: grid; grid-template-columns: 1fr 1.2fr; border: 3px solid var(--ink); background: var(--bg); }
@@ -92,10 +127,18 @@ section + section { border-top: 1px solid var(--line); }
 .date { color: var(--ink-3); }
 
 footer.site { background: var(--ink); color: #b9b9b9; padding: 28px 0 40px; font-size: 16px; }
-footer.site .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+footer.site .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
 footer.site a { color: #fff; }
 footer.site a:hover { color: #fff; text-decoration-color: #fff; }
-.replay { background: none; border: 0; padding: 0; font: inherit; color: #fff; text-decoration: underline; text-decoration-color: var(--red); text-decoration-thickness: 2px; text-underline-offset: 3px; cursor: pointer; }
+/* "Feed the bin again": a secondary button (outline, flat) on the black footer, under the green ones, over the links. */
+.replay {
+  display: inline-flex; align-items: center; min-height: 36px; padding: 7px 12px 6px; margin-left: 14px; vertical-align: middle;
+  background: none; border: 2px solid #fff; color: #fff; cursor: pointer;
+  font: 800 16px/1 var(--display); letter-spacing: 0.1em; text-transform: uppercase;
+}
+.replay:hover { background: #fff; color: var(--ink); }
+.replay:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+@media (pointer: coarse) { .replay { min-height: 44px; padding: 0 14px; } } /* a thumb-sized target on phones */
 
 /* Home: the living web behind everything (one fixed canvas, assets/home/stage.js), the 3D games in their stages. */
 .stage-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; display: block; }
@@ -121,12 +164,18 @@ footer.site a:hover { color: #fff; text-decoration-color: #fff; }
 .stage.live .still { opacity: 0; pointer-events: none; }
 .caption { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
 .caption p { margin: 0; font-size: clamp(18px, 1.45vw, 21px); line-height: 1.35; color: var(--ink); }
-.caption .btn { margin-top: 4px; }
+.caption .btn { margin-top: 8px; }
 .status { display: inline-flex; align-items: center; gap: 8px; font: 600 13px/1 var(--body); letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-2); border: 2px solid var(--ink); padding: 6px 10px; }
-.status.live { color: #fff; background: #e1121b; border-color: #e1121b; box-shadow: 0 0 0 0 rgba(225, 18, 27, 0.5); animation: live-ring 2.2s ease-out infinite; }
-.status.live i { width: 8px; height: 8px; border-radius: 50%; background: #fff; animation: live-dot 1.1s ease-in-out infinite alternate; }
-@keyframes live-ring { 0% { box-shadow: 0 0 0 0 rgba(225, 18, 27, 0.45); } 70%, 100% { box-shadow: 0 0 0 12px rgba(225, 18, 27, 0); } }
+/* Live (good news): green, ink type, a pulsing ink dot and a green ring breathing out. A flat label with no ink
+   border, so it never reads as a button next to the bordered, shadowed primary one. */
+.status.live { color: var(--go-ink); background: var(--go); border-color: transparent; box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.6); animation: live-ring 2.2s ease-out infinite; }
+.status.live i { width: 8px; height: 8px; border-radius: 50%; background: var(--go-ink); animation: live-dot 1.1s ease-in-out infinite alternate; }
+@keyframes live-ring { 0% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.6); } 70%, 100% { box-shadow: 0 0 0 12px rgba(57, 255, 20, 0); } }
 @keyframes live-dot { from { opacity: 1; } to { opacity: 0.35; } }
+/* Labels stay on one line in the three-column row (861-1079 px) and on the smallest phones: tighter tracking first,
+   then a size down where the columns are narrowest. */
+@media (min-width: 861px) and (max-width: 1079px) { .status { letter-spacing: 0.12em; } }
+@media (min-width: 861px) and (max-width: 979px), (max-width: 359px) { .status { font-size: 12px; letter-spacing: 0.06em; gap: 6px; padding: 6px 8px; } }
 @media (max-width: 860px) {
   .games-row { grid-template-columns: 1fr; gap: 56px; }
   .stage { height: min(112vw, 440px); }
@@ -184,4 +233,5 @@ main, footer.site, header.site nav, .tagline, .stage-canvas { transition: opacit
 }
 @media (prefers-reduced-motion: reduce) {
   main, footer.site, header.site nav, .tagline, .stage-canvas { transition: none; }
+  .btn.primary, .btn.primary::after { transition: none; }
 }
