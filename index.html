@@ -10,9 +10,9 @@
 <meta property="og:image" content="https://sbhmn.com/assets/img/og-shapeshot.jpg">
 <meta property="og:url" content="https://sbhmn.com/">
 <meta name="theme-color" content="#ffffff">
-<link rel="icon" href="/favicon.png">
-<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
-<link rel="stylesheet" href="/assets/site.css">
+<link rel="icon" href="/favicon.png?v=2904ff3418">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png?v=261930270f">
+<link rel="stylesheet" href="/assets/site.css?v=97bb6cff2a">
 <script>
   // The bin game plays first, once per visit, unless the visitor asked for less motion or already played it.
   (function () {
@@ -22,15 +22,105 @@
     if (!seen && !calm) document.documentElement.classList.add('intro-on');
   })();
 </script>
-<script type="importmap">{ "imports": { "three": "/assets/vendor/three/three.module.min.js" } }</script>
-<link rel="modulepreload" href="/assets/intro.js">
-<link rel="modulepreload" href="/assets/home/home.js">
+<script type="importmap">
+{ "imports": {
+  "three": "/assets/vendor/three/three.module.min.js?v=08fd7545d1",
+  "/assets/3d/bin-letters.json": "/assets/3d/bin-letters.json?v=780eb6445d",
+  "/assets/3d/bin.glb": "/assets/3d/bin.glb?v=75991377a1",
+  "/assets/3d/paper-ball.glb": "/assets/3d/paper-ball.glb?v=2f62126fc0",
+  "/assets/3d/paper.glb": "/assets/3d/paper.glb?v=d8e61a26b9",
+  "/assets/3d/paper.json": "/assets/3d/paper.json?v=cf543f45c6",
+  "/assets/3d/tongue-model.glb": "/assets/3d/tongue-model.glb?v=ff52c5d465",
+  "/assets/audio/bang.mp3": "/assets/audio/bang.mp3?v=c39f5488a4",
+  "/assets/audio/crinkle1.mp3": "/assets/audio/crinkle1.mp3?v=240926e361",
+  "/assets/audio/crinkle2.mp3": "/assets/audio/crinkle2.mp3?v=d296f3d388",
+  "/assets/audio/crinkle3.mp3": "/assets/audio/crinkle3.mp3?v=7bef02e4c7",
+  "/assets/audio/crinkle4.mp3": "/assets/audio/crinkle4.mp3?v=4c9c97cf53",
+  "/assets/audio/drip1.mp3": "/assets/audio/drip1.mp3?v=78b6dd2c1f",
+  "/assets/audio/drip2.mp3": "/assets/audio/drip2.mp3?v=ae3e71dbae",
+  "/assets/audio/drip3.mp3": "/assets/audio/drip3.mp3?v=3498aa1722",
+  "/assets/audio/goo1.mp3": "/assets/audio/goo1.mp3?v=08378ec173",
+  "/assets/audio/goo2.mp3": "/assets/audio/goo2.mp3?v=bc3afdad9c",
+  "/assets/audio/growl.mp3": "/assets/audio/growl.mp3?v=5ee86d0c1e",
+  "/assets/audio/lick1.mp3": "/assets/audio/lick1.mp3?v=b264805c75",
+  "/assets/audio/lick2.mp3": "/assets/audio/lick2.mp3?v=36e41cbaa3",
+  "/assets/audio/lick3.mp3": "/assets/audio/lick3.mp3?v=6f652a2570",
+  "/assets/audio/lid-clap.mp3": "/assets/audio/lid-clap.mp3?v=3d804f8db6",
+  "/assets/audio/lid-slam.mp3": "/assets/audio/lid-slam.mp3?v=eed3879538",
+  "/assets/audio/paper-in.mp3": "/assets/audio/paper-in.mp3?v=28a0c8ece3",
+  "/assets/audio/sfx.json": "/assets/audio/sfx.json?v=0a22efee3e",
+  "/assets/audio/shake.mp3": "/assets/audio/shake.mp3?v=12c22e476a",
+  "/assets/audio/slurp.mp3": "/assets/audio/slurp.mp3?v=2fe5638c7c",
+  "/assets/audio/spit1.mp3": "/assets/audio/spit1.mp3?v=4564db4442",
+  "/assets/audio/spit2.mp3": "/assets/audio/spit2.mp3?v=d3d9541b7a",
+  "/assets/audio/splash1.mp3": "/assets/audio/splash1.mp3?v=f91294928e",
+  "/assets/audio/splash2.mp3": "/assets/audio/splash2.mp3?v=83a67fca52",
+  "/assets/audio/splash3.mp3": "/assets/audio/splash3.mp3?v=8a151b6680",
+  "/assets/audio/splat1.mp3": "/assets/audio/splat1.mp3?v=90d03b0ac3",
+  "/assets/audio/splat2.mp3": "/assets/audio/splat2.mp3?v=95ef9b43e2",
+  "/assets/audio/splat3.mp3": "/assets/audio/splat3.mp3?v=6d5bd63647",
+  "/assets/audio/squeeze.mp3": "/assets/audio/squeeze.mp3?v=d08c8cc9bf",
+  "/assets/audio/throw.mp3": "/assets/audio/throw.mp3?v=065988cbc1",
+  "/assets/audio/thud1.mp3": "/assets/audio/thud1.mp3?v=8de58b372d",
+  "/assets/audio/thud2.mp3": "/assets/audio/thud2.mp3?v=e51642da10",
+  "/assets/fonts/barlow-semi-condensed-400.woff2": "/assets/fonts/barlow-semi-condensed-400.woff2?v=d03a7a5f6b",
+  "/assets/fonts/barlow-semi-condensed-600.woff2": "/assets/fonts/barlow-semi-condensed-600.woff2?v=f158417e92",
+  "/assets/fonts/big-shoulders-800.typeface.json": "/assets/fonts/big-shoulders-800.typeface.json?v=99908158cc",
+  "/assets/fonts/big-shoulders-display-800.woff2": "/assets/fonts/big-shoulders-display-800.woff2?v=088f423f09",
+  "/assets/home/home.js": "/assets/home/home.js?v=4498c47117",
+  "/assets/home/scenes/background.js": "/assets/home/scenes/background.js?v=35d4998e66",
+  "/assets/home/scenes/gamer.js": "/assets/home/scenes/gamer.js?v=4ffaccaf59",
+  "/assets/home/scenes/shapeshot.js": "/assets/home/scenes/shapeshot.js?v=788831bb46",
+  "/assets/home/scenes/unruled.js": "/assets/home/scenes/unruled.js?v=6852d5fac3",
+  "/assets/home/scenes/wsw.js": "/assets/home/scenes/wsw.js?v=26c990d747",
+  "/assets/home/stage.js": "/assets/home/stage.js?v=45f7b51b83",
+  "/assets/home/text3d.js": "/assets/home/text3d.js?v=a9f8ba9718",
+  "/assets/home/web.js": "/assets/home/web.js?v=a29e7ee092",
+  "/assets/img/apple-touch-icon.png": "/assets/img/apple-touch-icon.png?v=261930270f",
+  "/assets/img/og-shapeshot.jpg": "/assets/img/og-shapeshot.jpg?v=eae1eca6ed",
+  "/assets/img/paper-desktop-1366.webp": "/assets/img/paper-desktop-1366.webp?v=c9d285e879",
+  "/assets/img/paper-desktop.webp": "/assets/img/paper-desktop.webp?v=616d7da18f",
+  "/assets/img/paper-phone-360.webp": "/assets/img/paper-phone-360.webp?v=c4eb143ccb",
+  "/assets/img/paper-phone.webp": "/assets/img/paper-phone.webp?v=ddfabd2933",
+  "/assets/img/sbhmn-mark.svg": "/assets/img/sbhmn-mark.svg?v=a653a8eb31",
+  "/assets/img/shapeshot-hero.webp": "/assets/img/shapeshot-hero.webp?v=227b532591",
+  "/assets/img/shapeshot-icon.webp": "/assets/img/shapeshot-icon.webp?v=011ed9708d",
+  "/assets/img/shapeshot-mark.svg": "/assets/img/shapeshot-mark.svg?v=d99bdc0ff9",
+  "/assets/img/shot-modes.webp": "/assets/img/shot-modes.webp?v=29eac5724f",
+  "/assets/img/shot-player.webp": "/assets/img/shot-player.webp?v=b290f9d522",
+  "/assets/img/shot-pro.webp": "/assets/img/shot-pro.webp?v=3bd216644a",
+  "/assets/img/still-gamer.webp": "/assets/img/still-gamer.webp?v=e6db207d15",
+  "/assets/img/still-shapeshot.webp": "/assets/img/still-shapeshot.webp?v=195ce53e37",
+  "/assets/img/still-unruled.webp": "/assets/img/still-unruled.webp?v=45782395cf",
+  "/assets/img/still-wsw.webp": "/assets/img/still-wsw.webp?v=3ee0e637b5",
+  "/assets/img/wsw-key.webp": "/assets/img/wsw-key.webp?v=d0388a4ea7",
+  "/assets/intro.js": "/assets/intro.js?v=5d04766c1f",
+  "/assets/intro/drips.js": "/assets/intro/drips.js?v=3c54cd4ee6",
+  "/assets/intro/paper.js": "/assets/intro/paper.js?v=0f906e369a",
+  "/assets/intro/sfx.js": "/assets/intro/sfx.js?v=8b300e491e",
+  "/assets/intro/tongue-model.js": "/assets/intro/tongue-model.js?v=fcd8eb55d4",
+  "/assets/intro/tongue.js": "/assets/intro/tongue.js?v=21c85cc758",
+  "/assets/site.css": "/assets/site.css?v=97bb6cff2a",
+  "/assets/v.js": "/assets/v.js?v=61b29306a0",
+  "/assets/vendor/three/LICENSE": "/assets/vendor/three/LICENSE?v=4c40a1ef62",
+  "/assets/vendor/three/addons/geometries/ConvexGeometry.js": "/assets/vendor/three/addons/geometries/ConvexGeometry.js?v=9bcf80281a",
+  "/assets/vendor/three/addons/geometries/TextGeometry.js": "/assets/vendor/three/addons/geometries/TextGeometry.js?v=8d521febde",
+  "/assets/vendor/three/addons/libs/meshopt_decoder.module.js": "/assets/vendor/three/addons/libs/meshopt_decoder.module.js?v=01f48524f4",
+  "/assets/vendor/three/addons/loaders/FontLoader.js": "/assets/vendor/three/addons/loaders/FontLoader.js?v=1f0da5a44c",
+  "/assets/vendor/three/addons/loaders/GLTFLoader.js": "/assets/vendor/three/addons/loaders/GLTFLoader.js?v=45139faddd",
+  "/assets/vendor/three/addons/math/ConvexHull.js": "/assets/vendor/three/addons/math/ConvexHull.js?v=782e7e422c",
+  "/assets/vendor/three/addons/utils/BufferGeometryUtils.js": "/assets/vendor/three/addons/utils/BufferGeometryUtils.js?v=c25b7930e5",
+  "/assets/vendor/three/three.module.min.js": "/assets/vendor/three/three.module.min.js?v=08fd7545d1"
+} }
+</script>
+<link rel="modulepreload" href="/assets/intro.js?v=5d04766c1f">
+<link rel="modulepreload" href="/assets/home/home.js?v=4498c47117">
 </head>
 <body class="home">
 <canvas class="stage-canvas" aria-hidden="true"></canvas>
 <header class="site">
   <div class="wrap">
-    <a class="brand" href="/" aria-label="SBHMN"><img src="/assets/img/sbhmn-mark.svg" alt="SBHMN" width="62" height="58"></a>
+    <a class="brand" href="/" aria-label="SBHMN"><img src="/assets/img/sbhmn-mark.svg?v=a653a8eb31" alt="SBHMN" width="62" height="58"></a>
     <span class="tagline">We make stuff<span class="red">.</span></span>
   </div>
 </header>
@@ -47,7 +137,7 @@
     <div class="wrap games-row">
       <article class="game" id="shapeshot" aria-labelledby="t-shapeshot">
         <h2 class="sr" id="t-shapeshot">Shapeshot: Pool &amp; Snooker</h2>
-        <div class="stage" data-scene="shapeshot"><img class="still" src="/assets/img/still-shapeshot.webp" width="800" height="1000" alt="Shapeshot: a cue, the cue ball and the 8-ball"></div>
+        <div class="stage" data-scene="shapeshot"><img class="still" src="/assets/img/still-shapeshot.webp?v=195ce53e37" width="800" height="1000" alt="Shapeshot: a cue, the cue ball and the 8-ball"></div>
         <div class="caption">
           <span class="status live"><i></i>Available now for closed testing</span>
           <p>Every shot gets a make %. Your excuses don't.</p>
@@ -56,7 +146,7 @@
       </article>
       <article class="game" id="unruled" aria-labelledby="t-unruled">
         <h2 class="sr" id="t-unruled">Unruled</h2>
-        <div class="stage" data-scene="unruled"><img class="still" src="/assets/img/still-unruled.webp" width="800" height="1000" alt="Unruled: a warship caught in a web"></div>
+        <div class="stage" data-scene="unruled"><img class="still" src="/assets/img/still-unruled.webp?v=45782395cf" width="800" height="1000" alt="Unruled: a warship caught in a web"></div>
         <div class="caption">
           <span class="status">In development</span>
           <p>Mine planets, build fleets, take the galaxy. The galaxy wasn't consulted.</p>
@@ -64,7 +154,7 @@
       </article>
       <article class="game" id="wall-street-wars" aria-labelledby="t-wsw">
         <h2 class="sr" id="t-wsw">Wall Street Wars</h2>
-        <div class="stage" data-scene="wsw"><img class="still" src="/assets/img/still-wsw.webp" width="800" height="1000" alt="Wall Street Wars: a stock arrow climbing, dollars in the air"></div>
+        <div class="stage" data-scene="wsw"><img class="still" src="/assets/img/still-wsw.webp?v=3ee0e637b5" width="800" height="1000" alt="Wall Street Wars: a stock arrow climbing, dollars in the air"></div>
         <div class="caption">
           <span class="status">In development</span>
           <p>Start as a runner. Make partner. Integrity optional.</p>
@@ -75,7 +165,7 @@
 
   <section class="testers" aria-labelledby="t-testers">
     <div class="wrap testers-row">
-      <div class="stage small" data-scene="gamer"><img class="still" src="/assets/img/still-gamer.webp" width="1040" height="760" alt="A kid in an SBHMN gaming chair, deep in a game, his Game Boy by his hand"></div>
+      <div class="stage small" data-scene="gamer"><img class="still" src="/assets/img/still-gamer.webp?v=e6db207d15" width="1040" height="760" alt="A kid in an SBHMN gaming chair, deep in a game, his Game Boy by his hand"></div>
       <div class="testers-copy">
         <span class="status live"><i></i>Testers wanted</span>
         <h2 id="t-testers">Play it before it's done<span class="red">.</span></h2>
@@ -92,7 +182,7 @@
     <span class="contact"><a href="mailto:contact@sbhmn.com">contact@sbhmn.com</a><span class="replay-wrap" hidden><button class="replay" type="button">Feed the bin again</button></span></span>
   </div>
 </footer>
-<script type="module" src="/assets/intro.js"></script>
-<script type="module" src="/assets/home/home.js"></script>
+<script type="module" src="/assets/intro.js?v=5d04766c1f"></script>
+<script type="module" src="/assets/home/home.js?v=4498c47117"></script>
 </body>
 </html>

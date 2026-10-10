@@ -2,9 +2,9 @@
    fonts, no external requests. The logo: /assets/img/sbhmn-mark.svg (its letters are holes: they show the page).
    A second accent, toxic green (--go), for good news only: a live status and the main action. Not Shapeshot's
    palette (its soft green #6bd694 is the game's, not the studio's). */
-@font-face { font-family: 'Big Shoulders Display'; src: url('fonts/big-shoulders-display-800.woff2') format('woff2'); font-weight: 800; font-display: swap; }
-@font-face { font-family: 'Barlow Semi Condensed'; src: url('fonts/barlow-semi-condensed-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
-@font-face { font-family: 'Barlow Semi Condensed'; src: url('fonts/barlow-semi-condensed-600.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+@font-face { font-family: 'Big Shoulders Display'; src: url('fonts/big-shoulders-display-800.woff2?v=088f423f09') format('woff2'); font-weight: 800; font-display: swap; }
+@font-face { font-family: 'Barlow Semi Condensed'; src: url('fonts/barlow-semi-condensed-400.woff2?v=d03a7a5f6b') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Barlow Semi Condensed'; src: url('fonts/barlow-semi-condensed-600.woff2?v=f158417e92') format('woff2'); font-weight: 600; font-display: swap; }
 
 :root {
   color-scheme: light;
