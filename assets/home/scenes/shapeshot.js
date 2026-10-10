@@ -219,14 +219,15 @@ diffuseColor.a *= (1.0 - smoothstep(uEdge.x, uEdge.y, nd.x)) * (1.0 - smoothstep
         .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
 float gs = (vWld.x - uGlintC) / uGlintW;
 float band = 1.0 - smoothstep(0.2, 1.0, abs(gs));
-totalEmissiveRadiance += vec3(1.0, 0.95, 0.86) * uGlintA * band * ${role === 'face' ? '0.05' : `0.42 * smoothstep(0.3, 0.85, vNrmL.y) * smoothstep(-0.02, ${(LD / 2).toFixed(3)}, vLoc.z)`};
-${role === 'face' ? '' : 'totalEmissiveRadiance += vec3(0.62, 0.6, 0.56) * smoothstep(0.35, 0.6, vNrmL.y) * smoothstep(0.35, 0.6, vNrmL.z) * smoothstep(0.55, 0.85, vLoc.y);'}`);
+totalEmissiveRadiance += vec3(1.0, 0.95, 0.86) * uGlintA * band * ${role === 'face' ? '0.05' : `0.15 * smoothstep(0.3, 0.85, vNrmL.y) * smoothstep(-0.02, ${(LD / 2).toFixed(3)}, vLoc.z)`};
+${role === 'face' ? '' : 'totalEmissiveRadiance += vec3(0.2, 0.2, 0.19) * smoothstep(0.35, 0.6, vNrmL.y) * smoothstep(0.35, 0.6, vNrmL.z) * smoothstep(0.55, 0.85, vLoc.y);'}`);
     };
     m.customProgramCacheKey = () => `shapeshot-name-${role}`;
     return m;
   }
-  M.face = nameMat('face', { color: 0xf0e8d6, roughness: 0.4, metalness: 0, emissive: 0xf0e8d6, emissiveIntensity: 0.22 });
-  M.body = nameMat('body', { color: 0x161412, roughness: 0.4, metalness: 0.05 });
+  // matte charcoal (the owner: not the game's ivory): charcoal faces, near-black bodies, no sheen
+  M.face = nameMat('face', { color: 0x3a3937, roughness: 0.95, metalness: 0, emissive: 0x3a3937, emissiveIntensity: 0.12 });
+  M.body = nameMat('body', { color: 0x141414, roughness: 0.95, metalness: 0 });
 
   // ---- faked contact shadows (one soft radial texture, one soft strip for the cue), a soft puff for the chalk
   const blobTex = cv(128, 128, (g) => {

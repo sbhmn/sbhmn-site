@@ -129,10 +129,12 @@ section + section { border-top: 1px solid var(--line); }
 footer.site { background: var(--ink); color: #b9b9b9; padding: 28px 0 40px; font-size: 16px; }
 footer.site .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
 footer.site a { color: #fff; }
+/* the contact address and "Feed the bin again": a gap between them on one line, and when they wrap on a phone */
+footer.site .contact { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
 footer.site a:hover { color: #fff; text-decoration-color: #fff; }
 /* "Feed the bin again": a secondary button (outline, flat) on the black footer, under the green ones, over the links. */
 .replay {
-  display: inline-flex; align-items: center; min-height: 36px; padding: 7px 12px 6px; margin-left: 14px; vertical-align: middle;
+  display: inline-flex; align-items: center; min-height: 36px; padding: 7px 12px 6px; vertical-align: middle;
   background: none; border: 2px solid #fff; color: #fff; cursor: pointer;
   font: 800 16px/1 var(--display); letter-spacing: 0.1em; text-transform: uppercase;
 }
