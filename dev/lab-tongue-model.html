@@ -7,13 +7,15 @@
 <link rel="icon" href="data:,">
 <!-- Test bench for assets/intro/tongue-model.js (the owner's tongue model, rigged; not linked from the site): the
      intro's bin with the lid SHUT (as after the slam, the black monster block under it), the tongue squeezing out
-     through the gap under the lid's front edge, the lid riding on it (the module's lid(pitch) drives the lid here).
-     /dev/lab-tongue-model.html            live: licks every 4.2 s; click or space to lick now, M mirrors the next one
-     ?view=throw,phone,front (default) | throw | phone | front | side | close | low | tclose | fclose | pclose | cam
-                                          | any list: which camera(s), side by side. throw = the throw camera
-                                          (landscape), phone = the throw camera on a portrait phone (aspect 0.46: it
-                                          backs off so the bin fits), front = the intro's front camera (reference), side
-                                          = from the right, close = nearer, low = low and near, tclose / fclose / pclose
+     through the gap under the lid's front edge, the lid riding on it (the module's lid(pitch) and roll(r) drive the lid
+     here, nested as in intro.js: a pitch group at the hinge, a roll group on the lid's side edge inside it).
+     /dev/lab-tongue-model.html            live: licks every 5.2 s; click or space to lick now, M mirrors the next one
+     ?view=throw,phone,front (default) | throw | phone | front | side | left | top | close | low | tclose | fclose
+                                          | pclose | cam | any list: which camera(s), side by side. throw = the throw
+                                          camera (landscape), phone = the throw camera on a portrait phone (aspect 0.46:
+                                          it backs off so the bin fits), front = the intro's front camera (reference),
+                                          side = from the right, left = from the left, top = from above, close =
+                                          nearer, low = low and near, tclose / fclose / pclose
                                           = the throw / front / phone camera zoomed in on the gap; cam = your own:
                                           &cam=x,y,z,targetX,targetY,targetZ,fov in bin space
      &shot                                no loop: dev/tongue-model-shot.cjs steps it with __stage.advance(s); the lick
@@ -23,6 +25,8 @@
      &pose=0.5                            freeze the tongue in the lick's pose at that time (no drips, the lid at the
                                           push), for look-dev
      &set=bend:-1,out:0.5                 ... with some of the pose's numbers overridden
+     &notilt                              lick() without roll: the lid is not tipped (its whole front lifts as one), as
+                                          an intro that only maps lid(pitch) would show it
      &tm=clearcoat:0,roughness:0.5        override tongue material numbers
      &fxscene                             the drips live in the scene (opts.fxParent = scene)
      &glb=/path/to.glb                    another build of the model
@@ -30,7 +34,10 @@
      &nocollide                           the raw chain (keyframes + springs), not kept off the bin and the lid
      &nomonster                           no black block under the lid
      &map | &uvgrid                       the colour map unlit | a labelled UV grid on the tongue
-     __stage.advance(s), .sheet(times), .poseSheet([{ t, set, label }]), .check()   for the scripts -->
+     &fill=0.85                           how much of the groove is filled (the module's FILL)
+     __stage.advance(s), .sheet(times), .poseSheet([{ t, set, label }]), .check(), .contact()   for the scripts
+                                          (check: vertices through the bin or the lid; contact: how close it lies to
+                                          each face it is nearest, by the module's own distance fields) -->
 <style>
   html, body { margin: 0; height: 100%; background: #fff; overflow: hidden; }
   canvas { display: block; width: 100vw; height: 100vh; }
@@ -86,9 +93,13 @@
     m.castShadow = name !== 'inside'; m.receiveShadow = true;
     bin.add(m);
   }
+  // (as in intro.js: the pitch group at the hinge, the roll group at the lid's left edge inside it; the lid tips toward
+  // the tongue: about its left edge when the right side rises, about its right edge when the left side does)
   const lidMesh = parts.lid;
   const pitch = new THREE.Group(); pitch.position.copy(lidMesh.position); bin.add(pitch);
-  lidMesh.position.set(0, 0, 0); lidMesh.material = binMat; lidMesh.castShadow = true; lidMesh.receiveShadow = true; pitch.add(lidMesh);
+  const rollG = new THREE.Group(); rollG.position.set(-0.51, 0, 0); pitch.add(rollG);
+  lidMesh.position.set(0.51, 0, 0); lidMesh.material = binMat; lidMesh.castShadow = true; lidMesh.receiveShadow = true; rollG.add(lidMesh);
+  const setRoll = (r) => { const px = r < 0 ? 0.51 : -0.51; rollG.position.x = px; lidMesh.position.x = -px; rollG.rotation.z = r; };
   const lining = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 0.98), pitchBlack);
   lining.rotation.x = Math.PI / 2; lining.position.set(0, -0.002, 0.5); lidMesh.add(lining);
   pitch.rotation.x = 0;
@@ -107,6 +118,7 @@
   await tongue.ready;
   const dbg = tongue.debug, tmesh = dbg.mesh;
   if (q.has('nocollide')) dbg.flags.collide = false;
+  if (q.has('fill') && tmesh?.material.userData.uFill) tmesh.material.userData.uFill.value = +q.get('fill');
   if (q.get('tm') && tmesh) {
     const m = tmesh.material;
     for (const kv of q.get('tm').split(',')) {
@@ -170,6 +182,10 @@
       camera.fov = 40; camera.lookAt(0, 0.5, 0);
     } else if (name === 'side') {
       camera.fov = 30; camera.position.set(4.2, 1.2, 0.4); camera.lookAt(0, 0.7, 0.4);
+    } else if (name === 'left') {
+      camera.fov = 30; camera.position.set(-4.2, 1.2, 0.6); camera.lookAt(0, 0.6, 0.3);
+    } else if (name === 'top') {
+      camera.fov = 30; camera.position.set(0, 4.4, 1.3); camera.lookAt(0, 0.7, 0.15);
     } else if (name === 'close') {
       camera.fov = 26; camera.position.set(0.9, 1.5, 2.8); camera.lookAt(0, 0.75, 0.45);
     } else if (name === 'cam') { // &cam=x,y,z,tx,ty,tz,fov (bin space)
@@ -219,11 +235,12 @@
   if (frozen) {
     const set = {};
     for (const kv of (q.get('set') || '').split(',').filter(Boolean)) { const [k, v] = kv.split(':'); set[k] = +v; }
-    dbg.poseAt(+q.get('pose'), set); pitch.rotation.x = dbg.lidPitch;
+    if (q.has('notilt')) dbg.flags.tilt = false;
+    dbg.poseAt(+q.get('pose'), set); pitch.rotation.x = dbg.lidPitch; setRoll(dbg.lidRoll);
   }
 
   let started = false, owed = 0;
-  const lickOpts = { speed: +(q.get('speed') ?? 1), mirror: q.has('mirror'), lid: (p) => { pitch.rotation.x = p; } };
+  const lickOpts = { speed: +(q.get('speed') ?? 1), mirror: q.has('mirror'), lid: (p) => { pitch.rotation.x = p; }, ...(q.has('notilt') ? {} : { roll: setRoll }) };
   function tick(dt) {
     clock += dt;
     if (frozen) return;
@@ -240,13 +257,22 @@
     const p = tmesh.geometry.attributes.position, v = new THREE.Vector3();
     const inv = new THREE.Matrix4().copy(tongue.object3d.matrixWorld).invert();
     const s = Math.sin(-pitch.rotation.x), c = Math.cos(-pitch.rotation.x), ze = -0.5 + c, tn = s / c;
-    const out = { rim: 0, wall: 0, lid: 0, edge: 0, below: 0, raw: 0, maxY: -9, minY: 9, maxZ: -9, maxX: 0, n: p.count, at: {} };
+    lidMesh.updateWorldMatrix(true, false);
+    const toLidM = new THREE.Matrix4().copy(lidMesh.matrixWorld).invert().multiply(tongue.object3d.matrixWorld), lv = new THREE.Vector3();
+    const rr = rollG.rotation.z, rx = rollG.position.x, rslope = Math.tan(rr) / c;
+    const out = { rim: 0, wall: 0, lid: 0, edge: 0, under: 0, base: 0, below: 0, raw: 0, maxY: -9, minY: 9, maxZ: -9, maxX: 0, n: p.count, at: {} };
     const solid = (v) => {
       const ax = Math.abs(v.x), az = Math.abs(v.z);
-      const y = v.y, zz = v.z + 0.5, yl = y * c - zz * s, zl = y * s + zz * c;
-      if (Math.abs(v.x) < 0.5 && zl > -0.05 && zl < 0.99 && yl > 0.004 && yl < 0.1) return zl > 0.975 ? 'edge' : 'lid'; // (edge: in the lid's front edge, where the clamp fades out)
+      const y = v.y;
+      lv.copy(v).applyMatrix4(toLidM); // lid space (its mesh's own: x across, y up from its underside, z from the hinge)
+      const xl = lv.x, yl = lv.y, zl = lv.z;
+      // (edge: in the lid's front edge, where the clamp fades out; under: pressing up into its underside a little, well
+      // behind the front edge: in the dark, unseen; lid: into it anywhere else)
+      if (Math.abs(xl) < 0.5 && zl > -0.05 && zl < 0.99 && yl > 0.004 && (yl < 0.1 || (yl < 0.172 && Math.abs(xl) < 0.34 && zl > 0.19 && zl < 0.77))) return zl > 0.975 ? 'edge' : yl < 0.035 && zl < 0.92 ? 'under' : 'lid';
       if (y < -0.004 && y > -0.084 && ax < UX - 0.004 && az < UZ - 0.004 && !(ax < OX && az < OZ) && ax + az < 0.97) return 'rim';
-      if (y <= -0.084 && ax < 0.468 && az < 0.424 && !(ax < OX + 0.008 && az < OZ + 0.008) && ax + az < 0.83) return 'wall'; // (into the wall, not grazing its inside)
+      const f = Math.min(1, Math.max(0, (y + 0.564) / 0.48)), bx = 0.428 + 0.046 * f - 0.006, bz = 0.39 + 0.04 * f - 0.006;
+      if (y <= -0.084 && y > -0.564 && ax < bx && az < bz && !(ax < OX + 0.008 && az < OZ + 0.008) && ax + az < 0.755 + 0.079 * f) return 'wall'; // (into the wall, not grazing its inside)
+      if (y <= -0.56 && y > -0.756 && ax < 0.466 && v.z < 0.394 && v.z > -0.354) return 'base';
       if (y < FLOOR) return 'below';
       return null;
     };
@@ -258,7 +284,7 @@
         const zr = v.z - ze, ax = Math.abs(v.x);
         const fade = (1 - ss(0.5, 0.56, ax)) * ss(0, -0.025, zr);
         if (fade > 0) {
-          const yTop = (v.z + 0.5) * tn - 0.004, o = v.y - yTop;
+          const yTop = (v.z + 0.5) * tn + (v.x - rx) * rslope - 0.004, o = v.y - yTop;
           if (o > 0) v.y -= fade * (o < 0.04 ? o : Math.max(0, 0.04 - (o - 0.04)));
         }
         const fb = (1 - ss(0.54, 0.58, ax)) * ss(0.515, 0.49, v.z) * ss(OZ - 0.012, OZ + 0.002, v.z);
@@ -271,8 +297,32 @@
     return out;
   }
 
+  // How close does the tongue lie to what it licks? Every skinned vertex out of the gap against the module's own
+  // distance fields of the bin and the lid, grouped by the face it is nearest (lid top / lid front / rim top / front /
+  // left / right / base): how many are within 0.015 and 0.03 of it, and the nearest.
+  function contact() {
+    if (!tmesh || !tmesh.visible) return { visible: false };
+    tongue.object3d.updateMatrixWorld(true); tmesh.skeleton.update();
+    const p = tmesh.geometry.attributes.position, v = new THREE.Vector3();
+    const inv = new THREE.Matrix4().copy(tongue.object3d.matrixWorld).invert();
+    const ze = -0.5 + Math.cos(-pitch.rotation.x), out = {};
+    for (let i = 0; i < p.count; i += 2) {
+      tmesh.getVertexPosition(i, v); v.applyMatrix4(tmesh.matrixWorld).applyMatrix4(inv);
+      if (v.z < ze + 0.02 && v.y < 0.12 && v.y > -0.1 && Math.abs(v.x) < 0.5) continue; // (in the gap)
+      if (v.y < 0.02 && Math.abs(v.x) < OX + 0.02 && Math.abs(v.z) < OZ + 0.02) continue; // (down in the bin: hidden)
+      const s = dbg.sdf(v.x, v.y, v.z);
+      let d, face;
+      if (s.lid < s.bin) { d = s.lid; face = s.nl[1] > 0.7 ? 'lidTop' : s.nl[2] > 0.7 ? 'lidFront' : s.nl[0] < -0.7 ? 'lidLeft' : s.nl[0] > 0.7 ? 'lidRight' : 'lidEdge'; }
+      else { d = s.bin; const n = s.nb; face = n[1] > 0.7 ? (v.y < -0.5 ? 'floor' : 'rimTop') : n[2] > 0.7 ? (v.y < -0.554 ? 'base' : 'front') : n[0] < -0.7 ? 'left' : n[0] > 0.7 ? 'right' : 'edge'; }
+      if (v.y < -0.75) { d = Math.min(d, v.y + 0.78); }
+      const o = (out[face] ??= { n: 0, c15: 0, c30: 0, min: 9 });
+      o.n++; if (d < 0.015) o.c15++; if (d < 0.03) o.c30++; o.min = Math.min(o.min, +d.toFixed(3));
+    }
+    return out;
+  }
+
   window.__stage = {
-    tongue, cues, check, pitch,
+    tongue, cues, check, contact, pitch, setRoll,
     get clock() { return clock; },
     // whole 60 Hz frames; what is left over is kept for the next call (so steps that aren't a multiple of 1/60 add up)
     advance(s) { owed += s; const n = Math.floor(owed * 60 + 1e-6); owed -= n / 60; for (let i = 0; i < n; i++) tick(1 / 60); render(); },
@@ -285,7 +335,7 @@
       times.forEach((t, k) => {
         this.advance(t - clock);
         x.drawImage(canvas, (k % cols) * cellW, Math.floor(k / cols) * cellH, cellW, cellH);
-        x.fillStyle = '#999'; x.font = '13px monospace'; x.fillText(`t=${(t - lickAt).toFixed(2)}  lid ${(-pitch.rotation.x).toFixed(3)}`, (k % cols) * cellW + 6, Math.floor(k / cols) * cellH + 16);
+        x.fillStyle = '#999'; x.font = '13px monospace'; x.fillText(`t=${(t - lickAt).toFixed(2)}  lid ${(-pitch.rotation.x).toFixed(3)} roll ${rollG.rotation.z.toFixed(3)}`, (k % cols) * cellW + 6, Math.floor(k / cols) * cellH + 16);
         x.strokeStyle = '#ddd'; x.strokeRect((k % cols) * cellW + 0.5, Math.floor(k / cols) * cellH + 0.5, cellW - 1, cellH - 1);
       });
       return out.toDataURL('image/png');
@@ -297,14 +347,14 @@
       const out = document.createElement('canvas'); out.width = cols * cellW; out.height = rows * cellH;
       const x = out.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, out.width, out.height);
       list.forEach((p, k) => {
-        dbg.poseAt(p.t ?? 0, p.set || {}); pitch.rotation.x = dbg.lidPitch;
+        dbg.poseAt(p.t ?? 0, p.set || {}); pitch.rotation.x = dbg.lidPitch; setRoll(dbg.lidRoll);
         render();
         const c = check();
         x.drawImage(canvas, (k % cols) * cellW, Math.floor(k / cols) * cellH, cellW, cellH);
-        x.fillStyle = '#999'; x.font = '13px monospace'; x.fillText(`${p.label ?? `t=${p.t}`}  rim ${c.rim} wall ${c.wall} lid ${c.lid}`, (k % cols) * cellW + 6, Math.floor(k / cols) * cellH + 16);
+        x.fillStyle = '#999'; x.font = '13px monospace'; x.fillText(`${p.label ?? `t=${p.t}`}  rim ${c.rim} wall ${c.wall} lid ${c.lid} base ${c.base}`, (k % cols) * cellW + 6, Math.floor(k / cols) * cellH + 16);
         x.strokeStyle = '#ddd'; x.strokeRect((k % cols) * cellW + 0.5, Math.floor(k / cols) * cellH + 0.5, cellW - 1, cellH - 1);
       });
-      dbg.mesh.visible = false; pitch.rotation.x = 0;
+      dbg.mesh.visible = false; pitch.rotation.x = 0; setRoll(0);
       return out.toDataURL('image/png');
     },
   };
@@ -318,9 +368,9 @@
       requestAnimationFrame(loop);
       const dt = Math.min(0.05, (now - last) / 1000); last = now;
       tick(dt);
-      if (!frozen && clock >= next) { next = clock + 4.2; go(); }
+      if (!frozen && clock >= next) { next = clock + 5.2; go(); }
       render();
-      hud.textContent = `t=${clock.toFixed(2)} ${tongue.busy ? 'licking' : ''}  lid ${(-pitch.rotation.x).toFixed(3)}`;
+      hud.textContent = `t=${clock.toFixed(2)} ${tongue.busy ? 'licking' : ''}  lid ${(-pitch.rotation.x).toFixed(3)} roll ${rollG.rotation.z.toFixed(3)}`;
     })(last);
   } else render();
 </script>

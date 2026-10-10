@@ -438,8 +438,14 @@ async function start() {
     pitch.rotation.x = 0;
     if (gap) {
       await wait(160); if (aborted) return;
-      await t.lick({ lid: (p) => { pitch.rotation.x = p; } });
-      pitch.rotation.x = 0;
+      // lid(p) lifts the front; roll(r) tips it toward the tongue's side (r > 0: the right side up, pivoting on the
+      // left edge; r < 0: the left side up, pivoting on the right edge). The last roll(0) leaves the pivot on the left,
+      // where the monster's tipped-lid pose expects it.
+      await t.lick({
+        lid: (p) => { pitch.rotation.x = p; },
+        roll: (r) => { const px = r < 0 ? 0.51 : -0.51; roll.position.x = px; lidMesh.position.x = -px; roll.rotation.z = r; },
+      });
+      pitch.rotation.x = 0; roll.rotation.z = 0; roll.position.x = -0.51; lidMesh.position.x = 0.51;
       if (aborted) return;
     }
     await wait(300); if (aborted) return;
@@ -458,7 +464,13 @@ async function start() {
     await wait(500); if (aborted) return;
     // It rises, lifting the lid on its head, tipped up on the right like the logo; the eyes open in the dark.
     sfx.play('growl', { gain: 0.9, delay: 0.55, vary: 0.02 });
+    // SBHMN slams into the bin, letter by letter, from the camera's side, while the teeth are coming down.
+    let lettersP = null;
+    const slamLetters = async () => {
+      for (let k = 0; k < letters.length; k++) { slam(letters[k]); await wait(k === letters.length - 1 ? 260 : 165); if (aborted) return; }
+    };
     await tween(1900, (t, raw) => {
+      if (!lettersP && raw >= 0.5) lettersP = slamLetters();
       const e = easeOut(t);
       monster.position.y = 0.095 * e + Math.sin(raw * 40) * 0.002 * (1 - raw);
       monster.rotation.z = 0.05 * e;
@@ -472,12 +484,7 @@ async function start() {
     }); if (aborted) return;
     await wait(250);
     await tween(170, (t) => { eyeL.scale.y = eyeR.scale.y = 1 - 0.92 * Math.sin(Math.PI * t); }); if (aborted) return;
-    await wait(300); if (aborted) return;
-    // SBHMN slams into the bin, letter by letter, from the camera's side.
-    for (let k = 0; k < letters.length; k++) {
-      slam(letters[k]);
-      await wait(k === letters.length - 1 ? 260 : 165); if (aborted) return;
-    }
+    await (lettersP ?? slamLetters()); if (aborted) return;
     await wait(650); if (aborted) return;
     await spit();
   }

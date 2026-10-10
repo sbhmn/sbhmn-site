@@ -1,7 +1,7 @@
 // Screenshots of the tongue-model lab (dev/lab-tongue-model.html) at chosen moments, stepped deterministically
 // (headless Edge).
 //   node dev/tongue-model-shot.cjs <out prefix> <t1,t2,...> [--view throw,phone,front (default) | throw | phone |
-//        front | side | close | tclose | pclose | fclose | cam | any list] [--size 1700x800]
+//        front | side | left | top | close | tclose | pclose | fclose | cam | any list] [--size 1700x800]
 //        [--sheet cols] [--cell 480] [--port 8787] [--q "speed=1&mirror&bones"] [--check]
 // Times are seconds after the lick starts. --sheet: one contact sheet <prefix>-sheet.png instead of one PNG a moment.
 // --check: at each moment, count the tongue's vertices that go through the bin or the lid (rim, walls, lid, floor;

@@ -135,6 +135,18 @@ footer.site a:hover { color: #fff; text-decoration-color: #fff; }
   .stage { height: min(112vw, 440px); }
 }
 @media (prefers-reduced-motion: reduce) { .status.live, .status.live i { animation: none; } }
+
+/* Testers wanted: the gamer at his desk (a small stage) and the way into the Google Group. */
+.testers { padding: 0 0 clamp(56px, 10vh, 120px); }
+.testers-row { display: grid; grid-template-columns: minmax(0, 520px) minmax(0, 1fr); gap: 20px 56px; align-items: center; }
+.stage.small { height: 380px; }
+.testers-copy { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+.testers-copy h2 { font-size: clamp(40px, 5.2vw, 76px); margin: 0; }
+.testers-copy p { margin: 0; font-size: clamp(18px, 1.5vw, 22px); color: var(--ink); max-width: 28em; }
+@media (max-width: 860px) {
+  .testers-row { grid-template-columns: 1fr; }
+  .stage.small { height: min(80vw, 320px); }
+}
 /* The intro: the bin game on a white stage over the page; it hands the logo to the header when it ends. */
 .intro { position: fixed; inset: 0; z-index: 50; background: #fff; touch-action: none; user-select: none; -webkit-user-select: none; }
 .intro canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
