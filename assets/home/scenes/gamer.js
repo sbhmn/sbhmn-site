@@ -1,30 +1,33 @@
 // The testers' corner on the home page: a low-poly kid of fourteen or so (a kid's proportions: a big round head, a
-// small face with big eyes, a button nose, a short round chin; red hoodie, messy brown hair, a red headset), hunched
-// at his desk in a racing chair, playing on a chunky CRT, a Game Boy by his hand. Seen from his right, a little in
-// front: his profile (eyes with whites under brows that carry the mood, a mouth that clenches its teeth or yells, hands
-// with fingers that grip and ball into fists) lit by the screen, and the screen itself, swivelled toward us.
+// small face with big eyes, a button nose, a short round chin; red hoodie, a full head of messy brown hair, a red
+// headset over it), hunched at his desk in a black racing chair with the studio's SBHMN lettering across its back,
+// playing on a big chunky CRT; past his mouse hand his Game Boy stands propped against his energy can, leaning back,
+// its screen turned to him in his seat (as he put it down mid-game), its green light on the desk in front of it.
+// Seen from high up behind him, over his right shoulder: the screen over his shoulder, his hands on the keyboard and
+// the mouse, his back and the back of his head, the chair's lettering, the Game Boy's face at a slant (turned to him,
+// away from us). His face stays turned away (a sliver of cheek at most, even when he rages). The whole set floats in
+// the box, the chair down to its casters: nothing is cut by the box's edges.
 // The screen runs a little MOBA of our own (see "The game on the screen"): a lane, a river, creep waves, his robed mage
 // farming and casting a fireball, chain lightning, a blink and a golden nova, and every round he dies, a different way
 // each loop: ganked by three heroes out of the fog, diving under their tower, caught in their warlock's meteor. The
 // screen goes grey: a respawn counter, a kill-feed line. He plays along (mashing Q W E R as the spells go off, the mouse
 // hand flicking and clicking where his cursor clicks, leaning in as it heats up), tension building.
-// Then he loses it, a different rage each loop:
-//   A) he stares, teeth clenched, the fist coiled, rears back yelling, and PUNCHES THE SCREEN (arm straight, head held
-//      back): it cracks and dies, a fireball bursts out of it (faceted white-hot/orange/red shards, expanding, turning
-//      to black smoke), sparks, glass and keycaps rain onto the desk, the blast throws him back in his chair, hands
-//      flying up (never across his face), soot smudged on his forehead, nose and cheekbones, his hair singed, standing
-//      on end and smoking, and the dead CRT pours smoke (and sputters). He sits there, breathing hard, coughs a puff. A
-//      NEW MONITOR SLAMS DOWN on the old one and pancakes it, boots, he rolls back.
-//   B) the computer burns him, he grabs the GAME BOY instead (a big cartoon brick), plays it out over the desk, loses
-//      again (the tiny screen blinks X), stares, cocks it high in his fist and HURLS it onto our end of the desk, clear
-//      of his head: it bursts (a fireball as big as A's, smoke, the shells, the battery cover, the AAs, the red A/B
-//      buttons thrown up high and raining back onto the desk). Glaring at the bits. A fresh Game Boy drops onto its
-//      spot, the bits vanish in the clearing smoke.
-// Comic timing in each: anticipation (the stare, the wind-up), impact (a tug on the page's web, a camera kick), hold,
-// aftermath, a clean reset. Hover: he slowly turns his head to glare at you, annoyed at being watched, then back.
-// Click: the next rage right now (during the aftermath: hurry the reset, the next one rages straight away).
-// Reduced motion / t = 0: he has just been ganked (the screen grey, the respawn counter, three killers in the kill feed),
-// he glares, teeth clenched, the fist coiled: about to lose it.
+// Then he loses it, every loop, all of it told from behind: he freezes; his shoulders come up round his ears, his head
+// sinks between them, his back rounds, his fists clench over the keys and the mouse, he breathes hard; both fists go up
+// and come down on the desk (the keys, the can, the CRT jump); his head snaps round to the Game Boy; he snatches it,
+// half stands, leans back and cocks it up by his right ear (its back to us: the cartridge with its red label, the
+// ridged battery cover) and HURLS it: it leaves his hand early in the swing and flies on alone, tumbling, across the
+// desk into its far right corner (his hand stops short, open), where it bursts (a fireball of faceted
+// white-hot/orange/red shards turning to black smoke, sparks, the shells, the cartridge, the battery cover, the AAs,
+// the red A/B buttons thrown up high and raining back onto the desk). He flinches from it, then sits glaring at the
+// bits, fists on the desk, shoulders heaving, as the smoke drifts off to the right, away from the screen. He respawns;
+// a fresh Game Boy drops into its spot against the can, turned to him; the bits vanish in the clearing smoke and he
+// goes back to his game.
+// Comic timing: anticipation (the freeze, the fists, the wind-up), impact (a tug on the page's web, a camera kick),
+// hold, aftermath, a clean reset. Hover: he glances back over his shoulder at you, annoyed at being watched (his
+// profile, a narrowed side-eye up at you), then back to his game. Click: the rage right now (once it's under way, the
+// next one comes straight after; in the aftermath, the reset hurries).
+// Reduced motion / t = 0: mid-fight, his chain lightning arcing through their wave, both hands going.
 // Smoke: puffs are clusters of faceted blobs, darker underneath, that swell and thin out (per-puff alpha, drawn back to
 // front); smoke, sparks, flames and the flash all fade or shrink before the box's edges, which are invisible on the page.
 import { ConvexGeometry } from '/assets/vendor/three/addons/geometries/ConvexGeometry.js';
@@ -71,31 +74,27 @@ export async function create({ THREE, stage, reduced }) {
   scene.background = null;
   const camera = new THREE.PerspectiveCamera(24, 1.37, 0.1, 60);
   const rand = rng(1907);
+  const lettersP = fetch('/assets/3d/bin-letters.json').then((r) => (r.ok ? r.json() : null)).catch(() => null);
 
-  // ---- light: a white key from our upper left, a cool fill, a rim from behind; the screen's own coloured light on
-  // his face, hands and the desk; the Game Boy's little green glow; the explosion's flash
+  // ---- light: a white key from high up behind his right shoulder, a cool fill, a rim; the screen's own coloured light on
+  // his hands and the desk; the explosion's flash
   scene.add(new THREE.HemisphereLight(0xffffff, 0x262626, 1.05));
   const key = new THREE.DirectionalLight(0xffffff, 1.9); key.position.set(-2.2, 4.2, 3.2); scene.add(key);
   const fill = new THREE.DirectionalLight(0xe4e8ee, 0.55); fill.position.set(2.5, 1.2, 4); scene.add(fill);
   const rim = new THREE.DirectionalLight(0xffffff, 1.3); rim.position.set(1.5, 3, -4); scene.add(rim);
   // the screen's light is short and soft: it catches the front of his face and his hands, never floods the set
   const glowL = new THREE.PointLight(0x22c46a, 0, 0.85, 2); scene.add(glowL);
-  const gbL = new THREE.PointLight(0x9bbc0f, 0, 0.45, 2); scene.add(gbL);
-  const GLOW_I = 0.28, GB_I = 0.05;
+  const GLOW_I = 0.28;
   const boomL = new THREE.PointLight(0xff7a22, 0, 1.3, 1.6); scene.add(boomL);
 
   // ---- materials
   const std = (color, roughness = 0.55, metalness = 0.05, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness, metalness, flatShading: true, ...extra });
-  // his skin and his lips; the blast leaves them a little ashen (the black goes on in smudges: M.face's soot, below) and
-  // singes his hair darker
-  const SKIN = new THREE.Color(0xd9a07a), SKIND = new THREE.Color(0xc8836c), ASH = new THREE.Color(0x9c8a80), ASHD = new THREE.Color(0x7a625c);
-  const HAIR = new THREE.Color(0x3a2416), SINGED = new THREE.Color(0x141010);
   const M = {
     ink: std(0x161616, 0.62),
     hood: std(0xa3181d, 0.85),                                               // his hoodie: the site's red
     hoodD: std(0x5c0b0f, 0.9),                                               // its ribbing, the pocket, the inside of the hood
     jeans: std(0x272c37, 0.85),
-    hair: std(HAIR.getHex(), 0.8),
+    hair: std(0x3a2416, 0.8),
     iris: std(0x22150d, 0.3),
     mouth: std(0x2a0b0b, 0.95),
     ink2: std(0x1c1c1c, 0.45, 0.1),
@@ -104,39 +103,17 @@ export async function create({ THREE, stage, reduced }) {
     bone: std(0xe6e2d8, 0.55),
     gb: std(0xcfcbc0, 0.5),
     gb2: std(0xb9b5aa, 0.55),
-    skin: std(SKIN.getHex(), 0.7),
-    skinD: std(SKIND.getHex(), 0.8),
+    cart: std(0x8d8981, 0.6),                                                // the cartridge in its back
+    skin: std(0xd9a07a, 0.7),
+    skinD: std(0xc8836c, 0.8),
     eye: new THREE.MeshBasicMaterial({ color: 0xeeeae0, toneMapped: false }),
     dark: std(0x070707, 0.9),
     red: std(0x7c080b, 0.45, 0.1),
-    glass: std(0xc9d2d2, 0.12, 0.25),
+    pipe: std(0x7c080b, 0.5, 0.05),                                          // the chair's piping: the logo's red
     led: new THREE.MeshBasicMaterial({ color: 0xff2414, toneMapped: false }),
     keys: std(0xffffff, 0.5),
-    off: new THREE.MeshBasicMaterial({ color: 0x0b0d0c, toneMapped: false }),
     lcdDead: new THREE.MeshBasicMaterial({ color: 0x23301c, toneMapped: false }),
   };
-  // his face's skin: the blast leaves soft black smudges on it, worked out per pixel in head space, so they sit on the
-  // low-poly face like soot, not like painted facets. Only where a cartoon kid gets them: the forehead under his fringe,
-  // the tip of his nose, high on his cheekbones toward his ears. Never round his eyes (a black eye), never on his jaw,
-  // chin or upper lip (stubble): the rest of the blast reads in his hair (it stands on end and smokes)
-  M.face = std(SKIN.getHex(), 0.7);
-  const SOOT_SPOTS = [[0.084, 0.1, 0.032, 0.03], [0.081, 0.097, -0.03, 0.024], [0.06, 0.104, 0.062, 0.022], [0.104, 0.03, 0.0, 0.018],
-    [0.032, 0.031, 0.072, 0.022], [0.034, 0.032, -0.07, 0.018]];
-  const SOOT_U = { uSoot: { value: 0 }, uHeadInv: { value: new THREE.Matrix4() }, uSpots: { value: SOOT_SPOTS.map((p) => new THREE.Vector4(...p)) } };
-  M.face.onBeforeCompile = (sh) => {
-    Object.assign(sh.uniforms, SOOT_U);
-    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nuniform mat4 uHeadInv;\nvarying vec3 vSootP;')
-      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvSootP = (uHeadInv * modelMatrix * vec4(transformed, 1.0)).xyz;');
-    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', `#include <common>\nuniform float uSoot;\nuniform vec4 uSpots[${SOOT_SPOTS.length}];\nvarying vec3 vSootP;`)
-      .replace('#include <color_fragment>', `#include <color_fragment>
-      float sootM = 0.0;
-      for (int i = 0; i < ${SOOT_SPOTS.length}; i++) {
-        float d = distance(vSootP, uSpots[i].xyz) + 0.005 * sin(vSootP.x * 170.0 + vSootP.z * 130.0) * sin(vSootP.y * 150.0 + 1.3);
-        sootM += 1.0 - smoothstep(uSpots[i].w * 0.15, uSpots[i].w, d);
-      }
-      diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.05, 0.042, 0.038), min(sootM, 1.0) * uSoot * 0.92);`);
-  };
-  M.face.customProgramCacheKey = () => 'gamer-face';
 
   // ---- geometry helpers
   const owned = [];
@@ -194,7 +171,7 @@ export async function create({ THREE, stage, reduced }) {
 
   // =====================================================================================================================
   // The set. World units ~ metres. Origin on the floor under the chair; +x toward the desk (his forward), +z his right
-  // (our side), +y up.
+  // (the side we watch from), +y up.
   const DESK_Y = 0.74, DX0 = 0.42, DX1 = 1.02, DZ = 0.6;
   const PAD = { x: 0.62, z: 0.25 };
 
@@ -215,12 +192,13 @@ export async function create({ THREE, stage, reduced }) {
     k.build(desk);
   }
 
-  // ---- the monitor: a chunky CRT, a deep tapered back, a thick bezel; swivelled toward us. Two of them share the
-  // geometry: one on the desk, one waiting to drop in when the first is smashed.
+  // ---- the monitor: a chunky CRT, a deep tapered back, a thick bezel; square to him, turned a little toward us and
+  // tipped back a touch, so we read the game over his shoulder; a big one (s: its scale), the picture the set's focus.
+  // The desk's jolts rock it.
   const SCR_W = 0.4, SCR_H = 0.3, MON_TOP = 0.445;
-  const MON = { x: 0.78, z: -0.08, yaw: 0.98 };                // cheated toward us: we see the game, he still sees it
+  const MON = { x: 0.78, z: 0.06, yaw: 0.42, tip: -0.07, s: 1.1 };
   const SCR_C = new V(-0.04, 0.27, 0);                       // screen centre, monitor space (it faces -x)
-  const monGeos = (() => {
+  const mon = (() => {
     const k = kit();
     k.add(hull(sym([[-0.09, 0, 0.11], [0.09, 0, 0.11], [-0.1, 0.012, 0.12], [0.1, 0.012, 0.12], [-0.09, 0.024, 0.1], [0.09, 0.024, 0.1]])), 'gun');
     k.add(box(0.05, 0.1, 0.07, [0.02, 0.06, 0], [0, 0, 0.12]), 'gun');
@@ -230,26 +208,14 @@ export async function create({ THREE, stage, reduced }) {
     k.add(box(0.01, 0.008, 0.02, [-0.061, 0.11, -0.2]), 'led');                // power LED
     k.add(box(0.004, 0.006, 0.07, [-0.062, 0.11, 0.15]), 'bone');              // a badge
     k.add(box(0.004, 0.012, 0.42, [-0.061, 0.433, 0]), 'graphite');            // the bezel's lip
-    return k.geos();
+    const root = new THREE.Group(); root.position.set(MON.x, DESK_Y, MON.z); root.rotation.y = MON.yaw; root.scale.setScalar(MON.s); scene.add(root);
+    const body = k.build(); root.add(body);
+    blob(root, 0.06, 0.002, 0, 0.42, 0.62, 0.5);
+    return { root, body, rock: spring(0, 520, 0.16), hop: spring(0, 600, 0.3) };   // (its picture: below, with the game)
   })();
-  const scrGeo = own(new THREE.PlaneGeometry(SCR_W, SCR_H));
-  function makeMonitor() {
-    const root = new THREE.Group(); root.position.set(MON.x, DESK_Y, MON.z); root.rotation.y = MON.yaw; scene.add(root);
-    const body = new THREE.Group(); root.add(body);
-    inst(monGeos, body);
-    const screen = new THREE.Mesh(scrGeo, M.off);
-    screen.rotation.y = -Math.PI / 2; screen.position.copy(SCR_C).setX(-0.0615);
-    body.add(screen);
-    const shadow = blob(root, 0.06, 0.002, 0, 0.42, 0.62, 0.5);
-    return { root, body, screen, shadow, state: 'live', drop: 0, vy: 0, landT: -1, wait: 0, pop: 1, tilt: spring(0, 160, 0.22), knock: spring(0, 120, 0.3), squash: spring(1, 500, 0.35) };
-  }
-  let DROP_H = 0.3;                                                          // where a new monitor pops in (under the frame's top)
-  const mons = [makeMonitor(), makeMonitor()];
-  mons[1].root.visible = false; mons[1].state = 'gone';
-  let monI = 0;
 
   // ---- the keyboard: black base, bone keycaps (one instanced batch), Q W E R in red (his four spells)
-  const KB = { x: 0.565, z: -0.04, yaw: 0.06 };
+  const KB = { x: 0.55, z: -0.34, yaw: 0.26 };                           // off to his left, angled: his left hand shows past his head
   const keyboard = new THREE.Group(); keyboard.position.set(KB.x, DESK_Y, KB.z); keyboard.rotation.y = KB.yaw; scene.add(keyboard);
   kit().add(hull(sym([[-0.085, 0, 0.235], [0.085, 0, 0.235], [-0.085, 0.016, 0.235], [0.085, 0.026, 0.235], [-0.08, 0.02, 0.24], [0.08, 0.03, 0.24]])), 'ink').build(keyboard);
   const KP = 0.031, KCOLS = 14, KROWS = 4;
@@ -291,8 +257,10 @@ export async function create({ THREE, stage, reduced }) {
   mouse.position.copy(MOUSE0);
 
   // ---- the Game Boy: a portrait brick, bone shell, the rounded bottom-right corner, a dark bezel round a pea-green LCD,
-  // a black D-pad, red A/B. Built as parts (each centred on itself) so it can burst: the intact one is a group of them,
-  // the debris is a second set of meshes sharing the geometry. Its frame: x across, y up the face, z out of the screen.
+  // a black D-pad, red A/B; on its back the cartridge standing proud of its slot at the top (a red label, grip ridges)
+  // and the ridged battery cover, so it reads as a Game Boy from behind too. Built as parts (each centred on itself) so
+  // it can burst: the intact one is a group of them, the debris is a second set of meshes sharing the geometry. Its
+  // frame: x across, y up the face, z out of the screen.
   const gbCanvas = document.createElement('canvas'); gbCanvas.width = 20; gbCanvas.height = 18;
   const gg = gbCanvas.getContext('2d');
   const gbTex = new THREE.CanvasTexture(gbCanvas); textures.push(gbTex);
@@ -319,16 +287,25 @@ export async function create({ THREE, stage, reduced }) {
     return [
       part('front', (k) => {
         k.add(gbShell(0, GB_T / 2), 'gb');
-        k.add(slab(-0.037, 0.037, 0.004, 0.066, GB_T / 2 - 0.001, GB_T / 2 + 0.0025, 0.004), 'graphite');
+        k.add(slab(-0.037, 0.037, 0.004, 0.066, GB_T / 2 - 0.001, GB_T / 2 + 0.0025, 0.0015), 'graphite');   // (a chamfer under half its depth: the LCD sits on it, not under it)
         k.add(box(0.005, 0.005, 0.002, [-0.031, 0.044, GB_T / 2 + 0.003]), 'led');
         k.add(box(0.014, 0.004, 0.003, [-0.008, -0.052, GB_T / 2 + 0.0015], [0, 0, 0.5]), 'graphite');
         k.add(box(0.014, 0.004, 0.003, [0.009, -0.052, GB_T / 2 + 0.0015], [0, 0, 0.5]), 'graphite');
         for (let i = 0; i < 5; i++) k.add(box(0.003, 0.02, 0.002, [0.02 + i * 0.006, -0.058 + i * 0.002, GB_T / 2 + 0.001], [0, 0, 0.5]), 'graphite');
         k.add(box(0.07, 0.003, 0.002, [0, 0.07, GB_T / 2 + 0.0008]), 'graphite');
       }, 0.008, Z),
-      part('lcd', [[own(new THREE.PlaneGeometry(0.044, 0.04).translate(0, 0.035, GB_T / 2 + 0.0027)), 'lcd']], 0.004, Z),
+      part('lcd', [[own(new THREE.PlaneGeometry(0.044, 0.04).translate(0, 0.035, GB_T / 2 + 0.003)), 'lcd']], 0.004, Z),
       part('back', (k) => k.add(gbShell(-GB_T / 2, 0), 'gb2'), 0.008, Z),
-      part('cover', (k) => k.add(slab(-0.03, 0.03, -0.062, -0.006, -GB_T / 2 - 0.004, -GB_T / 2 + 0.001, 0.003), 'gb2'), 0.003, Z),
+      part('cover', (k) => {
+        k.add(slab(-0.03, 0.03, -0.062, -0.006, -GB_T / 2 - 0.004, -GB_T / 2 + 0.001, 0.003), 'gb2');
+        for (let i = 0; i < 4; i++) k.add(box(0.04, 0.0022, 0.002, [0, -0.052 + i * 0.0055, -GB_T / 2 - 0.0045]), 'graphite');   // its grip ridges
+      }, 0.003, Z),
+      part('cart', (k) => {
+        k.add(slab(-0.031, 0.031, 0.022, 0.082, -GB_T / 2 - 0.006, -GB_T / 2 + 0.012, 0.002), 'cart');
+        k.add(box(0.05, 0.032, 0.002, [0, 0.044, -GB_T / 2 - 0.0065]), 'red');                      // the label (the materials the rest
+        k.add(box(0.05, 0.006, 0.0024, [0, 0.033, -GB_T / 2 - 0.0066]), 'gb');                      // of it uses: no extra draws)
+        for (let i = 0; i < 3; i++) k.add(box(0.05, 0.0018, 0.0022, [0, 0.068 + i * 0.0035, -GB_T / 2 - 0.0066]), 'graphite');
+      }, 0.006, Z),
       part('dpad', (k) => { k.add(box(0.026, 0.0085, 0.006, [-0.022, -0.022, GB_T / 2 + 0.002]), 'ink'); k.add(box(0.0085, 0.026, 0.006, [-0.022, -0.022, GB_T / 2 + 0.002]), 'ink'); }, 0.004, Z),
       part('btnA', (k) => k.add(new THREE.CylinderGeometry(0.0078, 0.0078, 0.007, 8), 'red', xf([0.026, -0.015, GB_T / 2 + 0.002], [Math.PI / 2, 0, 0])), 0.004, Z),
       part('btnB', (k) => k.add(new THREE.CylinderGeometry(0.0078, 0.0078, 0.007, 8), 'red', xf([0.009, -0.025, GB_T / 2 + 0.002], [Math.PI / 2, 0, 0])), 0.004, Z),
@@ -343,13 +320,35 @@ export async function create({ THREE, stage, reduced }) {
     for (const [g, mat] of pt.geos) (gbPer[mat] ??= []).push(g.clone().translate(pt.at.x, pt.at.y, pt.at.z));
   });
   for (const [mat, list] of Object.entries(gbPer)) { gb.add(new THREE.Mesh(own(mergeGeometries(list)), M[mat])); list.forEach((x) => x.dispose()); }
-  const GB_HOME = new V(0.57, DESK_Y + (GB_T * GBS) / 2, 0.44);
-  const GB_HOME_Q = new Q().setFromEuler(new THREE.Euler(-Math.PI / 2, -Math.PI / 2 + 0.35, 0, 'YXZ'));
+  // where it stands when he isn't holding it: on the desk past his mouse hand, propped up against his energy can and
+  // leaning back, its screen turned to him in his seat, as he put it down mid-game. From up here behind him we see its
+  // face at a slant (the green screen, the D-pad, the red A/B, all turned away from us toward him), its side and its
+  // cartridge; its screen's green light falls on the desk in front of it, toward him
+  const GB_LEAN = 0.35, GB_HH = 0.074 * GBS, GB_HT = (GB_T * GBS) / 2;
+  const GB_F = new V(0.2 - 0.54, 0, 0.1 - 0.47).normalize();               // flat, toward his seat
+  const GB_HOME = new V(0.54, DESK_Y + GB_HH * Math.cos(GB_LEAN) + GB_HT * Math.sin(GB_LEAN), 0.47);   // on its back bottom edge
+  const GB_HOME_Q = (() => {
+    const z = GB_F.clone().multiplyScalar(Math.cos(GB_LEAN)).setY(Math.sin(GB_LEAN)), y = GB_F.clone().multiplyScalar(-Math.sin(GB_LEAN)).setY(Math.cos(GB_LEAN));
+    return new Q().setFromRotationMatrix(new THREE.Matrix4().makeBasis(new V().crossVectors(y, z), y, z));
+  })();
+  // the can it leans on: just behind its back, touching it near the can's top
+  const CAN_AT = (() => {
+    const z = new V(0, 0, 1).applyQuaternion(GB_HOME_Q), y = new V(0, 1, 0).applyQuaternion(GB_HOME_Q);
+    const t = (DESK_Y + 0.122 - GB_HOME.y + z.y * GB_HT) / y.y;
+    return GB_HOME.clone().addScaledVector(z, -GB_HT).addScaledVector(y, t).addScaledVector(GB_F, -0.033).setY(DESK_Y);
+  })();
   gb.position.copy(GB_HOME); gb.quaternion.copy(GB_HOME_Q);
-  const gbShadow = blob(scene, GB_HOME.x, DESK_Y + 0.002, GB_HOME.z, 0.26, 0.26, 0.45);
+  const gbShadow = blob(scene, GB_HOME.x - GB_F.x * 0.02, DESK_Y + 0.002, GB_HOME.z - GB_F.z * 0.02, 0.17, 0.17, 0.5);
+  const lcdGlow = (() => {
+    const t = cv(64, 64, (g) => { const r = g.createRadialGradient(32, 32, 0, 32, 32, 32); [[0, 1], [0.35, 0.55], [0.7, 0.15], [1, 0]].forEach(([s, a]) => r.addColorStop(s, `rgba(255,255,255,${a})`)); g.fillStyle = r; g.fillRect(0, 0, 64, 64); });
+    const m = new THREE.MeshBasicMaterial({ map: t, color: 0x8cff5a, transparent: true, opacity: 0.32, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
+    extraMats.push(m);
+    const o = new THREE.Mesh(flat, m); o.position.set(GB_HOME.x + GB_F.x * 0.1, DESK_Y + 0.003, GB_HOME.z + GB_F.z * 0.1); o.scale.set(0.2, 1, 0.2); o.renderOrder = -1; scene.add(o);
+    return o;
+  })();
 
-  // ---- an energy can, two paper balls
-  const can = new THREE.Group(); can.position.set(0.94, DESK_Y, -0.42); scene.add(can);
+  // ---- his energy can (the Game Boy leans on it), two paper balls
+  const can = new THREE.Group(); can.position.copy(CAN_AT); scene.add(can);
   kit()
     .add(new THREE.CylinderGeometry(0.032, 0.032, 0.12, 8), 'ink', xf([0, 0.064, 0]))
     .add(new THREE.CylinderGeometry(0.026, 0.032, 0.008, 8), 'gun', xf([0, 0.128, 0]))
@@ -362,9 +361,10 @@ export async function create({ THREE, stage, reduced }) {
     return { m, y0: DESK_Y + 0.022, hop: 0, vh: 0 };
   });
 
-  // ---- the chair: a five-star base on casters, the lift, a racing seat and back with bone piping; the top swivels and
-  // tilts, the whole chair rolls
+  // ---- the chair: a five-star base on casters, the lift, a racing seat and back with red piping, the studio's
+  // lettering across the back (below); the top swivels and tilts, the whole chair rolls
   const chairBase = new THREE.Group(); scene.add(chairBase);
+  const BACK_X = -0.29, BACK_R = 0.06;                                       // the back's flat panel, chair-top space
   const chairTop = new THREE.Group(); chairTop.position.set(0, 0.4, 0); chairTop.rotation.order = 'YZX'; chairBase.add(chairTop);
   {
     const k = kit();
@@ -384,13 +384,20 @@ export async function create({ THREE, stage, reduced }) {
     k.add(hull(sym([[-0.25, 0.03, 0.2], [0.21, 0.03, 0.19], [-0.25, 0.1, 0.23], [0.22, 0.09, 0.22], [0.25, 0.06, 0.2], [-0.2, 0.075, 0.12], [0.18, 0.068, 0.12]])), 'ink');
     k.add(hull(sym([[-0.24, 0.02, 0.17], [0.2, 0.02, 0.16], [-0.24, 0.035, 0.17], [0.2, 0.035, 0.16]])), 'ink2');
     k.add(new THREE.CylinderGeometry(0.04, 0.05, 0.04, 7), 'gun', xf([0, 0.0, 0]));
-    const back = (o) => o.map(([x, y, z]) => [x - 0.12 * y, y, z]);
-    k.add(hull(back(sym([[-0.27, 0.12, 0.2], [-0.2, 0.12, 0.2], [-0.29, 0.6, 0.25], [-0.2, 0.6, 0.26], [-0.29, 0.72, 0.21], [-0.21, 0.74, 0.22], [-0.28, 0.12, 0.08]]))), 'ink');
-    k.add(hull(back(sym([[-0.27, 0.72, 0.16], [-0.21, 0.72, 0.17], [-0.27, 0.83, 0.15], [-0.22, 0.83, 0.15], [-0.27, 0.87, 0.11], [-0.22, 0.87, 0.11]]))), 'ink');
+    // the back: flat behind (the lettering's panel: the plane x = BACK_X - BACK_R * y), padded in front, side wings, a
+    // headrest; red piping round the back's edge and down the wings
+    const back = (o) => o.map(([x, y, z]) => [x - BACK_R * y, y, z]);
+    k.add(hull(back(sym([[BACK_X, 0.12, 0.2], [-0.2, 0.12, 0.2], [BACK_X, 0.6, 0.25], [-0.2, 0.6, 0.26], [BACK_X, 0.72, 0.21], [-0.21, 0.74, 0.22]]))), 'ink');
+    k.add(hull(back(sym([[BACK_X + 0.01, 0.72, 0.16], [-0.21, 0.72, 0.17], [BACK_X + 0.01, 0.83, 0.15], [-0.22, 0.83, 0.15], [BACK_X + 0.015, 0.87, 0.11], [-0.22, 0.87, 0.11]]))), 'ink');
     k.add(hull(back(sym([[-0.24, 0.32, 0.25], [-0.15, 0.3, 0.27], [-0.24, 0.62, 0.27], [-0.16, 0.62, 0.285], [-0.24, 0.5, 0.24], [-0.15, 0.48, 0.24]]))), 'ink');
     for (const s of [-1, 1]) {
-      k.add(hull(back([[-0.293, 0.14, s * 0.135], [-0.293, 0.14, s * 0.155], [-0.307, 0.85, s * 0.075], [-0.307, 0.85, s * 0.095], [-0.283, 0.14, s * 0.145], [-0.297, 0.85, s * 0.085]])), 'bone');
-      k.add(hull(back([[-0.198, 0.13, s * 0.205], [-0.198, 0.13, s * 0.22], [-0.195, 0.6, s * 0.262], [-0.195, 0.6, s * 0.275], [-0.21, 0.37, s * 0.25]])), 'bone');
+      const edge = [[0.13, 0.2], [0.6, 0.25], [0.715, 0.212]];
+      for (let i = 0; i < edge.length - 1; i++) {
+        const [[y0, z0], [y1, z1]] = [edge[i], edge[i + 1]];
+        k.add(hull(back([[BACK_X - 0.004, y0, s * (z0 - 0.004)], [BACK_X - 0.004, y0, s * (z0 - 0.016)], [BACK_X - 0.004, y1, s * (z1 - 0.004)], [BACK_X - 0.004, y1, s * (z1 - 0.016)],
+          [BACK_X + 0.004, y0, s * (z0 - 0.002)], [BACK_X + 0.004, y1, s * (z1 - 0.002)], [BACK_X + 0.004, y0, s * (z0 - 0.018)], [BACK_X + 0.004, y1, s * (z1 - 0.018)]])), 'pipe');
+      }
+      k.add(hull(back([[-0.198, 0.13, s * 0.205], [-0.198, 0.13, s * 0.22], [-0.195, 0.6, s * 0.262], [-0.195, 0.6, s * 0.275], [-0.21, 0.37, s * 0.25]])), 'pipe');
     }
     k.add(hull(back(sym([[-0.29, 0.75, 0.05], [-0.2, 0.75, 0.05], [-0.29, 0.79, 0.05], [-0.2, 0.79, 0.05]]))), 'dark');
     for (const s of [-1, 1]) {
@@ -398,6 +405,31 @@ export async function create({ THREE, stage, reduced }) {
       k.add(slab(-0.17, 0.1, 0.24, 0.27, s * 0.25 - 0.035, s * 0.25 + 0.035, 0.01), 'ink2');
     }
     k.build(chairTop);
+  }
+  // SBHMN across the back: the logo's own letters (assets/3d/bin-letters.json; only the lettering, never the bin, its
+  // eyes or its fangs), white, drawn into a texture on a decal that lies on the back's flat panel (a hair off it, so it
+  // moves with the chair and never floats)
+  const letters = await lettersP;
+  if (letters?.letters) {
+    const shapes = Object.values(letters.letters).flatMap((l) => l.shapes);
+    let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+    for (const sh of shapes) for (const [x, y] of sh.outline) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+    const LW = 0.35, TW = 1024, pad = 24, sc = (TW - 2 * pad) / (x1 - x0), TH = Math.ceil((y1 - y0) * sc + 2 * pad);
+    const tex = cv(TW, TH, (g) => {
+      const path = new Path2D();
+      for (const sh of shapes) for (const ring of [sh.outline, ...(sh.holes ?? [])]) ring.forEach(([x, y], i) => path[i ? 'lineTo' : 'moveTo'](pad + (x - x0) * sc, pad + (y1 - y) * sc));
+      g.fillStyle = '#ffffff'; g.fill(path, 'evenodd');
+    });
+    tex.anisotropy = 8;
+    const m = new THREE.MeshBasicMaterial({ map: tex, color: 0xf4f4f4, transparent: true, depthWrite: false, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });   // unlit: white like the mark, not grey
+    extraMats.push(m);
+    const LY = 0.49, n = new V(-1, -BACK_R, 0).normalize();
+    const k = LW / (TW - 2 * pad);                                           // world per texel
+    const decal = new THREE.Mesh(own(new THREE.PlaneGeometry(TW * k, TH * k)), m);
+    decal.position.set(BACK_X - BACK_R * LY, LY, 0).addScaledVector(n, 0.0015);
+    decal.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(new V(0, 0, 1), new V(-BACK_R, 1, 0).normalize(), n));
+    decal.renderOrder = 1;
+    chairTop.add(decal);
   }
 
   // =====================================================================================================================
@@ -411,7 +443,9 @@ export async function create({ THREE, stage, reduced }) {
   const HS = 1.4;                                                            // his head: a touch big for his body (stylised, still a kid's)
   const head = new THREE.Group(); head.name = 'head'; head.position.set(0.015, 0.056, 0); head.rotation.order = 'YZX'; head.scale.setScalar(HS); neck.add(head);
 
-  // body: a red hoodie on a skinny frame: the ribbed hem, the kangaroo pocket, the hood bunched behind his neck
+  // body: a red hoodie on a skinny frame: the ribbed hem, the kangaroo pocket, the hood bunched behind his neck. Its
+  // upper half (torso) stretches up when he shrugs: the shoulders and the hood rise round his sinking head
+  const torso = new THREE.Group(); chest.add(torso);
   kit()
     .add(hull(sym([[0.1, -0.05, 0.112], [0.11, 0.08, 0.118], [0.098, 0.2, 0.12], [-0.1, -0.05, 0.112], [-0.11, 0.1, 0.118], [-0.1, 0.22, 0.122], [0.114, 0.05, 0], [-0.116, 0.08, 0]])), 'hood')
     .add(hull(sym([[0.102, -0.072, 0.115], [-0.102, -0.072, 0.115], [0.107, -0.036, 0.118], [-0.107, -0.036, 0.118], [0.117, -0.054, 0], [-0.118, -0.054, 0]])), 'hoodD')
@@ -422,7 +456,7 @@ export async function create({ THREE, stage, reduced }) {
       [-0.02, 0.225, 0.168], [0.03, 0.205, 0.172], [-0.075, 0.21, 0.165], [0.025, 0.255, 0.072], [-0.065, 0.255, 0.078]])), 'hood')
     .add(hull(sym([[-0.05, 0.2, 0.1], [0.02, 0.24, 0.1], [-0.15, 0.2, 0.08], [-0.165, 0.27, 0.07], [-0.12, 0.325, 0.06], [-0.06, 0.3, 0.09], [0.0, 0.27, 0.08], [-0.15, 0.3, 0.0]])), 'hood')
     .add(hull(sym([[-0.03, 0.24, 0.06], [0.04, 0.25, 0.058], [-0.1, 0.25, 0.05], [-0.1, 0.3, 0.04], [0.0, 0.29, 0.06]])), 'hoodD')
-    .build(chest);
+    .build(torso);
   kit().add(new THREE.CylinderGeometry(0.039, 0.044, 0.096, 7), 'skin', xf([0.0, 0.025, 0])).build(neck);   // a short neck: a kid's
   const strings = [-1, 1].map((s) => {
     const m = new THREE.Mesh(own(clean(new THREE.CylinderGeometry(0.004, 0.004, 1, 4).translate(0, -0.5, 0))), M.bone);
@@ -435,8 +469,8 @@ export async function create({ THREE, stage, reduced }) {
   // (no brow ridge), big eyes a little below the middle of the head, a short button nose, a short lower face (the mouth
   // close under the nose, a small round chin set back under the lips), full cheeks, a soft jaw with no angle. Eyes with
   // whites and dark irises under lids that narrow, thick brows that carry the mood, lips over two rows of teeth (the jaw
-  // drops to yell; when he seethes he clenches and bares them), messy brown hair (a fringe swept to his left, a tousled
-  // crown that the blast blows up), the red headset on both ears. Head space: origin at the top of the neck, +x the
+  // drops to yell; when he seethes he clenches and bares them), a full head of messy brown hair (below), the red headset
+  // over it, on both ears. Head space: origin at the top of the neck, +x the
   // face, +y up, +z his right. The mouth's parts are placed from MOUTH_Y, where his lips meet.
   const MOUTH_Y = -0.0015;
   const jaw = new THREE.Group(); jaw.position.set(0.006, 0.026, 0); head.add(jaw);
@@ -478,9 +512,9 @@ export async function create({ THREE, stage, reduced }) {
     k.add(hull([...ovoid(SKULL.c, SKULL.r, 10, 4, -0.95), ...sym([[0.087, 0.09, 0], [0.085, 0.088, 0.026], [0.077, 0.09, 0.05], [0.085, 0.11, 0], [0.081, 0.112, 0.03],
       [0.064, 0.062, 0.06], [0.078, 0.035, 0.022], [0.072, 0.033, 0.042], [0.058, 0.038, 0.06],
       [0.08, 0.02, 0.024], [0.07, 0.016, 0.047], [0.05, 0.02, 0.065], [0.025, 0.026, 0.07],
-      ...atMouth([[0.09, 0.0095, 0.012], [0.085, 0.0015, 0.022], ...CHEEK_LOW])])]), 'face');
+      ...atMouth([[0.09, 0.0095, 0.012], [0.085, 0.0015, 0.022], ...CHEEK_LOW])])]), 'skin');
     k.add(hull(sym([[0.082, 0.064, 0.0065], [0.091, 0.047, 0.007], [0.1, 0.031, 0.0085], [0.104, 0.027, 0], [0.098, 0.019, 0.008],   // a short button nose
-      [0.09, 0.019, 0.0135], [0.086, 0.026, 0.0145], [0.083, 0.017, 0.01], [0.08, 0.035, 0.011]])), 'face');
+      [0.09, 0.019, 0.0135], [0.086, 0.026, 0.0145], [0.083, 0.017, 0.01], [0.08, 0.035, 0.011]])), 'skin');
     k.add(hull(sym(atMouth([[0.095, 0.007, 0.007], [0.097, 0, 0.005], [0.0915, 0.007, 0.016], [0.091, 0, 0.017], [0.079, -0.003, 0.0215], [0.087, 0.009, 0.012]]))), 'skinD');   // the upper lip, thin
     k.add(hull(sym(atMouth([[0.092, 0.0015, 0.0155], [0.0955, 0.0015, 0.005], [0.091, -0.006, 0.0155], [0.0945, -0.006, 0.005], [0.083, 0.0015, 0.02], [0.083, -0.006, 0.02]]))), 'bone');   // the top teeth
     k.add(hull(sym(atMouth([[0.091, -0.0015, 0.016], [0.079, -0.026, 0.012], [0.062, -0.0005, 0.021], [0.058, -0.029, 0.017]]))), 'mouth');   // inside the mouth
@@ -513,36 +547,60 @@ export async function create({ THREE, stage, reduced }) {
       .add(hull(toJaw(sym(atMouth([[0.0935, 0, 0.0085], [0.095, -0.0025, 0.004], [0.0935, -0.009, 0.006], [0.0895, 0, 0.017], [0.087, -0.007, 0.016], [0.078, -0.003, 0.0215], [0.088, -0.011, 0.01]])))), 'skinD')   // the lower lip
       .add(hull(toJaw(sym(atMouth([[0.09, -0.009, 0.013], [0.088, -0.017, 0.012], [0.0855, -0.025, 0.0135], [0.087, -0.024, 0], [0.074, -0.032, 0.015], [0.076, -0.033, 0],
         [0.057, -0.028, 0.03], [0.035, -0.019, 0.042], [0.013, -0.006, 0.048], [0.045, -0.014, 0.05], [0.017, -0.003, 0.056], [-0.012, 0.014, 0.054], [-0.005, 0.027, 0.05],
-        [0.078, -0.001, 0.026], [0.088, -0.003, 0.012], ...CHEEK_LOW])))), 'face')   // the chin, the jaw
+        [0.078, -0.001, 0.026], [0.088, -0.003, 0.012], ...CHEEK_LOW])))), 'skin')   // the chin, the jaw
       .add(hull(toJaw(sym(atMouth([[0.089, -0.002, 0.0145], [0.0925, -0.002, 0.005], [0.088, -0.0085, 0.0145], [0.0915, -0.0085, 0.005], [0.081, -0.002, 0.019], [0.081, -0.0085, 0.019]])))), 'bone')   // the bottom teeth
       .build(jaw);
   }
-  // the hair: a cap over the skull (the top down to above his ears, the back down to his nape), a fringe of locks falling
-  // over his forehead, swept to his left, locks over his ears and at the back; the crown's tufts are their own group (the
-  // blast stands them up). A lock: a flat clump, wide at the root, blunt at the tip.
+  // the hair: a full head of it, messy, brown. A shell round his skull: the top, both sides down past the headset's cups
+  // (they press into it over his ears), sideburns in front of them, the back down to his nape; then clumps over it: a
+  // fringe swept to his left, locks over the temples sweeping back above the cups and hanging behind them, rows of locks
+  // down the back of his head, short points at the nape, tufts sticking up all over the crown (the band sits in them).
+  // A lock: a flat clump, wide at the root, blunt at the tip. Points on the shell: sp(latitude, longitude round from his
+  // face toward his right, how far out).
   const hair = new THREE.Group(); head.add(hair);
-  const tufts = new THREE.Group(); tufts.position.set(-0.01, 0.184, 0); hair.add(tufts);
   {
-    const k = kit(), kt = kit();
-    const lock = (kk, b, t, w, o = [0, 0, 0]) => {
+    const k = kit();
+    const HC = [SKULL.c[0] - 0.002, SKULL.c[1] + 0.006, 0], HR = [SKULL.r[0] * 1.09, SKULL.r[1] * 1.115, SKULL.r[2] * 1.09];
+    const sp = (la, lo, f = 1) => [HC[0] + f * HR[0] * Math.cos(la) * Math.cos(lo), HC[1] + f * HR[1] * Math.sin(la), HC[2] + f * HR[2] * Math.cos(la) * Math.sin(lo)];
+    const lock = (b, t, w) => {
       const B = P3(b), T = P3(t), d = new V().subVectors(T, B).normalize();
       const u = new V().crossVectors(d, Math.abs(d.y) > 0.85 ? new V(1, 0, 0) : new V(0, 1, 0)).normalize(), v = new V().crossVectors(d, u);
       const pts = [T.clone().addScaledVector(u, w * 0.2), T.clone().addScaledVector(u, -w * 0.2)];
       for (let i = 0; i < 6; i++) { const a = (i / 6) * Math.PI * 2; pts.push(B.clone().addScaledVector(u, Math.cos(a) * w).addScaledVector(v, Math.sin(a) * w * 0.45).addScaledVector(d, -0.01)); }
-      kk.add(hull(pts.map((p) => p.sub(_tv.set(...o)))), 'hair');
+      k.add(hull(pts), 'hair');
     };
-    const cap = ovoid([SKULL.c[0] - 0.002, SKULL.c[1] + 0.01, 0], [SKULL.r[0] * 1.1, SKULL.r[1] * 1.12, SKULL.r[2] * 1.12], 14, 6, -0.9);
-    k.add(hull(cap.filter(([x, y]) => y > 0.14 || (y > 0.095 && x < 0.05))), 'hair');
-    k.add(hull(cap.filter(([x, y]) => x < -0.046 && y > -0.004)), 'hair');
-    for (const [b, t, w] of [[[0.072, 0.162, 0.03], [0.09, 0.104, 0.018], 0.021], [[0.076, 0.162, 0.006], [0.093, 0.1, -0.008], 0.022],       // the fringe, low on his forehead
-      [[0.074, 0.162, -0.018], [0.091, 0.104, -0.034], 0.021], [[0.066, 0.159, -0.042], [0.08, 0.11, -0.058], 0.019], [[0.064, 0.158, 0.052], [0.078, 0.114, 0.05], 0.018],
-      [[-0.004, 0.126, 0.08], [0.008, 0.1, 0.094], 0.02], [[-0.004, 0.126, -0.08], [0.008, 0.1, -0.094], 0.02],                                // over his ears
-      [[-0.108, 0.119, 0.03], [-0.132, 0.102, 0.045], 0.022], [[-0.104, 0.064, -0.022], [-0.124, 0.038, -0.032], 0.02], [[-0.11, 0.094, -0.03], [-0.13, 0.074, -0.045], 0.018]]) lock(k, b, t, w);
-    const T0 = [tufts.position.x, tufts.position.y, tufts.position.z];
-    for (const [b, t, w] of [[[0.022, 0.194, 0.03], [0.046, 0.206, 0.046], 0.028], [[-0.026, 0.202, -0.012], [-0.054, 0.214, -0.026], 0.03],   // the crown
+    // the shell: the top (down to the hairline over his forehead), each side, the back
+    const shell = ovoid(HC, HR, 16, 9, -1.25);
+    k.add(hull(shell.filter(([x, y]) => y > 0.128 && x < 0.08)), 'hair');
+    for (const s of [-1, 1]) {
+      const side = [];
+      for (const la of [-0.62, -0.4, -0.15, 0.1, 0.35, 0.6]) for (const lo of [1.05, 1.3, 1.6, 1.9, 2.2, 2.5]) if (!(la < -0.3 && lo < 1.2)) side.push(sp(la, s * lo));
+      side.push(sp(0.45, s * 0.9), sp(0.2, s * 0.95), [HC[0], HC[1], s * 0.03], [HC[0] - 0.05, HC[1], s * 0.03], [HC[0], HC[1] + 0.06, s * 0.03]);
+      k.add(hull(side), 'hair');
+    }
+    k.add(hull([...shell.filter(([x, y]) => x < -0.03 && y > -0.03), [HC[0] - 0.02, HC[1], 0]]), 'hair');
+    // the fringe, low on his forehead, swept to his left
+    for (const [b, t, w] of [[[0.072, 0.162, 0.03], [0.09, 0.104, 0.018], 0.021], [[0.076, 0.162, 0.006], [0.093, 0.1, -0.008], 0.022],
+      [[0.074, 0.162, -0.018], [0.091, 0.104, -0.034], 0.021], [[0.066, 0.159, -0.042], [0.08, 0.11, -0.058], 0.019], [[0.064, 0.158, 0.052], [0.078, 0.114, 0.05], 0.018]]) lock(b, t, w);
+    for (const s of [-1, 1]) {
+      lock(sp(0.62, s * 0.85, 0.97), sp(0.3, s * 1.1, 1.1), 0.022);                 // the temples, over the cups' front
+      lock(sp(0.45, s * 1.25, 0.97), sp(0.25, s * 1.85, 1.1), 0.024);               // swept back over the cups
+      lock(sp(0.62, s * 1.65, 0.97), sp(0.4, s * 2.2, 1.13), 0.024);
+      lock(sp(0.12, s * 1.0, 0.97), sp(-0.32, s * 1.08, 1.04), 0.017);              // sideburns, down in front of the cups
+      lock(sp(0.2, s * 2.15, 0.97), sp(-0.32, s * 2.3, 1.1), 0.022);                // hanging behind the cups
+      lock(sp(-0.15, s * 2.35, 0.97), sp(-0.6, s * 2.45, 1.06), 0.02);
+    }
+    // down the back of his head: rows of locks, the lowest short, at his nape
+    for (const [la, la2, los, f, w] of [[0.95, 0.62, [2.75, 3.14, 3.53], 1.15, 0.027], [0.55, 0.22, [2.55, 2.95, 3.33, 3.73], 1.14, 0.026],
+      [0.15, -0.22, [2.7, 3.14, 3.58], 1.12, 0.026], [-0.3, -0.68, [2.85, 3.43], 1.06, 0.022]]) {
+      for (const lo of los) lock(sp(la, lo, 0.97), sp(la2, lo + 0.08 * Math.sin(lo * 7), f), w);
+    }
+    // the crown: tufts sticking up and out every which way
+    for (const [b, t, w] of [[[0.022, 0.194, 0.03], [0.046, 0.206, 0.046], 0.028], [[-0.026, 0.202, -0.012], [-0.054, 0.214, -0.026], 0.03],
       [[-0.06, 0.19, 0.03], [-0.09, 0.194, 0.046], 0.028], [[-0.072, 0.18, -0.04], [-0.1, 0.18, -0.06], 0.026], [[0.03, 0.192, -0.034], [0.052, 0.2, -0.058], 0.024],
-      [[-0.01, 0.2, 0.04], [-0.03, 0.208, 0.066], 0.024]]) lock(kt, b, t, w, T0);
-    k.build(hair); kt.build(tufts);
+      [[-0.01, 0.2, 0.04], [-0.03, 0.208, 0.066], 0.024]]) lock(b, t, w);
+    for (const [lo, w] of [[0.6, 0.024], [1.5, 0.026], [2.4, 0.026], [-0.7, 0.024], [-1.6, 0.026], [-2.5, 0.026], [3.14, 0.027]]) lock(sp(1.12, lo, 0.97), sp(0.85, lo + 0.25, 1.17), w);
+    k.build(hair);
   }
   // his eyes: whites, dark irises, an upper lid that narrows them (and blinks), a lower lid; brows of hair over them.
   // Each eye turns toward what he's looking at (the head does most of it; the eyes finish the job).
@@ -644,8 +702,8 @@ export async function create({ THREE, stage, reduced }) {
 
   // =====================================================================================================================
   // FX, all instanced: fire shards (unlit, a baked facet shade x a hot colour ramp), sparks (stretched along their
-  // flight), smoke puffs (lit, faceted clusters; they swell as they rise and thin away), and debris that tumbles and
-  // bounces: CRT glass, keycaps, the Game Boy's parts.
+  // flight), smoke puffs (lit, faceted clusters; they swell as they rise and thin away), and the Game Boy's parts, that
+  // tumble and bounce.
   /** A baked facet shade (unlit materials still read as faceted solids). */
   const shade = (g, lo = 0.55) => {
     const n = g.attributes.normal, col = new Float32Array(n.count * 3);
@@ -683,7 +741,6 @@ export async function create({ THREE, stage, reduced }) {
   const smokeAlpha = new THREE.InstancedBufferAttribute(new Float32Array(NK), 1);
   smokeGeo.setAttribute('iAlpha', smokeAlpha);
   const sparkGeo = own(new THREE.BoxGeometry(1, 1, 1));
-  const shardGeo = own(clean(hull([[0, 0, -0.002], [0.042, 0.008, -0.002], [0.015, 0.04, -0.002], [0, 0, 0.002], [0.042, 0.008, 0.002], [0.015, 0.04, 0.002]]).translate(-0.019, -0.016, 0)));
   const fxMat = {
     fire: new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false }),
     flash: new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false, color: 0xfff6d0 }),
@@ -708,7 +765,6 @@ export async function create({ THREE, stage, reduced }) {
   const NF = 72, NS = 56;
   const fireMesh = pool(fireGeo, fxMat.fire, NF), sparkMesh = pool(sparkGeo, fxMat.spark, NS), smokeMesh = pool(smokeGeo, fxMat.smoke, NK);
   smokeMesh.renderOrder = 2;
-  const glassMesh = pool(shardGeo, M.glass, 16), capMesh = pool(keyGeo, M.keys, 10);
   const flash = new THREE.Mesh(flashGeo, fxMat.flash); flash.visible = false; flash.frustumCulled = false; scene.add(flash);
   const mkP = () => ({ on: false, p: new V(), v: new V(), q: new Q(), w: new V(), age: 0, life: 1, s: 1, hot: 0, dark: 0 });
   const fire = Array.from({ length: NF }, mkP), sparks = Array.from({ length: NS }, mkP), smoke = Array.from({ length: NK }, mkP);
@@ -769,8 +825,6 @@ export async function create({ THREE, stage, reduced }) {
   const bodies = [];
   const ground = (b) => (b.p.x > DX0 && b.p.x < DX1 && Math.abs(b.p.z) < DZ && b.p.y > DESK_Y - 0.06 ? DESK_Y : 0);
   function body(write, r, flatAxis) { const b = { ...mkP(), write, r, flatAxis, sc: 1, shrinkT: null }; bodies.push(b); return b; }
-  const glass = Array.from({ length: 16 }, () => body(null, 0.003, new V(0, 0, 1)));
-  const caps = Array.from({ length: 10 }, () => body(null, 0.011, new V(0, 1, 0)));
   const gbDebris = gbParts.map((pt) => {
     const g = inst(pt.geos); g.visible = false; scene.add(g);
     const b = body((bb) => { g.visible = bb.on && bb.sc > 0.01; g.position.copy(bb.p); g.quaternion.copy(bb.q); g.scale.setScalar(Math.max(1e-4, bb.sc)); }, pt.r, pt.flat);
@@ -866,13 +920,14 @@ export async function create({ THREE, stage, reduced }) {
   const sg = scrCanvas.getContext('2d');
   const scrImg = sg.createImageData(SW * SX, SH * SX);
   // mipmapped: at page size the canvas is drawn smaller than it is (the scanlines average out instead of shimmering)
-  const crtTex = (c) => { const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.NearestFilter; t.minFilter = THREE.LinearMipmapLinearFilter; t.anisotropy = 8; textures.push(t); return t; };
-  const screenTex = crtTex(scrCanvas);
+  const screenTex = new THREE.CanvasTexture(scrCanvas); textures.push(screenTex);
+  screenTex.colorSpace = THREE.SRGBColorSpace; screenTex.magFilter = THREE.NearestFilter; screenTex.minFilter = THREE.LinearMipmapLinearFilter; screenTex.anisotropy = 8;
   const liveMat = new THREE.MeshBasicMaterial({ map: screenTex, toneMapped: false }); extraMats.push(liveMat);
-  // the smashed screen: cracks round the punch, a hole, the last picture burnt in; a second one sputtering
-  const deadCanvas = [0, 1].map(() => { const c = document.createElement('canvas'); c.width = SW * SX; c.height = SH * SX; return c; });
-  const deadTex = deadCanvas.map(crtTex);
-  const deadMat = deadTex.map((t) => { const m = new THREE.MeshBasicMaterial({ map: t, toneMapped: false }); extraMats.push(m); return m; });
+  {                                                                          // the CRT's face, showing it
+    const screen = new THREE.Mesh(own(new THREE.PlaneGeometry(SCR_W, SCR_H)), liveMat);
+    screen.rotation.y = -Math.PI / 2; screen.position.copy(SCR_C).setX(-0.0615);
+    mon.body.add(screen);
+  }
   const glow = { c: new THREE.Color(0x3c8a5a), i: 1, tc: new THREE.Color(0x3c8a5a), ti: 1 };
   const outQ = (u) => 1 - (1 - clamp(u, 0, 1)) ** 2;
   const pop = (u) => (u < 0 ? -99 : -3 * Math.exp(-u * 7) * Math.cos(u * 22));   // text drops in and bounces
@@ -1923,80 +1978,31 @@ export async function create({ THREE, stage, reduced }) {
     glow.ti = clamp(0.45 + 2.2 * ((0.3 * sr + 0.59 * sgn + 0.11 * sb) / n), 0.45, 2.2);
   }
 
-  /** The CRT coming on: a bright line that opens into the picture. */
-  function drawBoot(k, g, pre) {
-    if (k < 1) {
-      FB.fill(5);
-      const hh = Math.max(1, Math.round(SH * smooth(0.35, 1, k))), ww = Math.round(SW * smooth(0, 0.35, k));
-      clipH = SH; rect((SW - ww) / 2, (SH - hh) / 2, ww, hh, k > 0.8 ? C(0xcfd8d2) : P.white);
-      present(); glow.tc.set(0xdfe8ff); glow.ti = 0.4 + k;
-    } else g.draw(pre);
-  }
-  /** Smash the picture: the last frame, burnt and darkened, cracks from the punch, a black hole with a glinting rim. */
-  function drawDead(px0, py0) {
-    const r2 = rng(Math.floor(px0 * 31 + py0 * 17)), K = (SW * SX) / 96;
-    deadCanvas.forEach((c, v) => {
-      const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
-      g.drawImage(scrCanvas, 0, 0);
-      g.fillStyle = v ? 'rgba(10,30,24,0.45)' : 'rgba(8,8,8,0.82)'; g.fillRect(0, 0, c.width, c.height);
-      if (v) for (let y = 0; y < c.height; y += 6 * K) g.drawImage(scrCanvas, 0, y, c.width, 3 * K, (((y / K) * 13) % 11 - 5) * K, y, c.width, 3 * K);   // a torn sputter
-      g.strokeStyle = v ? 'rgba(235,255,245,0.9)' : 'rgba(210,214,212,0.85)'; g.lineWidth = K;
-      for (let i = 0; i < 11; i++) {
-        let a = (i / 11) * Math.PI * 2 + r2() * 0.4, x = px0, y = py0;
-        g.beginPath(); g.moveTo(x, y);
-        const L = (14 + r2() * 46) * K;
-        for (let s = 0; s < L; s += 5 * K) { a += (r2() - 0.5) * 0.7; x += Math.cos(a) * 5 * K; y += Math.sin(a) * 5 * K; g.lineTo(Math.round(x) + 0.5, Math.round(y) + 0.5); }
-        g.stroke();
-      }
-      g.beginPath();
-      for (let i = 0; i < 4; i++) {                                           // a broken ring
-        const a0 = r2() * 6.3, rr = (8 + r2() * 6) * K;
-        g.moveTo(px0 + Math.cos(a0) * rr, py0 + Math.sin(a0) * rr); g.arc(px0, py0, rr, a0, a0 + 0.6 + r2());
-      }
-      g.stroke();
-      g.fillStyle = '#020202'; g.beginPath();
-      for (let i = 0; i < 9; i++) { const a = (i / 9) * Math.PI * 2, rr = (5 + r2() * 5) * K; g[i ? 'lineTo' : 'moveTo'](px0 + Math.cos(a) * rr, py0 + Math.sin(a) * rr * 0.9); }
-      g.closePath(); g.fill();
-    });
-    deadTex.forEach((t) => { t.needsUpdate = true; });
-  }
-
-  // the Game Boy's game: blocks stacking up a well, a piece falling; at `fail` the stack tops out: it blinks an X
-  const GBP = ['#9bbc0f', '#8bac0f', '#306230', '#0f380f'];
-  function drawGB(u, fail, on) {
+  // the Game Boy's game, paused where he put it down: blocks stacked up a well, a piece hanging over them
+  function drawGB() {
+    const GBP = ['#9bbc0f', '#8bac0f', '#306230', '#0f380f'];
     gg.fillStyle = GBP[0]; gg.fillRect(0, 0, 20, 18);
-    if (!on) { gg.fillStyle = GBP[1]; gg.fillRect(5, 6, 10, 5); gg.fillStyle = GBP[3]; gg.fillRect(6, 7, 8, 1); gg.fillRect(6, 9, 5, 1); gbTex.needsUpdate = true; return; }
     gg.fillStyle = GBP[2]; gg.fillRect(3, 0, 1, 18); gg.fillRect(16, 0, 1, 18);
-    const rows = Math.min(17, 5 + Math.floor(Math.max(0, u) * 5.5));
     gg.fillStyle = GBP[3];
-    for (let y = 0; y < rows; y++) for (let x = 4; x < 16; x++) if ((x * 7 + y * 13) % 5 !== 0) gg.fillRect(x, 17 - y, 1, 1);
-    if (u < fail) { const py = Math.floor((u * 16) % Math.max(1, 17 - rows)); gg.fillStyle = GBP[2]; gg.fillRect(8, py, 3, 1); gg.fillRect(9, py + 1, 1, 1); }
-    else if (Math.floor((u - fail) * 7) % 2 === 0) {
-      gg.fillStyle = GBP[3]; gg.fillRect(0, 0, 20, 18);
-      gg.fillStyle = GBP[0]; for (let i = 0; i < 7; i++) { gg.fillRect(6 + i, 5 + i, 2, 1); gg.fillRect(12 - i, 5 + i, 2, 1); }
-    }
+    for (let y = 0; y < 9; y++) for (let x = 4; x < 16; x++) if ((x * 7 + y * 13) % 5 !== 0) gg.fillRect(x, 17 - y, 1, 1);
+    gg.fillStyle = GBP[2]; gg.fillRect(8, 4, 3, 1); gg.fillRect(9, 5, 1, 1);
     gbTex.needsUpdate = true;
   }
 
   // =====================================================================================================================
-  // The loop: cycles alternate rage A (punch the CRT) and rage B (spike the Game Boy), the rounds (his three deaths)
-  // rotate under them.
-  const SEQ = {
-    A: [['play', 0], ['stare', 0.85], ['windup', 0.5], ['punch', 0.1], ['blown', 0.6], ['after', 2.3], ['reset', 1.6], ['resume', 0.45]],
-    B: [['play', 0], ['recoil', 0.45], ['grab', 0.75], ['gbplay', 1.7], ['stare', 0.5], ['windup', 0.6], ['throw', 0.6], ['flinch', 0.5], ['after', 2.0], ['reset', 1.4], ['resume', 0.45]],
-  };
-  const PLAYING = new Set(['play', 'recoil', 'grab', 'gbplay']);
-  const cyc = { i: 0, kind: 'A', game: ROUNDS[0], ph: [], pi: 0, pu: 0, gu: 0, gbu: 0, rush: false };
+  // The loop: each cycle he plays a round (the rounds, his three deaths, rotate), dies, fumes, throws the Game Boy.
+  const SEQ = [['play', 0], ['seethe', 0.95], ['slam', 0.55], ['snap', 0.3], ['grab', 0.42], ['windup', 0.55], ['throw', 0.6], ['flinch', 0.55], ['after', 1.75], ['reset', 1.35], ['resume', 0.45]];
+  const cyc = { i: 0, game: ROUNDS[0], ph: [], pi: 0, pu: 0, gu: 0, rush: false, slammed: false };
   const cur = () => cyc.ph[cyc.pi];
   const phase = () => cyc.ph[cyc.pi].n;
-  const gbFail = () => cyc.ph.find((p) => p.n === 'gbplay').d - 0.25;
 
-  // the gamer's state: springs on every channel, so each move has weight, overshoot and settle
+  // the gamer's state: springs on every channel, so each move has weight, overshoot and settle. shrug: his shoulders up
+  // round his ears (his head sinking between them)
   const sp = {
-    lean: spring(0.4, 60, 0.8), hunch: spring(0.5, 60, 0.8), twist: spring(0.05, 50, 0.8),
+    lean: spring(0.4, 60, 0.8), hunch: spring(0.5, 60, 0.8), twist: spring(0.05, 50, 0.8), shrug: spring(0, 90, 0.6),
     yaw: spring(0, 60, 0.85), pitch: spring(0, 60, 0.85), roll: spring(0, 60, 0.8),
-    recline: spring(0, 40, 0.5), swivel: spring(0, 30, 0.45), rollX: spring(0, 25, 0.9),
-    jaw: spring(0.1, 120, 0.7), brow: spring(-0.35, 120, 0.7), lids: spring(0.3, 160, 0.8), grit: spring(0, 140, 0.75), soot: spring(0, 30, 1), rise: spring(0, 70, 0.7),
+    recline: spring(0, 40, 0.5), swivel: spring(0, 30, 0.45), rollX: spring(0, 25, 0.9), cock: spring(0, 160, 0.8),
+    jaw: spring(0.1, 120, 0.7), brow: spring(-0.35, 120, 0.7), lids: spring(0.3, 160, 0.8), grit: spring(0, 140, 0.75), rise: spring(0, 70, 0.7),
   };
   // each hand: where it is (x, y, z) and how far its fingers curl (c: 0 open, 0.5 a grip, 1 a fist)
   const hands = [-1, 1].map(() => ({ x: spring(0, 160, 0.75), y: spring(0, 160, 0.75), z: spring(0, 160, 0.75), c: spring(0.3, 260, 0.8) }));
@@ -2008,125 +2014,93 @@ export async function create({ THREE, stage, reduced }) {
   keyboard.updateMatrixWorld(true);
   const KEY_HOME = new V(); kbLocal(QWER[1], KEY_HOME).lerp(kbLocal(QWER[2], _p), 0.5);   // over W and E
   const LH_HOME = KEY_HOME.clone().add(new V(-0.085, 0.01, 0.0));
-  const RH_HOME = MOUSE0.clone().add(new V(-0.08, 0.046, -0.005));
-  // rage B's marks: the spot on our side of the desk where the Game Boy goes off (in front of the monitor, clear of
-  // his head), the fist cocked high in front of the chair, the follow-through
-  const SPIKE = new V(0.93, DESK_Y + 0.035, 0.42);
-  const WIND_B = new V(-0.1, 1.3, 0.28), THROW_FT = new V(0.5, 0.92, 0.42), T_FLY = 0.15;
-  const SCREEN_W = new V(), SCREEN_N = new V(), SCREEN_X = new V(), EYE_W = new V(), MOUTH_W = new V();
+  const RH_HOME = MOUSE0.clone().add(new V(-0.125, 0.044, -0.005));       // a claw grip: the palm behind the mouse
+  // the rage's marks: where his fists come down (the left on the keys, the right by the mouse) and rest after; where his
+  // hand takes the Game Boy (in front of its screen); where it lands and goes off (the desk's far right corner, right of
+  // the monitor: in clear view, well clear of his hand and the screen). The wind-up: off the desk low and back by his
+  // side (CARRY), then up, cocked by his right ear (WIND; in the picture: beside his head, by his headset's cup, its back
+  // to us), never forward past the screen. The throw: whipped forward and down and let go early in the swing (REL, at
+  // REL_T into the throw); the hand follows through a little way (FOLLOW) and stops there while the Game Boy flies on
+  // alone, tumbling, for T_FLY
+  const SLAM_L = new V(0.52, DESK_Y + 0.045, -0.12), SLAM_R = new V(0.5, DESK_Y + 0.03, 0.17);
+  const EDGE_L = new V(DX0 + 0.05, DESK_Y + 0.035, -0.15), EDGE_R = new V(DX0 + 0.05, DESK_Y + 0.035, 0.17);
+  const GRAB_AT = GB_HOME.clone().addScaledVector(GB_F, 0.085).add(new V(0, 0.045, 0));
+  const SPIKE = new V(0.86, DESK_Y + 0.035, 0.44);
+  const WIND = new V(-0.1, 1.36, 0.4), CARRY = new V(0.06, 1.0, 0.5), REL = new V(0.18, 1.12, 0.48), REL_T = 0.06, FOLLOW = new V(0.33, 1.02, 0.3), T_FLY = 0.26;
+  const G3 = new V(0, -9.8, 0);
+  const SCREEN_W = new V();
   const gaze = new V();                                                      // what his eyes are on (world)
   const look = { w: spring(0, 14, 0.95), t: -1, cool: 0 };
   const mash = { t: 0, next: 0, key: QWER[1], lh: new V(), rate: 0, cast: -1 };
   const mouseAt = MOUSE0.clone(), mouseDir = { yaw: -0.1 };
-  const gbs = { mode: 'desk', grab: 0, one: 0, wait: 0, pop: 1, p: GB_HOME.clone(), q: GB_HOME_Q.clone(), dropY: 0, dropV: 0, landT: -1, sq: spring(1, 500, 0.3), on: false, f0: new V(), q0: new Q(), ft: 0 };
-  const fx = { boomT: -1, boomAt: new V(), boomPeak: 0, flashT: -1, flashAt: new V(), flashS: 0, sootT: -1, sootAt: new V(), sootN: 0, sootS: 0, sootDir: new V(), sootUp: false, plume: 0, plumeAt: new V(), plumeDark: 0, crackle: 0, sputter: 0, cough: -1, singe: 0 };
+  // the Game Boy's state. Held: its place in his hand (rp0, rq0: hand space) eases from where it was when his hand closed
+  // on it to the throwing grip (no flip). Flying: a ballistic arc from where he let go (f0, v0) onto the spot
+  const gbs = { mode: 'desk', wait: 0, pop: 1, p: GB_HOME.clone(), q: GB_HOME_Q.clone(), dropY: 0, dropV: 0, landT: -1, sq: spring(1, 500, 0.3), f0: new V(), v0: new V(), q0: new Q(), ft: 0, hop: 0, vh: 0, rp0: new V(), rq0: new Q(), ht: 0 };
+  const monJ = { hop: 0, vh: 0 };
+  const fx = { boomT: -1, boomAt: new V(), boomPeak: 0, flashT: -1, flashAt: new V(), flashS: 0, sootT: -1, sootAt: new V(), sootN: 0, sootS: 0, sootDir: new V(), sootUp: false, plume: 0, plumeAt: new V(), plumeDark: 0 };
   let time = 0, tugOut = 0, clickQ = false;
   const tugAt = new V();
   const camShake = new V(), camShakeV = new V();
 
   function newCycle(i, rushed) {
-    cyc.i = i; cyc.kind = i % 2 ? 'B' : 'A'; cyc.game = ROUNDS[i % ROUNDS.length];
-    cyc.ph = SEQ[cyc.kind].map(([n, d]) => ({ n, d: n === 'play' ? cyc.game.fail + 0.2 : d }));
-    cyc.pi = 0; cyc.pu = 0; cyc.gu = 0; cyc.gbu = 0;
+    cyc.i = i; cyc.game = ROUNDS[i % ROUNDS.length];
+    cyc.ph = SEQ.map(([n, d]) => ({ n, d: n === 'play' ? cyc.game.fail + 0.2 : d }));
+    cyc.pi = 0; cyc.pu = 0; cyc.gu = 0; cyc.slammed = false;
     if (rushed) rage(true);
   }
   function jumpTo(name) { cyc.pi = cyc.ph.findIndex((p) => p.n === name); cyc.pu = 0; enter(name); }
   const setD = (name, d) => { const p = cyc.ph.find((q) => q.n === name); if (p) p.d = d; };
-  /** Skip to the rage of this cycle (a click, or a rushed cycle). */
+  /** A click (or a rushed cycle): the rage, now. Playing, he dies on the spot and goes straight for it; once it's
+   *  under way, the next cycle's comes straight after this one; in the aftermath, the reset hurries. */
   function rage(fromStart = false) {
     const n = phase();
     if (!fromStart && n === 'after') { cyc.rush = true; jumpTo('reset'); return; }
-    if (cyc.kind === 'A') {
-      if (fromStart) { cyc.gu = Math.max(cyc.gu, cyc.game.fail + 0.05); setD('stare', 0.3); jumpTo('stare'); }
-      else if (n === 'play' || n === 'stare') { cyc.gu = Math.max(cyc.gu, cyc.game.fail + 0.05); jumpTo('windup'); }
-      else cyc.rush = true;
-    } else {
-      const hurry = () => { setD('grab', Math.min(cur().n === 'grab' ? cur().d : 9, 0.6)); setD('gbplay', 0.45); setD('stare', 0.2); setD('windup', 0.5); };
-      if (fromStart || n === 'play' || n === 'recoil') { cyc.gu = Math.max(cyc.gu, cyc.game.fail + 0.05); jumpTo('grab'); hurry(); }
-      else if (n === 'grab') hurry();
-      else if (n === 'gbplay' || n === 'stare') { cyc.gbu = Math.max(cyc.gbu, gbFail() + 0.05); jumpTo('windup'); }
-      else cyc.rush = true;
-    }
+    if (fromStart || n === 'play') { cyc.gu = Math.max(cyc.gu, cyc.game.fail + 0.05); setD('seethe', 0.45); jumpTo('seethe'); }
+    else cyc.rush = true;
   }
 
   /** Entering a phase: the one-off events. */
   function enter(n) {
-    if (n === 'blown') smashA();
-    else if (n === 'flinch') smashB();
-    else if (n === 'reset' && cyc.kind === 'A') {
-      const nu = mons[1 - monI];
-      nu.root.visible = true; nu.state = 'drop'; nu.drop = DROP_H; nu.vy = -2.2; nu.landT = -1; nu.wait = 0.4; nu.pop = 0;   // its shadow first, then it pops in at the frame's top and slams down
-      for (const s of [nu.tilt, nu.knock]) { s.x = s.v = s.to = 0; }
-      nu.squash.x = 1; nu.squash.v = 0; nu.screen.material = M.off;
-    } else if (n === 'reset' && cyc.kind === 'B') {
+    if (n === 'flinch') smash();
+    else if (n === 'reset') {
       gbDebris.forEach((b, i) => { if (b.on) b.shrinkT = -0.05 * i; });
       gbs.mode = 'drop'; gbs.dropY = 0.3; gbs.dropV = -1; gbs.landT = -1; gbs.wait = 0.3; gbs.pop = 0;
       gbs.p.copy(GB_HOME); gbs.q.copy(GB_HOME_Q);
+      fx.plume = 0; for (const q of smoke) if (q.on) q.age = Math.max(q.age, q.life * 0.62);   // the air clears for the new one
     }
-    if (n === 'reset') { fx.plume = 0; for (const q of smoke) if (q.on) q.age = Math.max(q.age, q.life * 0.62); }   // the air clears for the new one
-    if (n === 'reset') { glass.forEach((b, i) => { if (b.on && b.shrinkT === null) b.shrinkT = -0.03 * i; }); caps.forEach((b, i) => { if (b.on && b.shrinkT === null) b.shrinkT = -0.04 * i; }); }
   }
 
-  /** Rage A lands: the fist goes through the glass. */
-  function smashA() {
-    const m = mons[monI];
-    m.state = 'dead';
-    // the punch point on the screen, in canvas px (the screen faces -x; its canvas runs along +z, top at +y)
-    _p.copy(arms[1].wr).addScaledVector(_c.subVectors(arms[1].wr, arms[1].el).normalize(), 0.08); m.body.worldToLocal(_p);
-    const cx = (_p.z / SCR_W + 0.5) * SW * SX, cy = (0.5 - (_p.y - SCR_C.y) / SCR_H) * SH * SX;
-    drawDead(clamp(cx, SW * SX * 0.23, SW * SX * 0.77), clamp(cy, SH * SX * 0.22, SH * SX * 0.78));
-    m.screen.material = deadMat[0];
-    m.tilt.v -= 3.2; m.knock.v += 2.4; m.tilt.to = -0.1; m.knock.to = 0.14;
-    _p.set(-0.07, SCR_C.y, clamp(_p.z, -0.12, 0.12)); m.body.localToWorld(_p);
-    fx.boomAt.copy(_p); fx.boomT = 0; fx.boomPeak = 2.4;
-    boom(_p, _dir.copy(SCREEN_N).add(_b.set(0, 0.45, 0)).normalize(), 40, 0.1, 1.5, 0.6);
-    spit(_p, SCREEN_N, 26, 3.4, 0.75);
-    for (let i = 0; i < 8; i++) { rUnit(_c); puff(_b.copy(_p).addScaledVector(_c, 0.06), 0.045 + 0.025 * rand(), 1.8 + rand(), 1, _c.x * 0.2, 0.12 + 0.1 * rand(), _c.z * 0.2); }
-    // glass: up and out along the screen, a little toward us: it rains on the desk in front of the monitor
-    glass.forEach((b) => {
-      _c.copy(_p).addScaledVector(SCREEN_X, (rand() - 0.5) * 0.2).add(_d.set(0, (rand() - 0.5) * 0.14, 0));
-      launch(b, _c, _d.copy(SCREEN_N).multiplyScalar(0.1 + 0.3 * rand()).addScaledVector(SCREEN_X, (rand() - 0.5) * 1.3).add(_a.set(0.15, 0.7 + 1.1 * rand(), 0)), 10 + 20 * rand());
-      rQuat(b.q); b.s = 0.7 + 0.6 * rand();
-    });
-    // the jolt pops keycaps off the board: up and back, onto the desk
-    const pick = [16, 18, 20, 22, 24, 31, 33, 35, 37, 39];
-    caps.forEach((b, i) => {
-      const ki = pick[i] % keyList.length, kk = keyList[ki]; if (kk.sw > 1) return;
-      kk.gone = true; b.key = kk;
-      kbLocal(ki, _c);
-      launch(b, _c, _d.set(0.2 + 0.45 * rand(), 1.2 + 1.0 * rand(), (rand() - 0.5) * 0.7), 14 + 14 * rand());
-      b.q.copy(keyboard.quaternion); b.s = 1.45;
-    });
-    fx.plume = 1; fx.plumeAt.copy(_p); fx.plumeDark = 1; fx.crackle = 0.5; fx.cough = 1.25; fx.singe = 1.6;
-    jolt(1.25);
-    tugOut = 1; tugAt.copy(_p);
-    // the blast throws him back in the chair
-    sp.lean.v -= 9; sp.recline.v += 1.9; sp.rollX.v -= 0.9; sp.pitch.v += 5; sp.jaw.v += 8;
-    sp.soot.to = 1; sp.soot.x = 0.9;
+  /** His fists hit the desk: everything on it jumps. */
+  function slam() {
+    cyc.slammed = true;
+    jolt(0.8);
+    monJ.vh += 0.45; mon.rock.v += 2.6;
+    if (gbs.mode === 'desk') gbs.vh += 0.55;
+    tugOut = 0.35; tugAt.set(0.55, DESK_Y, 0.05);
   }
 
-  /** Rage B lands: the Game Boy hits the desk, on our side, and goes off. */
-  function smashB() {
+  /** The Game Boy hits the desk and goes off. */
+  function smash() {
     gbs.mode = 'gone';
     _p.copy(SPIKE);
     fx.boomAt.copy(_p); fx.boomAt.y += 0.05; fx.boomT = 0; fx.boomPeak = 2.2;
-    boom(_p, _dir.set(0, 1, 0.45).normalize(), 40, 0.1, 1.5, 0.62, true);
+    boom(_p, _dir.set(0.1, 1, 0.45).normalize(), 40, 0.1, 1.5, 0.62, true);
     spit(_p, _dir, 24, 3.0, 0.8);
     for (let i = 0; i < 8; i++) { rUnit(_c); puff(_b.copy(_p).addScaledVector(_c, 0.05).setY(DESK_Y + 0.05), 0.045 + 0.025 * rand(), 1.6 + rand(), 1, _c.x * 0.25, 0.12 + 0.1 * rand(), _c.z * 0.25); }
-    // the bits: up high and toward us, so they read against the page, then rain back onto the desk
+    // the bits: up high, out every way, then raining back onto the desk round the scorch
     gbDebris.forEach((b, i) => {
       _c.copy(b.part.at).applyQuaternion(gbs.q).add(_p);
       _c.y = Math.max(_c.y, DESK_Y + 0.04);
       const big = b.part.name === 'front' || b.part.name === 'back';
       const up = b.part.name === 'cover' ? 3.0 : big ? 1.5 + 0.4 * rand() : 2.0 + 0.9 * rand();
-      const a = (i / gbDebris.length) * Math.PI * 2 + 0.4;
-      launch(b, _c, _d.set(-0.13 + Math.cos(a) * (big ? 0.12 : 0.2), up, 0.05 + 0.08 * rand()), (big ? 6 : 10) + 14 * rand());   // stays on the desk
+      const a = (i / gbDebris.length) * Math.PI * 2 + 0.4, r = big ? 0.14 : 0.26;
+      launch(b, _c, _d.set(-0.12 + Math.cos(a) * r * 0.8, up, -0.2 + Math.sin(a) * r * 0.6), (big ? 6 : 10) + 14 * rand());   // they stay on the desk (back in from its corner)
       b.q.copy(gbs.q);
     });
-    fx.plume = 0.75; fx.plumeAt.copy(_p); fx.plumeDark = 0.9;
+    fx.plume = 0.6; fx.plumeAt.copy(_p); fx.plumeDark = 0.9;
     jolt(1.0);
     tugOut = 0.85; tugAt.copy(_p);
-    sp.lean.v -= 4; sp.jaw.v += 6; sp.soot.to = 0.3;
+    sp.lean.v -= 4; sp.jaw.v += 6;
   }
 
   /** The desk jumps: keys, papers, the can, the mouse, the camera. */
@@ -2172,33 +2146,20 @@ export async function create({ THREE, stage, reduced }) {
     return { yaw: Math.atan2(-_lp.z, _lp.x), pitch: Math.atan2(_lp.y, Math.hypot(_lp.x, _lp.z)) };
   }
 
-  // the Game Boy in his hands: between them, a little ahead of the wrists, its face turned halfway between his eyes and
-  // us (a stage cheat: he sees his game, we see a Game Boy)
-  const _gq = new Q(), _gp = new V();
-  const _gp2 = new V(), _gq2 = new Q();
+  // the Game Boy in his right fist: the throwing grip, his palm on its back, the fingers round it, its top (the
+  // cartridge) past his fingertips. It turns into that grip over 0.3 s from however his hand closed on it
+  const GB_IN_HAND = new Q().setFromRotationMatrix(new THREE.Matrix4().makeBasis(new V(0, 0, -1), new V(1, 0, 0), new V(0, -1, 0)));
+  const GB_IN_HAND_P = new V(0.075, -0.03, 0), _hq = new Q(), _hv = new V();
+  function gbTake() {
+    const hd = arms[1].hand;
+    _hq.copy(hd.quaternion).invert();
+    gbs.rq0.copy(_hq).multiply(gbs.q); gbs.rp0.copy(gbs.p).sub(hd.position).applyQuaternion(_hq);
+    gbs.ht = 0; gbs.mode = 'held';
+  }
   function gbHeld(outP, outQ) {
-    outP.addVectors(arms[0].wr, arms[1].wr).multiplyScalar(0.5);
-    _f.subVectors(arms[0].wr, arms[0].el).add(_a.subVectors(arms[1].wr, arms[1].el)).normalize();
-    outP.addScaledVector(_f, 0.06); outP.y += 0.015;
-    _f.subVectors(EYE_W, outP).normalize();
-    _a.subVectors(camera.position, outP).normalize();
-    _f.addScaledVector(_a, 1.6).normalize();
-    _hu.set(0, 1, 0).addScaledVector(_f, -_f.y);
-    if (_hu.lengthSq() < 0.01) _hu.set(1, 0, 0);
-    _hu.normalize();
-    _sd.crossVectors(_hu, _f).normalize();
-    _hu.crossVectors(_f, _sd);
-    _bm.makeBasis(_sd, _hu, _f);
-    outQ.setFromRotationMatrix(_bm);
-    if (gbs.one <= 0) return;
-    // in the right fist, for the throw: along the forearm, past the knuckles, its face to us
-    _f.subVectors(arms[1].wr, arms[1].el).normalize();
-    _gp2.copy(arms[1].wr).addScaledVector(_f, 0.1);
-    _hu.subVectors(camera.position, _gp2).addScaledVector(_f, -_a.subVectors(camera.position, _gp2).dot(_f)).normalize();
-    _sd.crossVectors(_f, _hu);
-    _bm.makeBasis(_sd, _f, _hu);
-    _gq2.setFromRotationMatrix(_bm);
-    outP.lerp(_gp2, gbs.one); outQ.slerp(_gq2, gbs.one);
+    const hd = arms[1].hand, e = smooth(0, 0.3, gbs.ht);
+    outP.copy(_hv.copy(gbs.rp0).lerp(GB_IN_HAND_P, e)).applyQuaternion(hd.quaternion).add(hd.position);
+    outQ.copy(hd.quaternion).multiply(_hq.copy(gbs.rq0).slerp(GB_IN_HAND, e));
   }
 
   const _t = new V(), LH = new V(), RH = new V();
@@ -2212,232 +2173,168 @@ export async function create({ THREE, stage, reduced }) {
       enter(phase());
     }
     const n = phase(), pu = cyc.pu, pd = cur().d, k = clamp(pu / pd, 0, 1);
-    const isB = cyc.kind === 'B';
 
-    // ---- hover: he turns to look at you, then back to his game
+    // ---- hover: he glances back over his shoulder at you, annoyed, then back to his game
     look.cool -= h;
     const hov = input.hover ?? 0;
-    const lookable = n === 'play' || n === 'after' || n === 'gbplay';
+    const lookable = n === 'play' || n === 'after' || n === 'resume';
     if (!reduced && hov > 0.5 && look.t < 0 && look.cool <= 0 && lookable) look.t = 0;
     let lookW = 0;
     if (look.t >= 0) {
       look.t += h;
-      lookW = look.t < 2.3 && lookable ? 1 : 0;
-      if (look.t > 2.9 || !lookable) { look.t = -1; look.cool = 2.2; }
+      lookW = look.t < 1.5 && lookable ? 1 : 0;
+      if (look.t > 2.1 || !lookable) { look.t = -1; look.cool = 2.4; }
     }
-    look.w.to = lookW; look.w.set(lookW > look.w.x ? 10 : 22, 0.95); look.w.step(h);
+    look.w.to = lookW; look.w.set(lookW > look.w.x ? 16 : 22, 0.95); look.w.step(h);
 
     // ---- base: playing
     activity(act);
-    const mon = mons[monI];
     mon.root.updateMatrixWorld(true);
     SCREEN_W.copy(SCR_C).applyMatrix4(mon.body.matrixWorld);
-    SCREEN_N.set(-1, 0, 0).transformDirection(mon.body.matrixWorld);
-    SCREEN_X.set(0, 0, 1).transformDirection(mon.body.matrixWorld);
-    EYE_W.set(EYE[0], EYE[1], 0); head.localToWorld(EYE_W);
-    MOUTH_W.set(0.1, MOUTH_Y - 0.0075, 0); head.localToWorld(MOUTH_W);
-    const toScreen = aim(SCREEN_W), toYou = aim(camera.position);
+    const toScreen = aim(SCREEN_W), toGB = aim(GB_HOME), toSpike = aim(SPIKE);
     const tense = n === 'play' ? smooth(0.5, cyc.game.fail, cyc.gu) : 1;
     let yaw = toScreen.yaw, pitch = toScreen.pitch + 0.03 * Math.sin(time * 2 * Math.PI * 1.9) * (1 - tense * 0.7);
-    let lean = 0.14 + act.lean + 0.03 * Math.sin(time * 0.6), hunch = 0.42 + 0.06 * tense, twist = 0.05;
-    // the face: mouth a little open while he plays, brows knitting and eyes narrowing as it goes wrong, then the jaw clenches
-    let recline = 0, swivel = 0.025 * Math.sin(time * 0.37), rollX = 0, jawT = 0.04 + 0.07 * act.mash, browT = lerp(-0.3, -0.85, tense), lidsT = lerp(0.3, 0.14, tense), rollH = 0;
+    let lean = 0.14 + act.lean + 0.03 * Math.sin(time * 0.6), hunch = 0.42 + 0.06 * tense, twist = 0.05, shrug = 0.12 * tense;
+    // the face (seen when he glances back): mouth a little open while he plays, brows knitting and eyes narrowing as it
+    // goes wrong
+    let cock = 0, recline = 0, swivel = 0.025 * Math.sin(time * 0.37), rollX = 0, jawT = 0.04 + 0.07 * act.mash, browT = lerp(-0.3, -0.85, tense), lidsT = lerp(0.3, 0.14, tense), rollH = 0;
     let gritT = 0.5 * smooth(0.6, 1, tense);
     let cL = 0.34, cR = 0.4;                                                   // fingers: on the keys, round the mouse
     gaze.copy(SCREEN_W);
     const lh = LH.copy(LH_HOME), rh = RH.copy(RH_HOME);
     rh.x += act.mx; rh.z += act.mz;
     let mashOn = 1, onMouse = 1, kL = 160, zL = 0.75, kR = 220, zR = 0.8, rise = 0;
-    sp.lean.set(60, 0.8); sp.recline.set(40, 0.5); sp.rollX.set(25, 0.9); sp.yaw.set(70, 0.85); sp.pitch.set(60, 0.85); sp.twist.set(50, 0.8); sp.swivel.set(30, 0.6);
-    gbs.on = false; gbs.one = 0;
+    sp.lean.set(60, 0.8); sp.recline.set(40, 0.5); sp.rollX.set(25, 0.9); sp.yaw.set(70, 0.85); sp.pitch.set(60, 0.85); sp.twist.set(50, 0.8); sp.swivel.set(30, 0.6); sp.shrug.set(90, 0.6);
     let gbHold = false;
-    const lap = (i) => hips.localToWorld(_c.set(0.24, 0.07, i ? 0.12 : -0.12));
-    // the Game Boy's grip, in the chair's frame (so it turns with him): x ahead, y up from the seat's lift
     const inChair = (out, x, y, z = 0) => chairTop.localToWorld(out.set(x, y, z));
-    const holdHands = (hp) => { _d.set(0, 0, 0.08).applyQuaternion(chairTop.getWorldQuaternion(_q2)); lh.copy(hp).sub(_d); rh.copy(hp).add(_d); };
-    const TURN = -0.25;                                                        // the swivel toward us, Game Boy in hand
-    const HOLD = [0.53, 0.5, 0.12];                                            // where he holds it to play: out over the desk, on our side of his face
 
-    // ---- the loop's beats
-    if (n === 'stare' && !isB) {
-      // A: the game burns him. Freeze. Lean in. Teeth clenched. The mouse hand comes off, balls into a fist, trembles. An
-      // eye twitch.
-      mashOn = 0; onMouse = k < 0.12 ? 1 : 0;
-      const c = smooth(0.05, 0.35, k);
-      lean += 0.06 * smooth(0, 0.6, k); lidsT = pu > pd * 0.6 && pu < pd * 0.6 + 0.08 ? 0.6 : 0.05; browT = -1.1; jawT = 0.0; gritT = 1;
-      rh.lerp(_t.set(0.22, 0.86, 0.33), c);                 // the fist comes up off the mouse, coiled
-      rh.y += 0.004 * Math.sin(pu * 70) * c; rh.z += 0.003 * Math.sin(pu * 53) * c;
-      pitch += 0.02 * Math.sin(pu * 40) * smooth(0.3, 0.6, k);
-      cR = lerp(0.4, 1, smooth(0.05, 0.25, k)); cL = 0.55;
-      kR = 300; zR = 0.7;
-    } else if (n === 'stare') {
-      // B: the Game Boy too. Freeze, staring into it, squeezing it, teeth clenched.
-      mashOn = 0; onMouse = 0; gbHold = true; gbs.on = true;
-      holdHands(inChair(_t, HOLD[0], HOLD[1], HOLD[2]));
-      swivel = TURN; twist = -0.05; lean = 0.08; hunch = 0.42;
-      const a = aim(gbs.p); yaw = a.yaw; pitch = a.pitch * 0.7 + 0.02 * Math.sin(pu * 40) * smooth(0.3, 0.6, k);
-      lidsT = pu > pd * 0.5 && pu < pd * 0.5 + 0.08 ? 0.6 : 0; browT = -1.1; jawT = 0; gritT = 1;
-      cL = cR = 0.62; gaze.copy(gbs.p);
-      kL = kR = 300;
-    } else if (n === 'windup' && !isB) {
-      // A: rears back, the right fist cocked by his ear, the left hand gripping the desk edge; a silent yell
+    // ---- the rage, beat by beat (all of it reads from behind: his shoulders, his back, his arms, the turn of his head)
+    if (n === 'seethe') {
+      // he died. A freeze; then it builds: the shoulders come right up round his ears, his head sinks between them, his
+      // back rounds over the desk, both hands come up off the keys and the mouse balled into fists, trembling; he
+      // breathes hard (his shoulders heave)
+      mashOn = 0; onMouse = k < 0.15 ? 1 : 0;
+      const c = smooth(0.1, 0.45, k), br = Math.sin(pu * 11);
+      shrug = lerp(0.15, 1.3, c) + 0.28 * br * c; hunch = 0.5 + 0.16 * c + 0.05 * br * c; lean = lerp(lean, 0.3, c);
+      lh.add(_t.set(-0.06 * c, 0.075 * c, 0.03 * c)); rh.add(_t.set(-0.07 * c, 0.08 * c, -0.02 * c));
+      lh.y += 0.006 * c * Math.sin(pu * 71); rh.y += 0.006 * c * Math.sin(pu * 63); rh.z += 0.004 * c * Math.sin(pu * 57);
+      cL = lerp(0.34, 1, smooth(0.15, 0.4, k)); cR = lerp(0.4, 1, smooth(0.12, 0.35, k));
+      pitch = toScreen.pitch - 0.08 * c + 0.015 * Math.sin(pu * 40) * c;
+      browT = -1.1; lidsT = 0.05; jawT = 0; gritT = 1;
+      kL = kR = 300; zL = zR = 0.7;
+    } else if (n === 'slam') {
+      // both fists up, and down on the desk: the left on the keys, the right by the mouse. Everything jumps.
       mashOn = 0; onMouse = 0;
-      const w = smooth(0, 0.6, k);
-      lean = lerp(lean, -0.12, w); recline = 0.1 * w; twist = lerp(twist, -0.45, w); rollX = -0.03 * w;
-      rh.lerp(_t.set(0.06, 1.2, 0.27), w); lh.lerp(_t.set(DX0 + 0.04, DESK_Y + 0.04, -0.12), w);
-      jawT = 0.85; browT = -1.1; lidsT = 0.0; gritT = 0;
-      cR = 1; cL = lerp(0.55, 0.75, w);
-      kR = 120; zR = 0.7; kL = 140;
-      sp.lean.set(90, 0.7);
-    } else if (n === 'punch') {
-      // A: the lunge: chest square, head held back and turned from the blow, the arm straight, the fist into the glass
+      const up = pu < 0.24;
+      if (up) { lh.copy(SLAM_L).add(_t.set(-0.16, 0.3, -0.03)); rh.copy(SLAM_R).add(_t.set(-0.17, 0.32, 0.03)); } else { lh.copy(SLAM_L); rh.copy(SLAM_R); }
+      // (going up, his back stays bent over the desk, his chin down and his teeth gritted: the back of his head to us,
+      // never his face)
+      lean = up ? 0.22 : 0.34; hunch = up ? 0.5 : 0.62; shrug = up ? 0.8 : 1; rise = up ? 0.03 : 0; recline = up ? 0.02 : 0;
+      yaw = toScreen.yaw + 0.12; pitch = toScreen.pitch - (up ? 0.3 : 0.2);
+      cL = cR = 1; browT = -1.1; lidsT = 0.05; jawT = 0.2; gritT = 0.9;
+      kL = kR = up ? 260 : 2400; zL = zR = up ? 0.7 : 0.8;
+      sp.lean.set(400, 0.7); sp.shrug.set(300, 0.6); sp.pitch.set(260, 0.8);
+      if (!cyc.slammed && !up && hands[1].y.x < DESK_Y + 0.07) slam();
+    } else if (n === 'snap') {
+      // his head snaps round to the Game Boy (part way: his eyes do the rest, his face stays turned from us), the fists
+      // still on the desk; the right one opens for it
       mashOn = 0; onMouse = 0;
-      lean = 0.38; hunch = 0.12; twist = 0.5; rollX = 0.07; recline = -0.03;
-      rh.copy(SCREEN_W).addScaledVector(SCREEN_X, -0.05).addScaledVector(SCREEN_N, -0.03);
-      lh.set(DX0 + 0.04, DESK_Y + 0.04, -0.12);
-      yaw = lerp(toScreen.yaw, toYou.yaw, 0.45); pitch = toScreen.pitch + 0.12;
-      jawT = 1.0; browT = -1.1; lidsT = 0.0; gritT = 0;
-      cR = 1; cL = 0.75;
-      kR = 2600; zR = 0.85;
-      sp.lean.set(900, 0.75); sp.twist.set(700, 0.8); sp.rollX.set(300, 0.8); sp.yaw.set(400, 0.8);
-    } else if (n === 'blown') {
-      // A: blown back by his own explosion; the fist hangs a beat in the hole, then his open hands fly up: the near one
-      // up and back beside his head (never across his face: we keep his wide eyes and open mouth), the far one up in
-      // front of him
-      mashOn = 0; onMouse = 0;
-      lean = -0.18; recline = 0.17; rollX = -0.1; twist = 0.1; hunch = 0.45;
-      const hang = pu < 0.12;
-      if (hang) rh.copy(SCREEN_W).addScaledVector(SCREEN_X, -0.05).addScaledVector(SCREEN_N, 0.03);
-      else rh.set(-0.13, 1.27, 0.32);
-      lh.set(0.22, 1.2, -0.2);
-      jawT = 0.7; browT = 0.9; lidsT = -0.1; gritT = 0; pitch = toScreen.pitch + 0.3;
-      cR = hang ? 1 : 0.06; cL = 0.06;
-      kR = hang ? 2000 : 140; zR = 0.6; kL = 140;
-      sp.lean.set(70, 0.45); sp.recline.set(40, 0.5); sp.rollX.set(30, 0.7);
-    } else if (n === 'after') {
-      // slumped, breathing hard through his mouth, deadpan, sooty; a cough
-      mashOn = 0; onMouse = 0;
-      const heave = Math.sin(pu * 8.5) * lerp(1, 0.4, k);
-      lean = (isB ? 0.05 : -0.1) + 0.03 * heave; hunch = 0.72 + 0.05 * heave; recline = isB ? 0.08 : 0.16; rollX = isB ? -0.06 : -0.13; twist = 0.05;
-      if (isB) swivel = TURN * 0.4;
-      lh.copy(lap(0)); rh.copy(lap(1)); lh.y += 0.01 * heave; rh.y += 0.01 * heave;
-      cL = cR = 0.3;
-      // a glare at the wreck, then the deadpan look at us (a slow blink)
-      const at = aim(isB ? SPIKE : SCREEN_W);
-      const toUs = smooth(isB ? 0.9 : 0.35, isB ? 1.3 : 0.75, pu);
-      yaw = lerp(at.yaw, toYou.yaw * 0.8, toUs); pitch = lerp(at.pitch + 0.05, toYou.pitch, toUs) + 0.03 * heave;
-      gaze.copy(toUs > 0.5 ? camera.position : isB ? SPIKE : SCREEN_W);
-      jawT = 0.3 + 0.12 * heave; browT = lerp(-1.0, -0.2, toUs); lidsT = lerp(0.2, 0.42, toUs); gritT = 0;
-      const blink = (isB ? 1.7 : 1.9);
-      if (pu > blink && pu < blink + 0.13) lidsT = 1.05;
-      if (!isB && pu > 1.25 && pu < 1.55) { const c = Math.sin(((pu - 1.25) / 0.3) * Math.PI); jawT = 0.9 * c; pitch -= 0.25 * c; lean += 0.12 * c; lidsT = 0.85; }
-      kL = 60; kR = 60; zL = zR = 0.9;
-    } else if (n === 'reset') {
-      // the replacement arrives; a flinch when it lands; he rolls back in, back to work
-      const landed = isB ? gbs.landT >= 0 : mons[monI].state !== 'drop' && mons[monI].landT >= 0;
-      const sinceLand = isB ? gbs.landT : mons[monI].landT;
-      const flinch = landed && sinceLand < 0.25;
-      const back = smooth(0.6, 1.35, pu);
-      lean = lerp(isB ? 0.05 : -0.1, lean, back); recline = lerp(isB ? 0.06 : 0.16, 0, back); rollX = lerp(isB ? -0.04 : -0.13, 0, back); hunch = lerp(0.72, hunch, back);
-      if (flinch) { lidsT = -0.1; browT = 0.8; jawT = 0.5; } else { lidsT = 0.32; browT = -0.4; jawT = 0.06; }
-      gritT = 0;
-      lh.lerp(lap(0), 1 - back); rh.lerp(lap(1), 1 - back);
-      mashOn = back; onMouse = back > 0.8 ? 1 : 0;
-      const a = aim(isB ? gbs.p : SCREEN_W); yaw = lerp(a.yaw, yaw, back); pitch = lerp(a.pitch, pitch, back);
-      if (!isB && pu < 0.55) pitch = toScreen.pitch + 0.45 * smooth(0, 0.3, pu);           // looks up at it coming
-      if (isB) gaze.copy(gbs.p);
-      sp.recline.set(30, 0.7); sp.rollX.set(20, 0.85);
-    } else if (n === 'recoil') {
-      // B: the crash hits him: hands off the board, open, a gasp; then a sneer
-      mashOn = 0; onMouse = 0;
-      const w = smooth(0, 0.15, k);
-      lean = lerp(lean, 0.05, w); recline = 0.05 * w; hunch = 0.4;
-      rh.lerp(_t.set(0.34, 0.98, 0.3), w); lh.lerp(_t.set(0.34, 0.98, -0.24), w);   // open hands up off the board: whoa
-      jawT = k < 0.5 ? 0.85 : 0.04; browT = k < 0.5 ? 0.8 : -1.0; lidsT = k < 0.5 ? -0.1 : 0.22; gritT = k < 0.5 ? 0 : 0.7;
-      cL = cR = 0.1;
-      kL = kR = 200;
-    } else if (n === 'grab') {
-      // B: fine. The Game Boy, then: the right hand snatches it (no dive: a reach from the shoulder), both hands take it,
-      // he swivels round toward us with it
-      mashOn = 0; onMouse = 0;
-      const reach = smooth(0, 0.4, k), lift = smooth(0.48, 1, k);
-      gbs.grab = smooth(0.38, 0.52, k);
-      _t.copy(GB_HOME).add(_a.set(-0.075, 0.03, 0));
-      inChair(_b, HOLD[0], HOLD[1], HOLD[2]); _d.set(0, 0, 0.08).applyQuaternion(chairTop.getWorldQuaternion(_q2));
-      rh.copy(_t).lerp(_c.copy(_b).add(_d), lift);
-      lh.lerp(_c.copy(_b).sub(_d), lift);
-      if (reach < 1) rh.lerp(_b.set(0.3, 1.08, 0.26), 1 - reach);
-      swivel = TURN * lift; twist = lerp(0.25, -0.05, lift); lean = lerp(0.18, 0.06, lift); hunch = lerp(0.38, 0.4, lift);
-      const a = aim(lift > 0.5 ? gbs.p : GB_HOME); yaw = a.yaw; pitch = a.pitch * 0.5;
-      jawT = 0.05; browT = -0.8; lidsT = 0.25; gritT = 0.3;
-      cR = lerp(0.1, 0.55, smooth(0.3, 0.45, k)); cL = lerp(0.1, 0.55, lift);
-      gaze.copy(lift > 0.5 ? gbs.p : GB_HOME);
-      kL = kR = 180;
-      sp.swivel.set(40, 0.75);
-      gbHold = gbs.grab > 0;
-    } else if (n === 'gbplay') {
-      // B: hunched over it, thumbs going, lit green from below
-      mashOn = 0; onMouse = 0; gbHold = true; gbs.on = true;
-      cyc.gbu += h;
-      const fail = gbFail();
-      const t2 = smooth(0, fail, cyc.gbu);
-      const th = (i) => 0.006 * Math.max(0, Math.sin(time * (i ? 31 : 37)));
-      holdHands(inChair(_t, HOLD[0] - 0.03 * t2, HOLD[1] + 0.02 * t2, HOLD[2]));
-      lh.y += th(0); rh.y += th(1);
-      swivel = TURN + 0.03 * Math.sin(time * 1.3); twist = -0.05; lean = 0.06 + 0.06 * t2; hunch = 0.4 + 0.06 * t2;
-      const a = aim(gbs.p); yaw = a.yaw; pitch = a.pitch * 0.7;
-      jawT = 0.08; browT = lerp(-0.6, -1.05, t2); lidsT = lerp(0.25, 0.1, t2); gritT = 0.6 * smooth(0.4, 1, t2);
-      if (cyc.gbu > fail) { browT = -1.1; lidsT = 0; jawT = 0; gritT = 1; }
-      cL = cR = 0.55; gaze.copy(gbs.p);
+      lh.copy(SLAM_L); rh.copy(SLAM_R).lerp(GRAB_AT, 0.2 * k); rh.y += 0.03 * k;
+      yaw = toGB.yaw * 0.45; pitch = toGB.pitch; twist = -0.12; lean = 0.24; hunch = 0.56; shrug = 0.7;
+      cL = 1; cR = lerp(1, 0.15, smooth(0.3, 1, k)); browT = -1.1; lidsT = 0; jawT = 0; gritT = 1;
+      gaze.copy(GB_HOME);
       kL = kR = 400;
-      sp.swivel.set(40, 0.75);
-    } else if (n === 'windup') {
-      // B: half up out of the chair, the Game Boy cocked high in his fist, in front of the chair back, eyes on the spot
-      mashOn = 0; onMouse = 0; gbHold = true; gbs.on = true;
-      const w = smooth(0, 0.6, k);
-      holdHands(inChair(_t, HOLD[0], HOLD[1], HOLD[2]));
-      gbs.one = smooth(0, 0.3, k);
-      rh.lerp(_t.copy(WIND_B).add(_d.set(0, 0.006 * Math.sin(pu * 60) * w, 0)), w);
-      lh.lerp(inChair(_t, 0.46, 0.58, -0.06), w);
-      rise = 0.03 * w;
-      swivel = lerp(TURN, -0.05, w); lean = lerp(0.08, -0.1, w); recline = 0.05 * w; hunch = lerp(0.48, 0.4, w); twist = lerp(-0.05, -0.35, w);
-      const a = aim(SPIKE); yaw = lerp(yaw, a.yaw, w); pitch = lerp(pitch, a.pitch + 0.15, w); jawT = 0.9; browT = -1.1; lidsT = 0; gritT = 0;
-      cR = 0.8; cL = lerp(0.55, 0.35, w); gaze.copy(SPIKE);
-      kL = kR = 140; zL = zR = 0.7;
-      sp.swivel.set(60, 0.8);
-    } else if (n === 'throw') {
-      // B: the whip: the arm comes over and down, lets go (the fingers fly open); it flies spinning onto the desk
-      mashOn = 0; onMouse = 0; gbHold = gbs.mode === 'held';
-      gbs.one = 1; gbs.on = gbs.mode === 'held';
-      rh.copy(THROW_FT); lh.copy(inChair(_t, 0.3, 0.45, -0.12));
-      swivel = -0.05; lean = 0.2; hunch = 0.36; twist = 0.4; rise = 0.03;
-      const a = aim(SPIKE); yaw = a.yaw; pitch = a.pitch;
-      jawT = 1.0; browT = -1.1; lidsT = 0; gritT = 0;
-      cR = gbHold ? 0.8 : 0.02; cL = 0.35; gaze.copy(SPIKE);
-      kL = 600; kR = 1500; zL = zR = 0.8;
-      sp.lean.set(500, 0.75); sp.swivel.set(300, 0.8); sp.twist.set(400, 0.8);
-    } else if (n === 'flinch') {
-      // B: it goes off: he flinches back from it, open hands up, eyes screwed shut, teeth bared
+      sp.yaw.set(520, 0.72); sp.pitch.set(420, 0.75); sp.twist.set(300, 0.75);
+    } else if (n === 'grab') {
+      // the right hand snatches it off the desk
       mashOn = 0; onMouse = 0;
-      lean = -0.08; recline = 0.08; rollX = -0.05; hunch = 0.48; swivel = TURN * 0.3;
-      inChair(rh, 0.28, 0.66, 0.16); inChair(lh, 0.28, 0.64, -0.14);
-      jawT = 0.12; browT = -0.7; lidsT = 0.95; gritT = 0.9; yaw = lerp(aim(SPIKE).yaw, toYou.yaw, 0.6); pitch = 0.15;
+      const reach = smooth(0, 0.5, k), lift = smooth(0.55, 1, k);
+      lh.copy(SLAM_L).lerp(EDGE_L, lift);
+      rh.copy(SLAM_R).lerp(GRAB_AT, reach);
+      rh.y += 0.05 * lift; rh.x -= 0.14 * lift;                               // off the desk and back toward him, low
+      gbHold = k >= 0.46;                                                     // his hand's on it
+      yaw = toGB.yaw * 0.45; pitch = toGB.pitch; twist = lerp(-0.12, -0.25, k); lean = lerp(0.24, 0.16, lift); hunch = 0.5; shrug = 0.5;
+      cL = 1; cR = lerp(0.15, 0.85, smooth(0.35, 0.55, k)); browT = -1.1; lidsT = 0.05; jawT = 0; gritT = 1;
+      gaze.copy(gbs.p);
+      kL = 200; kR = 320;
+    } else if (n === 'windup') {
+      // half up out of the chair, leaning back and turning, the Game Boy carried back low by his side and cocked up by
+      // his right ear (the elbow up and out to his side), a last pull back; the left hand braced on the desk's edge, eyes
+      // on the spot (his head turned only part way to it: his face stays away from us)
+      mashOn = 0; onMouse = 0; gbHold = true;
+      const w = smooth(0, 0.6, k), v = 1 - w;
+      lh.copy(EDGE_L);
+      // up and back on a curve: from where the grab left it, back low by his side (CARRY), up by his ear (WIND)
+      _b.copy(GRAB_AT).add(_a.set(-0.14, 0.05, 0));
+      rh.copy(_b).multiplyScalar(v * v).addScaledVector(CARRY, 2 * v * w).addScaledVector(WIND, w * w);
+      rh.y += 0.006 * Math.sin(pu * 60) * w;
+      rh.addScaledVector(_a.set(-0.06, 0.03, 0.01), smooth(0.7, 1, k));
+      cock = w;
+      rise = 0.08 * w; lean = lerp(0.16, -0.1, w); recline = 0.06 * w; hunch = lerp(0.5, 0.32, w); twist = lerp(-0.25, -0.5, w); shrug = 0.35;
+      yaw = toSpike.yaw * 0.5; pitch = toSpike.pitch + 0.08 * w;
+      jawT = 0.9; browT = -1.1; lidsT = 0; gritT = 0;
+      cR = 0.85; cL = 0.6; gaze.copy(SPIKE);
+      kL = 200; kR = 150; zL = zR = 0.7;
+    } else if (n === 'throw') {
+      // the whip: the arm comes forward and down, lets go early (the fingers fly open), follows through a little and
+      // stops; it flies on alone, tumbling, onto the far corner of the desk
+      mashOn = 0; onMouse = 0; gbHold = gbs.mode === 'held';
+      rh.copy(pu < REL_T ? REL : FOLLOW); lh.copy(EDGE_L); cock = pu < REL_T ? 1 : 0;
+      lean = 0.34; hunch = 0.42; twist = 0.3; rise = 0.03; shrug = 0.3;
+      yaw = toSpike.yaw * 0.7; pitch = toSpike.pitch;
+      jawT = 1.0; browT = -1.1; lidsT = 0; gritT = 0;
+      cR = gbHold ? 0.85 : 0.02; cL = 0.6; gaze.copy(SPIKE);
+      kL = 600; kR = 1500; zL = zR = 0.8;
+      sp.lean.set(500, 0.75); sp.twist.set(400, 0.8);
+    } else if (n === 'flinch') {
+      // it goes off: he flinches back from it, his open hands up, his head ducked and turned away, shoulders up
+      mashOn = 0; onMouse = 0;
+      lean = -0.06; recline = 0.08; rollX = -0.05; hunch = 0.5; shrug = 0.9; swivel = 0.06;
+      inChair(rh, 0.26, 0.74, 0.2); inChair(lh, 0.26, 0.72, -0.15);
+      yaw = lerp(toSpike.yaw, toScreen.yaw, 0.5) + 0.5; pitch = toScreen.pitch - 0.15;
+      jawT = 0.12; browT = -0.7; lidsT = 0.95; gritT = 0.9;
       cL = cR = 0.05; gaze.copy(SPIKE);
       kL = kR = 150; zL = zR = 0.6;
       sp.lean.set(70, 0.5);
+    } else if (n === 'after') {
+      // fists on the desk's edge, shoulders heaving, glaring at what's left of it; then back to the screen
+      mashOn = 0; onMouse = 0;
+      const hv = Math.sin(pu * 8.5) * lerp(1, 0.4, k), back = smooth(0.72, 1, k);
+      lean = 0.12 + 0.03 * hv; hunch = 0.58 + 0.05 * hv; shrug = 0.45 + 0.28 * hv; recline = 0.02;
+      lh.copy(EDGE_L); rh.copy(EDGE_R); lh.y += 0.006 * hv; rh.y += 0.006 * hv;
+      yaw = lerp(toSpike.yaw * 0.7, toScreen.yaw, back); pitch = lerp(toSpike.pitch + 0.04, toScreen.pitch, back) + 0.03 * hv;
+      gaze.copy(back > 0.5 ? SCREEN_W : SPIKE);
+      jawT = 0.3 + 0.12 * hv; browT = -1.0; lidsT = 0.2; gritT = 0;
+      if (pu > 1.1 && pu < 1.23) lidsT = 1.05;
+      cL = cR = 0.85;
+      kL = kR = 80; zL = zR = 0.9;
+    } else if (n === 'reset') {
+      // a fresh Game Boy drops into its spot (a start when it lands: he looks round at it); he goes back to his game
+      const landed = gbs.landT >= 0, jump = landed && gbs.landT < 0.25;
+      const back = smooth(0.55, 1.25, pu);
+      lean = lerp(0.12, lean, back); hunch = lerp(0.58, hunch, back);
+      if (jump) { shrug = 0.7; lidsT = -0.1; browT = 0.8; jawT = 0.5; } else { shrug = lerp(0.35, shrug, back); lidsT = 0.32; browT = -0.5; jawT = 0.06; }
+      gritT = 0;
+      lh.copy(EDGE_L).lerp(LH_HOME, back); rh.copy(EDGE_R).lerp(RH_HOME, back);
+      cL = lerp(0.85, cL, back); cR = lerp(0.85, cR, back);
+      mashOn = back; onMouse = back > 0.8 ? 1 : 0;
+      const at = landed && gbs.landT < 0.6 ? 1 : 0;
+      yaw = lerp(yaw, toGB.yaw * 0.45, at * (1 - back)); pitch = lerp(pitch, toGB.pitch, at * (1 - back));
+      if (at && back < 0.5) gaze.copy(gbs.p);
+      sp.recline.set(30, 0.7); sp.rollX.set(20, 0.85);
     } else if (n === 'resume') {
       lean = lerp(lean - 0.1, lean, k);
     }
-    // the stare at the viewer (hover) wins over the head, briefly: brows down, mouth shut, eyes locked on you
+    // the glance back at you (hover) wins over the head, briefly: over his right shoulder, most of the way round (we
+    // get his profile and one narrowed eye), brows down, mouth shut
     const L = look.w.x;
     if (L > 0.001) {
-      const y2 = clamp(toYou.yaw, -2.2, 2.2);
-      yaw = lerp(yaw, y2 * 0.75, L); pitch = lerp(pitch, toYou.pitch, L);
-      twist = lerp(twist, y2 * 0.2, L);
-      browT = lerp(browT, -0.95, L); lidsT = lerp(lidsT, 0.3, L); jawT = lerp(jawT, 0.0, L); gritT = lerp(gritT, 0, L);
+      yaw = lerp(yaw, GLANCE.yaw, L); pitch = lerp(pitch, GLANCE.pitch, L);
+      twist = lerp(twist, GLANCE.twist, L);
+      browT = lerp(browT, -1.0, L); lidsT = lerp(lidsT, 0.32, L); jawT = lerp(jawT, 0.0, L); gritT = lerp(gritT, 0, L);
       if (L > 0.3) gaze.copy(camera.position);
       mashOn *= 1 - L * 0.7;
-      if (look.t > 1.3 && look.t < 1.75) rollH = 0.1 * Math.sin((look.t - 1.3) * 28) * L;
+      if (look.t > 0.75 && look.t < 1.1) rollH = 0.08 * Math.sin((look.t - 0.75) * 28) * L;
     }
 
     // ---- mashing: the left hand hops between Q, W, E and R; each press drops the key under it. A spell going off on
@@ -2462,35 +2359,35 @@ export async function create({ THREE, stage, reduced }) {
     handK(0, kL, zL); handK(1, kR, zR);
     setHand(0, lh); setHand(1, rh);
     hands[0].c.to = cL; hands[1].c.to = cR;
-    sp.lean.to = lean; sp.hunch.to = hunch; sp.twist.to = twist; sp.yaw.to = yaw; sp.pitch.to = pitch; sp.roll.to = rollH;
-    sp.rise.to = rise; sp.recline.to = recline; sp.swivel.to = swivel; sp.rollX.to = rollX; sp.jaw.to = jawT; sp.brow.to = browT; sp.lids.to = lidsT; sp.grit.to = gritT;
-    if (n === 'resume' || (n === 'play' && cyc.gu < 0.5)) sp.soot.to = 0;
-    if (n === 'reset') sp.soot.to = Math.min(sp.soot.to, 1 - smooth(0.6, 1.4, pu));
-    if (L > 0.01) sp.yaw.set(40, 0.85);
+    sp.lean.to = lean; sp.hunch.to = hunch; sp.twist.to = twist; sp.yaw.to = yaw; sp.pitch.to = pitch; sp.roll.to = rollH; sp.shrug.to = shrug;
+    sp.cock.to = cock; sp.rise.to = rise; sp.recline.to = recline; sp.swivel.to = swivel; sp.rollX.to = rollX; sp.jaw.to = jawT; sp.brow.to = browT; sp.lids.to = lidsT; sp.grit.to = gritT;
+    if (L > 0.01) sp.yaw.set(46, 0.85);
     for (const s of Object.values(sp)) s.step(h);
     for (const hd of hands) for (const c of ['x', 'y', 'z', 'c']) hd[c].step(h);
     for (const hd of hands) if (hd.x.x > DX0 - 0.02 && hd.y.x < DESK_Y + 0.03) { hd.y.x = DESK_Y + 0.03; if (hd.y.v < 0) hd.y.v *= -0.15; }
     if (onMouse > 0.5) {                                                       // the mouse goes where his palm is (it rides under his hand)
       const hd = arms[1].hand;
-      _p.set(0.05, 0, 0).applyQuaternion(hd.quaternion).add(hd.position); _a.set(1, 0, 0).applyQuaternion(hd.quaternion);
+      _p.set(0.125, 0, 0).applyQuaternion(hd.quaternion).add(hd.position); _a.set(1, 0, 0).applyQuaternion(hd.quaternion);
       mouseAt.x += (_p.x - mouseAt.x) * 0.5; mouseAt.z += (_p.z - mouseAt.z) * 0.5; mouseDir.yaw += (Math.atan2(-_a.z, _a.x) - mouseDir.yaw) * 0.5;
     }
 
-    // ---- the Game Boy: on the desk, in his hands, flying, gone, or dropping in fresh
-    if (gbs.mode === 'desk' || gbs.mode === 'held') {
-      if (gbHold) {
-        gbs.mode = 'held';
-        gbHeld(_gp, _gq);
-        const a = n === 'grab' ? gbs.grab : 1;
-        gbs.p.copy(GB_HOME).lerp(_gp, a); gbs.q.copy(GB_HOME_Q).slerp(_gq, a);
-        if (n === 'throw' && pu > 0.06) { gbs.mode = 'fly'; gbs.ft = 0; gbs.f0.copy(gbs.p); gbs.q0.copy(gbs.q); }   // let go
-      } else { gbs.mode = 'desk'; gbs.p.copy(GB_HOME); gbs.q.copy(GB_HOME_Q); }
-    } else if (gbs.mode === 'fly') {
-      gbs.ft += h;
-      const s = Math.min(1, gbs.ft / T_FLY), e = s * (0.75 + 0.25 * s);
-      gbs.p.lerpVectors(gbs.f0, SPIKE, e); gbs.p.y += 0.05 * 4 * s * (1 - s);
-      gbs.q.copy(gbs.q0).premultiply(_q.setFromAxisAngle(_a.set(0.2, 0.3, 1).normalize(), -gbs.ft * 26));
-      if (s >= 1 && n === 'throw') cyc.pu = cur().d;                         // it hit: straight to the burst
+    // ---- the Game Boy: on the desk, in his fist, flying, gone, or dropping in fresh
+    gbs.vh -= 9.8 * h; gbs.hop += gbs.vh * h;
+    if (gbs.hop < 0) { gbs.hop = 0; gbs.vh = gbs.vh < -0.2 ? -gbs.vh * 0.3 : 0; }
+    if (gbs.mode === 'desk' && gbHold) gbTake();
+    if (gbs.mode === 'held') {
+      gbs.ht += h;
+      gbHeld(gbs.p, gbs.q);
+      if (n === 'throw' && pu > REL_T) {                                     // let go: on a ballistic arc onto the spot
+        gbs.mode = 'fly'; gbs.ft = 0; gbs.f0.copy(gbs.p); gbs.q0.copy(gbs.q);
+        gbs.v0.subVectors(SPIKE, gbs.p).divideScalar(T_FLY).addScaledVector(G3, -0.5 * T_FLY);
+      }
+    } else if (gbs.mode === 'desk') { gbs.p.copy(GB_HOME); gbs.p.y += gbs.hop; gbs.q.copy(GB_HOME_Q); }
+    else if (gbs.mode === 'fly') {
+      gbs.ft = Math.min(T_FLY, gbs.ft + h);
+      gbs.p.copy(gbs.f0).addScaledVector(gbs.v0, gbs.ft).addScaledVector(G3, 0.5 * gbs.ft * gbs.ft);
+      gbs.q.copy(gbs.q0).premultiply(_q.setFromAxisAngle(_a.set(0.35, 0.4, 1).normalize(), -gbs.ft * 21));
+      if (gbs.ft >= T_FLY && n === 'throw') cyc.pu = cur().d;                // it hit: straight to the burst
     } else if (gbs.mode === 'drop' && gbs.wait > 0) gbs.wait -= h;
     else if (gbs.mode === 'drop') {
       gbs.pop = Math.min(1, gbs.pop + h / 0.08);
@@ -2506,31 +2403,10 @@ export async function create({ THREE, stage, reduced }) {
     }
     gbs.sq.to = 1; gbs.sq.step(h);
 
-    // ---- the monitors
-    for (const m of mons) {
-      m.tilt.step(h); m.knock.step(h); m.squash.step(h);
-      if (m.state === 'drop' && m.wait > 0) m.wait -= h;
-      else if (m.state === 'drop') {
-        m.pop = Math.min(1, m.pop + h / 0.02);                                  // there at once, stretched with speed
-        m.vy -= 9.8 * h; m.drop += m.vy * h;
-        const old = mons[monI];
-        if (m !== old) { old.squash.x = clamp(m.drop / (MON_TOP + 0.02), 0.04, 1); old.squash.v = 0; }
-        if (m.drop <= 0) {
-          m.drop = 0; m.vy = 0; m.state = 'boot'; m.landT = 0; m.squash.x = 0.78; m.squash.v = 0;
-          old.state = 'crushed'; old.crushT = 0; old.squash.x = 0.07; old.squash.v = 0;   // a pancake under the new one, a beat, then gone
-          monI = mons.indexOf(m);
-          jolt(0.45); tugOut = Math.max(tugOut, 0.35); tugAt.set(MON.x, DESK_Y, MON.z);
-          // the old one's last breath, squeezed out flat to the sides
-          for (let i = 0; i < 4; i++) { const a = (i / 4) * 6.28 + 0.5; puff(_c.set(MON.x + Math.cos(a) * 0.14, DESK_Y + 0.04, MON.z + Math.sin(a) * 0.16), 0.04, 0.9, 0.7, Math.cos(a) * 0.3, 0.04, Math.sin(a) * 0.3, 0.55); }
-          fx.plume = 0; fx.crackle = 0;
-          for (const q of smoke) if (q.on && q.p.distanceTo(fx.plumeAt) < 0.35) q.age = Math.max(q.age, q.life * 0.8);   // the old smoke goes with it
-        }
-      }
-      if (m.state === 'boot') { m.landT += h; if (m.landT > 0.3) m.screen.material = liveMat; if (m.landT > 0.9) m.state = 'live'; }
-      if (m.state === 'crushed') { m.crushT += h; m.squash.x = 0.07; m.squash.v = 0; m.pop = 1 - smooth(0.4, 0.62, m.crushT); if (m.crushT > 0.62) { m.root.visible = false; m.state = 'gone'; m.pop = 1; } }
-    }
-
     // ---- the desk's things: jolts
+    mon.rock.step(h);
+    monJ.vh -= 9.8 * h; monJ.hop += monJ.vh * h;
+    if (monJ.hop < 0) { monJ.hop = 0; monJ.vh = monJ.vh < -0.2 ? -monJ.vh * 0.25 : 0; }
     for (const w of Object.values(wob)) w.step(h);
     keyList.forEach((kk) => {
       kk.press = Math.max(0, kk.press - h * 14);
@@ -2541,53 +2417,26 @@ export async function create({ THREE, stage, reduced }) {
     camShakeV.addScaledVector(camShake, -500 * h).multiplyScalar(Math.exp(-12 * h));
     camShake.addScaledVector(camShakeV, h);
 
-    stepFX(h, n, pu);
+    stepFX(h, n);
     // the screen's light follows its picture
     glow.c.lerp(glow.tc, 1 - Math.exp(-h * 14));
     glow.i += (glow.ti - glow.i) * (1 - Math.exp(-h * 12));
   }
 
-  function stepFX(h, n, pu) {
-    // smoke from the wreck: thick at first, thinning; the reset clears it
+  function stepFX(h, n) {
+    // smoke off the scorch and the smouldering shell: thick at first, thinning; the reset clears it
     if (fx.plume > 0) {
-      fx.plume = Math.max(0, fx.plume - h * (n === 'reset' ? 2 : 0.22));
+      fx.plume = Math.max(0, fx.plume - h * (n === 'reset' ? 2 : 0.26));
       const rate = 3 + 13 * fx.plume;
       if (rand() < rate * h) {
-        const m = mons[monI];
-        if (cyc.kind === 'A') { if (rand() < 0.4) _c.set(0.2, 0.42, 0).applyMatrix4(m.body.matrixWorld); else _c.copy(fx.plumeAt).addScaledVector(SCREEN_N, 0.02); }   // out of the hole, and the vents
-        else _c.copy(rand() < 0.3 && gbDebris[0].on ? gbDebris[0].p : fx.plumeAt);                           // the scorch, and the smouldering shell
+        _c.copy(rand() < 0.3 && gbDebris[0].on ? gbDebris[0].p : fx.plumeAt);
         puff(_c.add(_d.set((rand() - 0.5) * 0.06, 0, (rand() - 0.5) * 0.06)), 0.035 + 0.035 * rand() * (0.5 + fx.plume), 1.7 + 0.7 * rand(), fx.plumeDark * (0.3 + 0.7 * fx.plume), (rand() - 0.5) * 0.06, 0.12 + 0.1 * rand(), (rand() - 0.5) * 0.06);
       }
-    }
-    // the dead CRT sputters: a crackle of sparks, its picture flickers back for a frame
-    if (fx.crackle > 0 && mons[monI].state === 'dead') {
-      fx.crackle -= h;
-      fx.sputter -= h;
-      if (fx.crackle <= 0) {
-        fx.crackle = 0.55 + 0.6 * rand();
-        spit(fx.plumeAt, SCREEN_N, 4 + ((rand() * 4) | 0), 1.6, 0.8);
-        fx.sputter = 0.07;
-      }
-      mons[monI].screen.material = fx.sputter > 0 ? deadMat[1] : deadMat[0];
     }
     if (fx.sootT >= 0 && (fx.sootT -= h) < 0) {
       for (let i = 0; i < fx.sootN; i++) {
         rUnit(_fd); if (fx.sootUp) _fd.y = Math.abs(_fd.y); _fd.lerp(fx.sootDir, 0.4).normalize();
         puff(_c.copy(fx.sootAt).addScaledVector(_fd, fx.sootS * (0.5 + 0.6 * rand())), fx.sootS * (0.35 + 0.3 * rand()), 1.2 + 0.6 * rand(), 1, _fd.x * 0.3, 0.12 + _fd.y * 0.2, _fd.z * 0.3);
-      }
-    }
-    // the cough: little grey puffs out of his mouth, off past the front of his face as we see it (over his chin they'd
-    // read as a beard)
-    if (fx.cough >= 0 && n === 'after' && pu > fx.cough) {
-      fx.cough = -1;
-      for (let i = 0; i < 3; i++) puff(_c.copy(MOUTH_W).addScaledVector(cRight, 0.035 + 0.03 * i).addScaledVector(cUp, 0.01 + 0.008 * i), 0.011 + 0.007 * i, 0.8, 0.2, cRight.x * 0.3, 0.14, cRight.z * 0.3);
-    }
-    // his singed hair smokes: thin grey wisps curling up off his crown, dying away
-    if (fx.singe > 0) {
-      fx.singe = Math.max(0, fx.singe - h);
-      if (rand() < 8 * h * smooth(0, 0.8, fx.singe)) {
-        head.localToWorld(_c.set(-0.02 + 0.09 * (rand() - 0.5), 0.2, 0.11 * (rand() - 0.5)));
-        puff(_c, 0.016 + 0.012 * rand(), 1.0 + 0.4 * rand(), 0, (rand() - 0.5) * 0.05, 0.16 + 0.08 * rand(), (rand() - 0.5) * 0.05, 1.4);
       }
     }
     for (const f of fire) {
@@ -2614,7 +2463,7 @@ export async function create({ THREE, stage, reduced }) {
       s.age += h * clear;
       if (s.age >= s.life) { s.on = false; continue; }
       s.v.y += (0.14 + 0.2 * s.dark * (1 - s.age / s.life) - s.v.y) * 1.1 * h;   // hot black smoke billows up, then drifts
-      s.v.x += (-0.05 - s.v.x) * 0.6 * h; s.v.z += (-0.03 - s.v.z) * 0.6 * h;   // a slow draught toward the back
+      s.v.x += (DRAUGHT.x - s.v.x) * 0.6 * h; s.v.z += (DRAUGHT.z - s.v.z) * 0.6 * h;   // a slow draught, off away from the screen
       s.p.addScaledVector(s.v, h);
       const wl = s.w.length(); if (wl > 0) { _q.setFromAxisAngle(_a.copy(s.w).divideScalar(wl), wl * h); s.q.premultiply(_q); }
     }
@@ -2622,6 +2471,7 @@ export async function create({ THREE, stage, reduced }) {
     if (fx.boomT >= 0) { fx.boomT += h; if (fx.boomT > 1.2) fx.boomT = -1; }
     if (fx.flashT >= 0) { fx.flashT += h; if (fx.flashT > 0.3) fx.flashT = -1; else flash.rotateOnAxis(_a.set(0.3, 1, 0.2).normalize(), h * 3); }
   }
+  const DRAUGHT = new V(0.1, 0, 0.32);                                      // toward our right, off the desk: the smoke clears the screen
 
   // ---- pose everything from the state
   const lpole = new V(), feet = [new V(0.4, 0.075, -0.13), new V(0.42, 0.075, 0.14)];
@@ -2652,6 +2502,9 @@ export async function create({ THREE, stage, reduced }) {
     chairTop.rotation.set(0, sp.swivel.x, sp.recline.x);
     spine.rotation.z = -sp.lean.x;
     chest.rotation.set(0, sp.twist.x, -sp.hunch.x);
+    const shrug = sp.shrug.x;
+    neck.position.y = 0.23 - 0.05 * shrug;                                    // his head sinks between his shoulders
+    torso.scale.y = 1 + 0.14 * clamp(shrug, 0, 1.5);
     const yaw = sp.yaw.x, pitch = sp.pitch.x;
     neck.rotation.set(0, yaw * 0.35, pitch * 0.3 - 0.25);
     head.rotation.set(sp.roll.x, yaw * 0.65, pitch * 0.7 + 0.25 * 0.95);
@@ -2665,24 +2518,24 @@ export async function create({ THREE, stage, reduced }) {
       e.brow.rotation.set(e.s * 0.42 * brow, -e.s * 0.3, 0);
     }
     grin.visible = grit > 0.03; grin.scale.set(1, Math.max(0.03, grit), lerp(0.85, 1, clamp(grit, 0, 1)));
-    const soot = clamp(sp.soot.x, 0, 1);
-    M.skin.color.copy(SKIN).lerp(ASH, 0.25 * soot); M.skinD.color.copy(SKIND).lerp(ASHD, 0.25 * soot);
-    M.face.color.copy(M.skin.color); SOOT_U.uSoot.value = soot;
-    tufts.scale.set(1 + 0.08 * soot, 1 + 0.5 * soot, 1 + 0.12 * soot); tufts.rotation.z = 0.12 * soot;   // the blast stands his hair on end, up and back
-    M.hair.color.copy(HAIR).lerp(SINGED, 0.6 * soot);
     chairBase.updateMatrixWorld(true);
     // his eyes turn to what he's looking at (the head turns most of the way; the eyes finish it)
     _inv.copy(head.matrixWorld).invert();
-    SOOT_U.uHeadInv.value.copy(_inv);
+    const eyeYaw = lerp(0.55, 1.2, look.w.x), eyeUp = lerp(0.3, 0.7, look.w.x);      // glancing back at you: a side-eye, right round
     for (const e of eyes) {
       _p.copy(gaze).applyMatrix4(_inv).sub(e.g.position);
-      e.g.rotation.set(0, clamp(Math.atan2(-_p.z, _p.x), -0.55, 0.55), clamp(Math.atan2(_p.y, Math.hypot(_p.x, _p.z)), -0.35, 0.3));
+      e.g.rotation.set(0, clamp(Math.atan2(-_p.z, _p.x), -eyeYaw, eyeYaw), clamp(Math.atan2(_p.y, Math.hypot(_p.x, _p.z)), -0.35, eyeUp));
     }
 
     arms.forEach((arm, i) => {
-      arm.sh.set(-0.01, 0.2, arm.s * 0.155); chest.localToWorld(arm.sh);
+      arm.sh.set(-0.01 - 0.01 * shrug, 0.2 + 0.06 * shrug, arm.s * (0.155 - 0.012 * shrug)); chest.localToWorld(arm.sh);
       getHand(i, arm.tgt);
-      lpole.set(-0.35, -0.6, arm.s * 0.9).normalize();
+      const up = smooth(DESK_Y + 0.12, DESK_Y + 0.32, arm.tgt.y);           // playing: elbows in and down; hands up: out
+      lpole.set(lerp(-0.3, -0.35, up), lerp(-0.95, -0.6, up), arm.s * lerp(0.08, 0.9, up));
+      // the left one on the keys (off to his left): the elbow forward and in, the forearm angled across to the keyboard
+      if (i === 0) lpole.lerp(_d.set(0.4, -0.75, 0.6), 1 - up);
+      lpole.normalize();
+      if (i === 1 && sp.cock.x > 0.001) lpole.lerp(_d.set(-0.05, 0.25, 1), clamp(sp.cock.x, 0, 1)).normalize();   // cocked to throw: the elbow up and out to his side
       ik(arm.sh, arm.tgt, UA, FA, lpole, arm.el, arm.wr);
       seg(arm.upper, arm.sh, arm.el);
       _c.subVectors(arm.wr, arm.el).normalize();
@@ -2695,7 +2548,7 @@ export async function create({ THREE, stage, reduced }) {
       const c = clamp(hands[i].c.x, 0, 1), inf = arm.hand.morphTargetInfluences;   // open > grip > fist
       inf[0] = c < 0.5 ? 2 * c : 2 - 2 * c; inf[1] = c < 0.5 ? 0 : 2 * c - 1;
     });
-    const calm = PLAYING.has(phase());
+    const calm = phase() === 'play' || phase() === 'resume';
     legs.forEach((leg, i) => {
       leg.hip.set(0.03, -0.02, leg.s * 0.09); hips.localToWorld(leg.hip);
       _t.copy(feet[i]); _t.x += sp.rollX.x;
@@ -2716,48 +2569,32 @@ export async function create({ THREE, stage, reduced }) {
     });
 
     // the desk's things
-    for (const m of mons) {
-      m.body.position.y = m.drop;
-      m.body.rotation.set(0, m.knock.x, m.tilt.x);
-      const sq = m.squash.x;
-      const st = m.state === 'drop' ? clamp(0.06 - m.vy * 0.03, 0, 0.16) : 0, pp = Math.max(1e-4, m.pop);   // stretched as it falls
-      m.body.scale.set(pp * (1 + (1 - sq) * 0.35 - st * 0.4), pp * (sq + st), pp * (1 + (1 - sq) * 0.35 - st * 0.4));
-      // a falling thing's shadow arrives first: it darkens and tightens on the desk before the monitor appears
-      const pre = m.state === 'drop' && m.pop <= 0 ? 1 - clamp(m.wait / 0.4, 0, 1) : 1;
-      m.shadow.visible = m.state !== 'gone' && m.state !== 'crushed';
-      m.shadow.material.opacity = 0.5 * pre * (m.state === 'drop' ? lerp(0.55, 1, clamp(1 - m.drop / DROP_H, 0, 1)) : 1);
-      m.shadow.scale.set(0.42 * (1.5 - 0.5 * pre), 1, 0.62 * (1.5 - 0.5 * pre));
-    }
+    mon.body.position.y = monJ.hop;
+    mon.body.rotation.set(0.05 * mon.rock.x, 0, MON.tip - 0.03 * mon.rock.x);
     keyboard.position.y = DESK_Y + Math.max(0, wob.kb.x * 0.02);
     can.rotation.set(wob.can.x * 0.06, 0, wob.can.x * 0.04);
     mouse.position.set(mouseAt.x, MOUSE0.y + Math.max(0, wob.mouse.x * 0.02), mouseAt.z);
     mouse.rotation.y = mouseDir.yaw;
     papers.forEach((p) => { p.m.position.y = p.y0 + p.hop; });
-    caps.forEach((b) => { if (!b.on && b.key) { b.key.gone = false; b.key = null; } });
     drawKeys();
-    if (gbs.mode === 'held') {
-      gbHeld(_gp, _gq);
-      const a = phase() === 'grab' ? gbs.grab : 1;
-      gbs.p.copy(GB_HOME).lerp(_gp, a); gbs.q.copy(GB_HOME_Q).slerp(_gq, a);
-    }
-    gb.position.copy(gbs.p); gb.quaternion.copy(gbs.q);
+    if (gbs.mode === 'held') gbHeld(gbs.p, gbs.q);
+    // landing in its spot it squashes down its height (onto its foot)
     const gsq = gbs.sq.x;
     const gp = gbs.mode === 'drop' ? Math.max(1e-4, gbs.pop) : 1;
-    gb.scale.set(gp * (1 + (1 - gsq) * 0.3), gp * (1 + (1 - gsq) * 0.3), gp * gsq);
+    gb.position.copy(gbs.p); gb.quaternion.copy(gbs.q);
+    if (gsq !== 1) gb.position.y -= (1 - gsq) * GB_HH * Math.cos(GB_LEAN);
+    gb.scale.set(gp * (1 + (1 - gsq) * 0.3), gp * gsq, gp * (1 + (1 - gsq) * 0.3));
     gb.visible = gbs.mode !== 'gone';
-    gbShadow.visible = gb.visible && gbs.mode !== 'held';
-    gbShadow.material.opacity = 0.45 * (gbs.mode === 'drop' ? gbs.pop * clamp(1 - gbs.dropY * 1.5, 0, 1) : 1);
+    gbShadow.visible = gb.visible && (gbs.mode === 'desk' || gbs.mode === 'drop');
+    const sh = gbs.mode === 'drop' ? gbs.pop * clamp(1 - gbs.dropY * 1.5, 0, 1) : clamp(1 - gbs.hop * 6, 0.3, 1);
+    gbShadow.material.opacity = 0.5 * sh;
+    lcdGlow.visible = gbShadow.visible; lcdGlow.material.opacity = 0.32 * sh;
 
-    // lights: the screen's glow, the Game Boy's, the blast
-    const mon = mons[monI];
+    // lights: the screen's glow, the blast
     mon.root.updateMatrixWorld(true);
     glowL.position.set(-0.12, 0.27, 0).applyMatrix4(mon.body.matrixWorld);
     glowL.color.copy(glow.c).lerp(WHITE, 0.5);                               // a hint of the game's colour, not a wash
-    const live = mon.state === 'live' || (mon.state === 'boot' && mon.landT > 0.3);
-    glowL.intensity = live ? GLOW_I * glow.i : mon.state === 'dead' && fx.sputter > 0 ? GLOW_I * 1.2 : 0;
-    gbL.position.copy(gbs.p).add(_a.set(0, 0, 0.07).applyQuaternion(gbs.q));
-    gbL.color.set(0x9bbc0f).lerp(WHITE, 0.45);
-    gbL.intensity = gbs.on ? GB_I : 0;
+    glowL.intensity = GLOW_I * glow.i;
     if (fx.boomT >= 0) {
       const t = fx.boomT;
       boomL.position.copy(fx.boomAt);
@@ -2813,8 +2650,6 @@ export async function create({ THREE, stage, reduced }) {
       smokeAlpha.setX(i, (0.55 + 0.35 * s.dark) * smooth(0, 0.025, u) * (1 - smooth(0.35, 1, u)) * edge);
     });
     smokeAlpha.needsUpdate = true;
-    writePool(glassMesh, glass, (b, i) => { glassMesh.setMatrixAt(i, _m4.compose(b.p, b.q, _s.setScalar(Math.max(1e-4, b.s * b.sc)))); });
-    writePool(capMesh, caps, (b, i) => { capMesh.setMatrixAt(i, _m4.compose(b.p, b.q, _s.setScalar(Math.max(1e-4, b.s * b.sc)))); capMesh.setColorAt(i, b.key ? b.key.col : KEY_BONE); });
     gbDebris.forEach((b) => b.write(b));
   }
   function stepStrings(h) {
@@ -2825,9 +2660,9 @@ export async function create({ THREE, stage, reduced }) {
     });
   }
 
-  // ---- the screens: the live CRT at 20 fps. Dead, the counter runs down to the reset (rage B: he respawns as it
-  // begins, in a flash). Between cycles (the reset, the resume) the screen already plays the next round's opening, the
-  // waves marching out of the towers, so the next play carries straight on from it.
+  // ---- the screen: the CRT at 20 fps. Dead, the counter runs down to the reset (he respawns as it begins, in a flash).
+  // Between cycles (the reset, the resume) it already plays the next round's opening, the waves marching out of the
+  // towers, so the next play carries straight on from it.
   const scrStat = { ms: 0, n: 0, max: 0 };                                   // the screen's redraw cost (for ?debug)
   const toEnd = () => cyc.ph.slice(cyc.pi + 1).reduce((s, p) => s + p.d, cur().d - cyc.pu);
   function toPhase(name) {
@@ -2836,26 +2671,32 @@ export async function create({ THREE, stage, reduced }) {
     return s;
   }
   function drawScreens() {
-    const mon = mons[monI], n = phase(), between = n === 'reset' || n === 'resume', next = ROUNDS[(cyc.i + 1) % ROUNDS.length];
+    const n = phase(), next = ROUNDS[(cyc.i + 1) % ROUNDS.length];
     const t0 = performance.now();
-    if (mon.state === 'boot') drawBoot(clamp((mon.landT - 0.3) / 0.45, 0, 1), between ? next : cyc.game, between ? -toEnd() : cyc.gu);
-    else if (mon.state === 'live') {
-      if (between) next.draw(-toEnd(), { fade: cyc.kind === 'B' && n === 'reset' ? 1 - cyc.pu / 0.18 : 0 });
-      else cyc.game.draw(cyc.gu, { respawn: toPhase('reset') });
-    } else return;
+    if (n === 'reset' || n === 'resume') next.draw(-toEnd(), { fade: n === 'reset' ? 1 - cyc.pu / 0.18 : 0 });
+    else cyc.game.draw(cyc.gu, { respawn: toPhase('reset') });
     screenTex.needsUpdate = true;
     const ms = performance.now() - t0; scrStat.ms += ms; scrStat.n++; scrStat.max = Math.max(scrStat.max, ms);
   }
 
-  // ---- framing: a three-quarter view from his right, a little in front, fitted to the view's box (smoke included)
-  const AZ = 1.3, EL = 0.15;                         // azimuth from his forward (+x) round toward +z; elevation
+  // ---- framing: high, behind him and over his right shoulder: the screen over his shoulder, his hands, the back of
+  // his head, the chair's back with its lettering, the Game Boy past his mouse hand (its face at a slant, turned to him);
+  // fitted to the view's box
+  const AZ = 2.55, EL = 0.8;                                                 // azimuth from his forward (+x) round toward +z; elevation
   const camDir = new V(Math.cos(EL) * Math.cos(AZ), Math.sin(EL), Math.cos(EL) * Math.sin(AZ));
   const camTarget = new V(), camBase = new V();
   const cRight = new V().crossVectors(new V(0, 1, 0), camDir).normalize();
   const cUp = new V().crossVectors(camDir, cRight);
+  // the box's points: the whole set floats in it, nothing cut by its (invisible) edges. The chair whole (its back to the
+  // bottom, the five casters), with room for its roll back in the flinch; his head, the Game Boy cocked by it; the
+  // monitor; the desk, its legs, the corner where the Game Boy goes off (and its fireball)
   const FRAME_PTS = [
-    [-0.42, 1.27, 0], [-0.6, 1.22, -0.11], [-0.64, 1.15, 0], [-0.76, 1.08, 0.15], [0.12, 1.5, 0.05], [-0.02, 1.5, 0.34], [-0.32, 0.0, 0.3], [-0.32, 0.0, -0.3], [0.3, 0.0, 0.3], [DX0, DESK_Y, DZ], [DX1, DESK_Y, DZ], [DX0, 0, DZ], [DX1, 0, DZ],
-    [DX1, DESK_Y, -DZ], [DX1, 0, -DZ], [MON.x, 1.42, MON.z], [0.1, 1.42, 0.3],
+    [-0.42, 1.28, 0.12], [-0.42, 1.28, -0.12], [-0.41, 1.0, 0.28], [-0.41, 1.0, -0.28], [-0.39, 0.52, 0.23], [-0.39, 0.52, -0.23],
+    ...[0, 1, 2, 3, 4].map((i) => { const a = (i / 5) * Math.PI * 2 + 0.3; return [0.33 * Math.cos(a) - 0.05, 0, 0.33 * Math.sin(a)]; }),
+    [0.2, 1.5, 0], [WIND.x, WIND.y + 0.2, WIND.z],
+    [MON.x, DESK_Y + MON.s * MON_TOP + 0.02, MON.z - MON.s * 0.25], [MON.x, DESK_Y + MON.s * MON_TOP + 0.02, MON.z + MON.s * 0.25], [MON.x + 0.1, DESK_Y, MON.z - MON.s * 0.25],
+    [DX0, DESK_Y, DZ], [DX1, DESK_Y, DZ], [DX0, DESK_Y, -DZ], [DX1, DESK_Y, -DZ], [DX0 + 0.05, 0, DZ - 0.05], [DX0 + 0.05, 0, 0.05 - DZ], [DX1 - 0.05, 0, DZ - 0.05],
+    [SPIKE.x + 0.1, DESK_Y + 0.05, SPIKE.z + 0.16], [SPIKE.x, DESK_Y + 0.28, SPIKE.z + 0.12],
   ].map((p) => new V(...p));
   let camD = 5;
   const tmp = new V();
@@ -2863,9 +2704,9 @@ export async function create({ THREE, stage, reduced }) {
   function fit(w, h) {
     camera.aspect = w / Math.max(1, h);
     camera.updateProjectionMatrix();
-    const [bx0, bx1, by0, by1] = [-0.955, 0.975, -0.965, 0.95];
+    const [bx0, bx1, by0, by1] = [-0.97, 0.97, -0.97, 0.95];
     const ty = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)), tx = ty * camera.aspect;
-    camTarget.set(0.35, 0.75, 0); let d = 5;
+    camTarget.set(0.35, 0.95, 0); let d = 5;
     for (let it = 0; it < 14; it++) {
       place(camTarget, d);
       let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
@@ -2877,33 +2718,29 @@ export async function create({ THREE, stage, reduced }) {
     camD = d;
     place(camTarget, d);
     camBase.copy(camera.position);
-    // the world height of the frame's top over the desk: a new monitor pops in just below it
-    let lo = DESK_Y, hi = 3;
-    for (let it = 0; it < 24; it++) { const m = (lo + hi) / 2; if (tmp.set(MON.x, m, MON.z).project(camera).y < 0.97) lo = m; else hi = m; }
-    DROP_H = clamp(lo - 0.03 - DESK_Y - MON_TOP * 1.06, 0.08, 0.4);
   }
   fit(520, 380);
+  // the glance back (hover): the head's turn over his right shoulder, most of the way round to us but not all: profile
+  const GLANCE = { yaw: -1.25, pitch: 0.4, twist: -0.22 };
 
-  // ---- the opening frame (and the reduced-motion still): ganked, the screen grey, the respawn counter, the three of
-  // them in the kill feed; he has frozen, glaring, the mouse hand off the mouse and clenched. About to lose it.
+  // ---- the opening frame (and the reduced-motion still): mid-fight, his chain lightning arcing through their wave, both
+  // hands going
   newCycle(0, false);
-  setD('stare', 1.0);
-  mons[0].screen.material = liveMat;
-  drawGB(0, 9, false);
+  drawGB();
   {
     const quiet = { hover: 0 };
-    cyc.gu = cyc.pu = cyc.game.fail - 0.6;
+    cyc.gu = cyc.pu = 3.52 - 75 * H;
     for (let i = 0; i < 75; i++) { step(H, quiet); stepStrings(H); pose(); }   // the springs settle; the screen once, after
   }
   drawScreens();
   glow.c.copy(glow.tc); glow.i = glow.ti;
   pose();
   // debug (?debug, or the lab's &shot): the screen's canvas, its redraw cost, any round's frame on demand, a jump to the
-  // start of any cycle (while the monitor is live)
-  if (/[?&](debug|shot)\b/.test(location.search)) window.__gamer = { screen: scrCanvas, raw: () => FB, stat: scrStat, track: TRACK, rounds: ROUNDS, sim, cyc, phase, cycle: (i) => newCycle(i, false) };
+  // start of any cycle; the camera, the rig and the Game Boy's state for probes
+  if (/[?&](debug|shot)\b/.test(location.search)) window.__gamer = { screen: scrCanvas, raw: () => FB, stat: scrStat, track: TRACK, rounds: ROUNDS, sim, cyc, phase, cycle: (i) => newCycle(i, false), scene, camera, arms, head, gb, gbs };
 
   // ---- per frame
-  let accT = 0, frameS = -1, frameG = -1;
+  let accT = 0, frameS = -1;
   const idle = { x: 0, y: 0, hover: 0, inside: false, clicked: false };
   return {
     scene, camera,
@@ -2918,13 +2755,6 @@ export async function create({ THREE, stage, reduced }) {
       pose();
       const f = Math.floor(time * 20);
       if (f !== frameS) { frameS = f; drawScreens(); }
-      const g = Math.floor(time * 10);
-      if (g !== frameG) {
-        frameG = g;
-        const n = phase();
-        if (cyc.kind === 'B' && (n === 'gbplay' || n === 'stare' || n === 'windup' || n === 'throw')) drawGB(cyc.gbu, gbFail(), true);
-        else if (gbs.mode === 'drop') drawGB(0, 9, false);
-      }
       // camera: a slow drift, a lean toward the pointer, the impacts' kick
       const hv = reduced ? 0 : input.hover ?? 0;
       camera.position.copy(camBase)
