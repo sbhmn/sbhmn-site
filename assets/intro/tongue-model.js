@@ -1,35 +1,57 @@
 // The monster's tongue, made from the owner's 3D model: a sculpted, glossy, pink-red tongue with taste buds and a
 // groove down the middle (assets/3d/tongue-model.glb, built by dev/models/tongue-rig.py from the owner's FBX: relaxed
 // out of its S-twist into a gently curved, left-right symmetric rest pose, a stalk added at the root, skinned to a
-// chain of 11 bones, with twin bones along the front third that cup the tip). Same job and API as the procedural one
-// (assets/intro/tongue.js), so the intro can use either.
-// The paper goes in: the tip slides out over the front lip, tastes it (a wiggle) and tucks under; the tongue ERUPTS up
-// and over the front in a big hook, unrolls down it and SLAPS onto the lip; it hangs there, a wave running down it,
-// drags greedily across the lip to one side and back to the other (the tip trailing and curling); laps up off the lip,
-// curling over, and SLAPS down again; then it is SLURPED back up the front and over the lip, into the dark. Its top
-// (the groove and the taste buds) faces the camera in every pose: it never stands up as a bare column, nor points
-// straight at the camera. Animated here, not baked: keyframed bends at every joint chased by springs (the tip lags,
-// whips and overshoots), kept out of the rim and the walls. Spit flies off it on the fast moves, falls and splashes on
-// the floor (a crown, a few droplets, a puddle that dries away); a fat drop lets go of the hanging tip; strings of spit
-// stretch from the lip to it and snap.
+// chain of 17 short bones, with twin bones along the front that cup the tip).
+// The lid has slammed shut on the paper. A beat; then something shoves the lid's FRONT edge up from inside and the
+// tongue SQUEEZES OUT through the thin gap between the rim and the lid: crushed flat where it passes the gap
+// (toothpaste through a slot), it rounds out gradually outside and flops down over the front; the tip has a taste (it
+// curls up, its underside showing, and wiggles). Then it licks, every beat a different silhouette from the throw camera,
+// its top (the groove, the taste buds) toward the viewer most of the time:
+//   - the big LICK: it winds off to the viewer's left, sweeps across under itself and curls up the right side of the
+//     lid's front, the tip hooking round the lid's front corner (the lid heaves up ~11 degrees), holds a beat, drags
+//     back down;
+//   - SLAPS flat onto the bin's front (the lid hops);
+//   - ROLLS: twists over about its own length (the underside shows) as it sweeps off to the left; sweeps back across
+//     to the right, rolling back over, the tip curling up the right side (the lid hops), then back to the left, the tip
+//     curling up the left side (a hop);
+//   - FLICKS the tip across; CHATTERS (wags side to side, twisting; the lid rattles on it);
+//   - is SLURPED back in through the gap, squeezed flat again; that throws the lid up, and it claps shut and bounces.
+// The LID RIDES ON IT: a hinged plate with weight, not keyframed. Between moves the tongue holds it barely open (~2
+// degrees: it relaxes, the gap is thin); on the big beats it jolts up in the gap and throws the lid: it flies (to
+// 10-11 degrees on the big lick, 7-8 on the slap and the sweeps), falls back and knocks on the tongue; when the tongue
+// has gone it claps on the rim and bounces once. The tongue never goes through the lid, the rim or the bin (in the gap
+// a vertex clamp in the shader makes it exact; out of it, the bones are kept off the bin and the lid).
+// Animated here, not baked: keyframed bends at every joint chased by springs (the tip lags, whips and overshoots). Each
+// joint bends at most so far that the bend stays wider than the tongue there (no edge folding through itself), and
+// twists are spread along its length (no candy-wrapping).
+// Spit squirts out of the gap beside the tongue, flies off the fast moves (milky beads; one that flies into the tongue
+// is gone), falls and splashes on the floor (a crown, a few droplets, a puddle that dries away) or lands on the lid (a
+// faint wet spot riding on it); strings of spit stretch across the gap as the lid pops and where the tongue peels off
+// the bin or the lid, and snap.
 //
 //   import { createTongue } from '/assets/intro/tongue-model.js';
-//   const tongue = createTongue(THREE, { fxParent: scene });  // returns at once; its model (~0.36 MB) loads behind
+//   const tongue = createTongue(THREE, { fxParent: scene });  // returns at once; its model (~0.37 MB) loads behind
 //   bin.add(tongue.object3d);                   // a parent with no rotation/scale of its own
 //   tongue.object3d.position.set(0, 0.78, 0);   // the centre of the opening, on the rim plane
 //   await tongue.ready;                         // optional: the model has arrived (rejects if it can't load)
 //   tongue.warm(renderer, camera);              // once, after it is in the scene (see warm below)
 //   tongue.update(dt);                          // every frame, always (the drips outlive the lick); dt in seconds
-//   await tongue.lick();                        // ~1.58 s; resolves when the tongue is back inside (slam the lid)
+//   // the lid slams shut on the paper and has settled; then (lidGroup: the lid's pitch group at its hinge):
+//   await tongue.lick({ lid: (p) => { lidGroup.rotation.x = p; } });   // 2.82 s at speed 1 (don't open the lid yourself)
+//   // the lid is shut again (the last lid() call was exactly 0): carry on
 // `const tongue = await createTongue(...)` works too (it is not a promise; await just hands it back).
 //
 // Coordinates: bin units (1 unit ~ the bin's height). object3d's origin is the centre of the opening on the rim
-// plane, +y up, +z toward the front (the camera). The floor is at local y = -rimY. The tongue lives inside the opening
-// below the rim (drawn sinking into black there, the dark in the bin; it never goes below the bin's floor inside, so
-// nothing shows through the slots in the base) and reaches (measured, both mirror sides) ~0.41 above the rim, ~0.37 in
-// front of the rim (z up to 0.87), 0.42 below the rim hanging down the front, and 0.48 to either side (dragging across
-// the lip). Above the rim it never leans back past z = 0.12 (the open lid is behind). Hidden until lick(); hidden
-// again when the promise resolves.
+// plane, +y up, +z toward the front (the camera). The floor is at local y = -rimY. The lid (as in assets/3d/bin.glb):
+// hinged at (0, 0, -0.5) here, 1.0 deep, its front edge flush with the rim's front (z = 0.5); pitch 0 = shut, < 0 =
+// open (rotation.x of a group at the hinge); its front edge is then lifted by sin(-pitch). The tongue lives in the bin
+// under the lid (drawn sinking into the dark there; the hidden part runs down the inside of the front wall and back
+// along the bottom, well clear of the front wall, within the intro's black monster block) and comes out only through
+// the gap at the front: it reaches (measured every 1/30 s, both mirror sides) 0.20 above the rim, 0.54 in front of
+// the rim (z up to 1.04), 0.67 below the rim down the bin's front, and 0.72 to either side (0.17 past the bin's side, on
+// the big lick). Hidden until lick(); hidden again when it resolves.
+// It is staged for the throw camera (and the throw camera backed off on a portrait phone, where it still reads): it
+// works in the plane of the bin's front, so its shapes read from in front; the front camera sees it all too.
 //
 // createTongue(THREE, opts):
 //   url      '/assets/3d/tongue-model.glb'
@@ -41,11 +63,27 @@
 //   tint     0xe8a4ac          multiplies the model's colour map: a touch deeper and redder, so it reads on white
 //                              (0xffffff = the model's own colours)
 //   wait     1.5               lick() called before the model has arrived waits up to this long (seconds of update
-//                              time) for it, then gives up (the promise resolves, nothing shows)
-//   onCue    (name, info) => {} for sounds or a shake (times at speed 1): 'peek' 0.07, 'erupt' 0.23, 'slap' 0.44 and
-//                              1.2 (it lands on the lip: a wet thump), 'lick' 0.66 and 0.84 (the drags across the lip),
-//                              'flick' 1.08 (the lap curls over), 'slurp' 1.34, 'snap' (a string of spit breaks),
-//                              'splat' { x, y, z, size } (fx space) when a drop lands, at most one per 60 ms.
+//                              time) for it, then gives up (the promise resolves, nothing shows, lid() is never called)
+//   onCue    (name, info) => {} for sounds. Times in seconds after lick() at speed 1 (measured at 60 fps, +-1 frame; at
+//                              speed s divide by s):
+//                              'pop'      0.25             the lid's front edge is shoved up from inside (a thunk)
+//                              'squeeze'  0.28             the tongue squeezes out through the gap (a wet squelch)
+//                              'lick'     { strength } 0.78 (1: the big lick, sweeping up to the lid's corner; the lid
+//                                                      flies), 1.52 (0.7: the sweep back to the right), 1.77 (0.6: the
+//                                                      sweep to the left), 2.13 and 2.25 (0.3: the chatter)
+//                              'slap'     { strength } 1.10 (1: it falls flat onto the bin's front)
+//                              'roll'     1.22             it starts to twist over
+//                              'flick'    1.98             the tip flicks across
+//                              'slurp'    2.38             sucked back in through the gap
+//                              'clap'     { strength } the lid lands on the rim: 2.67 (0.93: it shuts) and once more
+//                                                      after its bounce, 2.80 (0.43)
+//                              'rattle'   { strength } the lid, thrown up, lands back on the tongue (a knock): 7 a
+//                                                      lick: 0.40 (0.37), 1.07 (0.85), 1.32 (0.77), 1.75 (0.77), 2.00
+//                                                      (0.74), 2.15 (0.53), 2.33 (0.32) (weaker ones, < 0.25, and any
+//                                                      within 0.1 s of the last, are not sent)
+//                              'snap'                  a string of spit breaks (4-6 a lick: ~0.32, 0.80, 1.02, 1.25-1.40, 2.52;
+//                                                      at most one per 0.12 s)
+//                              'splat'    { x, y, z, size } (fx space) a drop lands; at most one per 60 ms
 //                              Errors thrown by the hook are swallowed.
 // returns {
 //   object3d                   the tongue (and, by default, the drips)
@@ -53,92 +91,139 @@
 //   ready                      a promise: resolves (to this object) when the model has arrived, rejects if it can't
 //                              load (then lick() resolves at once and nothing shows; the procedural tongue is the
 //                              fallback)
-//   lick({ speed = 1, mirror = false }) => Promise
-//                              speed: playback rate. mirror: left and right swapped (exact). Called while busy:
-//                              returns the running lick's promise. Resolves when the tongue is back inside AND no
-//                              drop is left in the air over the opening (any still there is removed), so the lid can
-//                              slam at once.
-//   update(dt)                 dt clamped to 0.05; frame-rate independent (springs stepped at 240 Hz)
+//   lick({ lid, speed = 1, mirror = false, mode = 'gap' }) => Promise
+//                              lid: (pitch) => {}: called every update() while it licks (from the first one), with the
+//                              lid pitch it wants (radians, <= 0, 0 = shut; -0.19 at most, the front edge up 0.19):
+//                              set the real lid's pitch group's rotation.x to it (the intro must not open the lid
+//                              itself). It starts at 0 (call lick() with the lid shut and settled; the first 0.22 s it
+//                              holds it at 0, the beat) and the last call is exactly 0. Optional: without it, read
+//                              tongue.lidPitch. speed: playback rate. mirror: left and right swapped (exact).
+//                              mode: 'gap' (the only staging; anything else is treated as 'gap'). Called while busy:
+//                              returns the running lick's promise. Resolves once the lid has clapped shut and settled
+//                              (2.82 s at speed 1).
+//   lidPitch                   (getter) the lid pitch it wants now (0 when idle)
+//   update(dt)                 dt clamped to 0.05; frame-rate independent (springs and the lid stepped at 240 Hz)
 //   warm(renderer, camera)     once, after object3d (and fx) are in the scene: compiles every shader it uses, makes
 //                              the env's PMREM, uploads the model's textures and the shadow-pass variants by rendering
 //                              one frame with its pieces present but too small to see, and runs the lick's code once
-//                              silently (no cues, state restored). Called before the model has arrived, it is done in
-//                              the first update() after it arrives (so `await tongue.ready` first if you want it done
-//                              during setup). Without it the first lick frame stalls (~260 ms in headless Edge; with it, ~1 ms).
-//   stop()                     for a Skip button: the tongue goes, every drip goes, the running lick's promise resolves
+//                              silently (no cues, no lid() calls, state restored). Called before the model has arrived,
+//                              it is done in the first update() after it arrives (so `await tongue.ready` first if you
+//                              want it done during setup). Without it the tongue's first frame stalls (~270 ms in
+//                              headless Edge; with it, the worst frame of the lick is under 1 ms).
+//   stop()                     for a Skip button: the tongue goes, every drip goes, lid(0) is called once (the lid
+//                              shut) and the running lick's promise resolves
 //   dispose()                  stop() + removes object3d and fx from their parents and frees its GPU resources
 //   busy                       (getter) true while licking (or waiting for the model to lick)
 //   debug                      for dev/lab-tongue-model.html; ignore it
 // }
 // Where the drips live: they are simulated in fx's local space, which matches object3d's at the start of each lick.
 // By default fx is a child of object3d. If the intro moves the bin afterwards (rattle) while puddles are still drying
-// (up to ~2.6 s), pass opts.fxParent = scene: fx is then added to the scene and placed at object3d's world transform at
-// each lick() start, and the drips stay put when the bin moves.
-// Budget: one skinned mesh (10.7k vertices, 17.6k triangles, 21 bones; skinning on the GPU), one draw call each for
+// (up to ~2.2 s), pass opts.fxParent = scene: fx is then added to the scene and placed at object3d's world transform at
+// each lick() start, and the drips stay put when the bin moves. Spit on the lid rides on it as lid() says while the
+// lick runs and dries within 1.2 s (it does not follow the lid if the intro moves it afterwards).
+// Budget: one skinned mesh (10.6k vertices, 17.6k triangles, 33 bones; skinning on the GPU), one draw call each for
 // drops, crowns, puddles and strings (a small unlit liquid shader) + the shadow pass for the tongue and the drops.
-// Per frame on the CPU: ~0.05 ms (11 joints on springs, 21 bone matrices, up to 56 drops).
+// Per frame on the CPU: ~0.1 ms (17 joints on springs, the lid, collisions, 33 bone matrices, up to 56 drops, each
+// tested against the tongue).
 import { GLTFLoader } from '/assets/vendor/three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from '/assets/vendor/three/addons/libs/meshopt_decoder.module.js';
 
-const T_END = 1.58;
+const T_END = 2.8;
+const LID_G = 15; // the lid's front edge falls like a hinged plate's (3g/2 per unit depth)
+// The lid, as the bin model has it (tongue space): hinged at the back of the rim, 1.0 deep; a band 0.11 thick (its
+// front face 0.077, sloping back to 0.11) with a raised panel in the middle (0.18); the front corners cut.
+const HINGE_Z = -0.5, LID_D = 1.0;
 
 // The lick, keyframed: a row per moment (seconds at speed 1), each with the numbers that have a key there (Hermite
 // between keys, flat at a key that is a peak or a valley, so every overshoot is drawn on purpose).
-//   root  [x, y, z]  the base of the stalk, down in the bin (its top comes out of the opening)
-//   lean  radians    the stalk tipped forward (+, toward the camera) or back (-) about x
-//   side  radians    the stalk tipped about z (+: toward -x)
-//   grow             overall size: it swells as it comes out of the dark (and shrinks as it goes back)
-//   reach            length (bones stretched) relative to its rest length; the girth goes the other way
-//   drape  radians   the bend just above the opening: - rolls it forward over the lip (its top outside), + back
-//   arch   radians   a bend spread along the body (- forward/down, + back/up)
-//   curl   radians   the front third curling toward its top (+) or under (-)
-//   yaw    radians   the body sweeping to the tongue's left (+) or right (-)
-//   hook   radians   the front third bending to its left (+) or right (-)
-//   wave   radians   a wave running from root to tip (per joint); its phase runs at 'ws' cycles a second
-//   cup    radians   the tip's edges rolled up (a spoon)
-//   doff / dsig      where the drape bends (arclength past the opening) and over how long
-// The top faces the back as it comes up through the opening, so every big pose rolls it forward over the lip: the
-// camera sees its top (the groove, the taste buds), never a bare column of underside.
-const HIDDEN = { root: [0, -0.47, 0.06], lean: 0.1, side: 0, grow: 0.32, reach: 0.9, drape: -2.0, arch: -1.4, curl: -1.2, yaw: 0, hook: 0, wave: 0, ws: 1.8, doff: 0.05, dsig: 0.2, cup: 0.1 };
+//   out    how much of the tongue is out through the gap (its rest length; 0.77 is all of it but the stalk)
+//   reach  what is out, stretched (and thinned) to reach further
+//   push   how hard it shoves up in the gap: the height it holds the lid's front edge at (the lid rides on it: thrown
+//          up when it rises fast, it flies, falls back and bounces). The tongue is that thick in the gap (squashed).
+//   slide  where it comes out along the gap (x)
+//   exit   radians: the way it leaves the gap, tipped up (+) or down
+//   bend   radians: the bend just outside the gap (- flops down over the front, + rears up toward its top)
+//   turn   radians: a bend to the side a little further out, where it is round again (+ to the tongue's left)
+//   dpos / dsig  where those bends are (arclength past the gap) and over how long
+//   arch   radians per unit length: a bend all along what is out (- down/under, + toward its top)
+//   curl   radians: the front third curling toward its top (+) or under (-)
+//   yaw    radians per unit length: what is out sweeping to the tongue's left (+) or right (-)
+//   hook   radians: the front third bending to its left (+) or right (-)
+//   roll   radians: twisted about its own length, 0 at the gap growing to this at the tip (+: rolls its top to its left)
+//   wave   radians: a wave running from the gap to the tip (per joint); its phase runs at 'ws' cycles a second
+//   cup    radians: the tip's edges rolled up (a spoon)
+// Its top (the groove, the taste buds) faces up as it comes out; flopped down the front it faces the camera.
+const HIDDEN = { out: 0, reach: 1, push: 0, slide: 0, exit: 0, bend: -0.2, turn: 0, dpos: 0.09, dsig: 0.08, arch: 0, curl: 0, yaw: 0, hook: 0, roll: 0, wave: 0, ws: 2.2, cup: 0.15 };
+// (Seen from the camera, the tongue hanging down the bin's front shows its top: + turn / yaw / hook / roll then go to
+// the viewer's right; mirror swaps them.)
 const POSES = [
-  [0, HIDDEN],                                                           // small, rolled forward, down in the dark
-  // PEEK: the tip slides out over the front lip and tastes it (a wiggle), then tucks under: the wind-up
-  [0.09, { root: [0, -0.45, 0.2], lean: 0.2, grow: 0.85, reach: 1, drape: -1.9, arch: 0, curl: 0.2, hook: 0.35, cup: 0.3, doff: 0.1 }],
-  [0.13, { hook: -0.3, curl: -0.1 }],
-  [0.16, { hook: 0.2 }],
-  [0.2, { root: [0, -0.45, 0.2], lean: 0.2, grow: 0.8, reach: 0.97, drape: -1.8, curl: -0.3, hook: 0, cup: 0.1, doff: 0.1 }],
-  // ERUPT: bursts up and over the front in a big hook, its tip hanging in front; unrolls down the front, SLAPS the lip
-  [0.3, { root: [0, -0.35, 0.11], lean: 0.35, grow: 1, reach: 1.03, drape: -0.3, arch: -2.1, curl: -2.1, cup: 0, doff: 0.22 }],
-  [0.37, { root: [0, -0.38, 0.16], lean: 0.3, drape: -1.2, arch: -1.4, curl: -1.3 }],
-  [0.45, { root: [0, -0.42, 0.22], lean: 0.25, reach: 1, drape: -2.6, arch: -0.2, curl: -0.4, cup: 0.2, wave: 0.05 }],
-  [0.52, { drape: -2.45, curl: 0.25, cup: 0.35 }],
-  [0.6, { wave: 0.25 }],
-  // greedy licks: drags across the lip to its left, the tip trailing and curling ... and back across to its right
-  [0.7, { root: [0.16, -0.42, 0.22], side: -0.2, yaw: 0.75, hook: 0.55, curl: 0.45, cup: 0.55 }],
-  [0.78, { hook: 0.15, curl: 0.2 }],
-  [0.88, { root: [-0.16, -0.42, 0.22], side: 0.2, yaw: -0.75, hook: -0.55, curl: 0.45, cup: 0.55 }],
-  [0.96, { hook: -0.15, curl: 0.2 }],
-  [1.03, { root: [0, -0.42, 0.22], side: 0, yaw: 0, hook: 0, drape: -2.45, arch: -0.2, curl: 0.3, cup: 0.3, wave: 0.2 }],
-  // a big lap: up off the lip and over to its left, curling over, and SLAP down again
-  [1.12, { root: [0.04, -0.33, 0.12], lean: 0.33, side: -0.05, drape: -0.5, arch: -2.0, curl: -1.9, yaw: 0.4, hook: 0.35, cup: 0.15, wave: 0.08 }],
-  [1.21, { root: [0, -0.42, 0.22], lean: 0.25, side: 0, drape: -2.6, arch: -0.2, curl: -0.4, yaw: 0, hook: 0, cup: 0.2 }],
-  [1.28, { drape: -2.45, curl: 0.2, wave: 0.12 }],
-  // SLURP: sucked back up the front and over the lip, the tip trailing, and down into the dark
-  [1.33, { root: [0, -0.42, 0.22], lean: 0.25, grow: 1, reach: 1, drape: -2.45, arch: -0.2, curl: 0.2, doff: 0.22 }],
-  [1.39, { root: [0, -0.46, 0.15], lean: 0.18, grow: 0.8, reach: 0.95, drape: -1.6, arch: -0.3, curl: -0.3, doff: 0.15 }],
-  [1.44, { root: [0, -0.47, 0.08], lean: 0.05, grow: 0.55, reach: 0.92, drape: -0.9, arch: -0.6, curl: -0.6, wave: 0.04, cup: 0.2, doff: 0.1 }],
-  [1.52, { ...HIDDEN, drape: -0.6 }],
-  [T_END, HIDDEN],
+  [0, HIDDEN],
+  [0.22, { push: 0, out: 0 }],                                           // the beat: the lid shut, nothing
+  // POP: shoved up from inside, the lid's front edge pops; the tip squeezes out through the gap, flat
+  [0.3, { push: 0.06, out: 0.05, bend: -0.3 }],
+  // SQUEEZE: out it comes, crushed flat in the gap and rounding out outside; it flops down over the front
+  [0.4, { out: 0.22, bend: -1.0, push: 0.055, wave: 0.12 }],
+  [0.5, { out: 0.36, bend: -1.4, push: 0.045, curl: 0.2, cup: 0.3, wave: 0.06 }],
+  // a taste: the tip curls up (its underside shows) and wiggles
+  [0.56, { out: 0.42, curl: 1.1, cup: 0.5, hook: 0, turn: 0, yaw: 0, roll: 0, slide: 0, reach: 1 }],
+  [0.61, { hook: 0.45, roll: 0.25 }],
+  [0.66, { hook: -0.4, roll: -0.2, curl: 0.8 }],
+  // LICK, the big one: winds off to the viewer's left, low...
+  [0.72, { hook: 0, roll: 0, curl: -0.2, turn: -0.5, yaw: -0.8, out: 0.55, reach: 1.05, bend: -1.45, push: 0.035, slide: -0.04, cup: 0.3, wave: 0 }],
+  // ...sweeps across under itself and up the right side of the lid's front, the tip curling up the lid's corner and
+  // hooking over it (the lid heaves); holds there a beat, tasting...
+  [0.84, { turn: 1.15, yaw: 2.7, hook: 0.75, curl: 0.1, out: 0.75, reach: 1.24, slide: 0.1, roll: -0.3, push: 0.07 }],
+  [0.9, { curl: -0.45, yaw: 3.0, hook: 0.95, roll: -0.35 }],
+  [0.97, { curl: -0.55, yaw: 2.85, hook: 0.8, push: 0.06 }],
+  // ...and drags back down across the front toward the middle
+  [1.04, { turn: 0.6, yaw: 0.6, hook: 0.2, curl: 0.4, bend: -1.2, slide: 0.03, roll: 0 }],
+  // SLAP: it falls flat onto the bin's front
+  [1.11, { turn: 0, yaw: 0, hook: 0, curl: -0.45, bend: -1.7, out: 0.66, reach: 1.05, push: 0.035, slide: 0 }],
+  [1.16, { curl: 0.25, bend: -1.5 }],
+  // ROLL: it twists over (the underside shows) as it sweeps off to the left...
+  [1.19, { roll: 0, turn: 0, yaw: 0, hook: 0, curl: 0.25, slide: 0, reach: 1.05 }],
+  [1.38, { roll: -2.2, turn: -0.9, yaw: -1.0, hook: -0.2, curl: -0.4, slide: -0.06, reach: 1.1, push: 0.04 }],
+  [1.44, { roll: -2.3, curl: -0.5 }],
+  // ...SWEEPS back across to the right, rolling back over, the tip curling up the right side...
+  [1.62, { roll: 0.6, turn: 1.1, yaw: 1.3, hook: 0.5, curl: 0.6, slide: 0.06, push: 0.05 }],
+  [1.68, { roll: 0.7, curl: 0.9, yaw: 1.5 }],
+  // ...and back to the left, the tip curling up the left side
+  [1.86, { roll: -0.4, turn: -1.2, yaw: -1.6, hook: -0.6, curl: 0.5, slide: -0.05, out: 0.7, reach: 1.12 }],
+  [1.92, { yaw: -1.8, hook: -0.7, curl: 0.7 }],
+  // FLICK: the tip whips across
+  [1.99, { hook: 1.0, curl: 1.6, yaw: -1.2 }],
+  [2.05, { hook: -0.2, curl: 0.2 }],
+  // CHATTER: it wags side to side, twisting
+  [2.12, { roll: 0.6, turn: 0, yaw: 1.1, hook: 0.7, bend: -1.25, curl: 0.4, slide: 0, out: 0.7, reach: 1.1, push: 0.045 }],
+  [2.19, { roll: -0.6, yaw: -1.1, hook: -0.7 }],
+  [2.26, { roll: 0.5, yaw: 0.9, hook: 0.6 }],
+  [2.33, { roll: -0.3, yaw: -0.5, hook: -0.3 }],
+  // SLURP: sucked back in through the gap (squeezed flat again), the tip trailing
+  [2.39, { hook: 0, roll: 0, yaw: 0, turn: 0, out: 0.66, reach: 1, bend: -1.1, curl: 0.5, cup: 0.4, push: 0.055, slide: 0 }],
+  [2.55, { out: 0.18, bend: -0.2, curl: -0.4, cup: 0.2 }],
+  [2.61, { out: 0, curl: 0.2, push: 0.05 }],
+  [2.64, { push: 0 }],
+  [T_END, { ...HIDDEN }],
 ];
-const CUES = [[0.07, 'peek'], [0.23, 'erupt'], [0.44, 'slap'], [0.66, 'lick'], [0.84, 'lick'], [1.08, 'flick'], [1.2, 'slap'], [1.34, 'slurp']];
-// spit (time, how many, from where): off the tip at the end of a move, off the edges of the tongue as it slaps the
-// lip, or a fat drop letting go of the hanging tip
-const BURSTS = [[0.31, 3, 'tip'], [0.44, 8, 'slap'], [0.56, 1, 'drool'], [0.72, 3, 'tip'], [0.9, 3, 'tip'], [1.12, 3, 'tip'], [1.2, 6, 'slap'], [1.27, 1, 'drool'], [1.4, 4, 'tip']];
-// strings of spit from the lip to the tongue's underside (time, across: -1..1): one as it is slurped back up the front
-// (the others come by themselves wherever it lifts off the lip)
-const STRINGS = [[1.36, 0.15]];
+const CUES = [
+  [0.24, 'pop'], [0.27, 'squeeze'], [0.78, 'lick', { strength: 1 }], [1.1, 'slap', { strength: 1 }], [1.21, 'roll'],
+  [1.5, 'lick', { strength: 0.7 }], [1.76, 'lick', { strength: 0.6 }], [1.97, 'flick'],
+  [2.12, 'lick', { strength: 0.3 }], [2.24, 'lick', { strength: 0.3 }], [2.38, 'slurp'],
+];
+// kicks: on the big beats the tongue jolts up in the gap for an instant (time, how high it throws the lid's front
+// edge above where it holds it, how long the jolt lasts): the lid hops, flies and lands back on it (a 'rattle')
+const KICKS = [[0.235, 0.03, 0.06], [0.79, 0.13, 0.08], [1.1, 0.09, 0.07], [1.52, 0.1, 0.07], [1.78, 0.08, 0.07], [2.0, 0.035, 0.05], [2.12, 0.02, 0.05], [2.24, 0.02, 0.05], [2.42, 0.09, 0.07]];
+// spit (time, how many, from where): squirted out of the gap beside the tongue as it squeezes, off the tip at the end
+// of a move, off the edges as it slaps the bin, a fat drop letting go of the hanging tip
+const BURSTS = [[0.3, 4, 'gap'], [0.45, 3, 'gap'], [0.58, 1, 'drool'], [0.88, 4, 'tip'], [1.11, 5, 'slap'], [1.42, 3, 'tip'], [1.66, 3, 'tip'], [1.9, 3, 'tip'], [2.0, 4, 'tip'], [2.4, 4, 'gap'], [2.56, 3, 'gap']];
+// strings of spit across the gap, from the rim to the lid's front edge, beside the tongue (time, side): the lid pops
+// and they stretch and snap (others come by themselves where the tongue peels off the bin or the lid)
+const STRINGS = [[0.25, -1], [0.26, 1], [0.8, -1]];
+
+let TRACKS = null; // (built once the module's constants are all defined)
 
 export function createTongue(THREE, opts = {}) {
+  TRACKS ??= buildTracks(POSES);
   const O = Object.assign({
     url: '/assets/3d/tongue-model.glb', rimY: 0.78, open: [0.439, 0.395], outer: [0.554, 0.5], seed: 7, shadows: true,
     tint: 0xe8a4ac, onCue: null, fxParent: null, wait: 1.5,
@@ -152,14 +237,16 @@ export function createTongue(THREE, opts = {}) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
   const rnd = (a = 0, b = 1) => a + (b - a) * rng();
-  let silent = false, clock = 0, lastSplat = -1, disposed = false;
+  let silent = false, clock = 0, lastSplat = -1, lastSnap = -1, lastRattle = -1, disposed = false;
   const cue = (name, info) => {
     if (silent) return;
     if (name === 'splat') { if (clock - lastSplat < 0.06) return; lastSplat = clock; }
+    if (name === 'snap') { if (clock - lastSnap < 0.12) return; lastSnap = clock; }
+    if (name === 'rattle') { if (info.strength < 0.25 || clock - lastRattle < 0.1) return; lastRattle = clock; }
     try { O.onCue?.(name, info); } catch (e) { /* a sound hook must never stop the show */ }
   };
   const V = () => new THREE.Vector3();
-  const tracks = buildTracks(POSES);
+  const tracks = TRACKS;
 
   const object3d = new THREE.Group();
   object3d.name = 'tongue';
@@ -172,17 +259,48 @@ export function createTongue(THREE, opts = {}) {
   const env = makeEnv(THREE);
   const owned = [env];
 
+  // ------------------------------------------------------------------------------------------ the lid
+  // A hinged plate with weight. H: how high its front edge is (= sin of its pitch); the tongue's push holds it up.
+  const lid = { H: 0, v: 0, push: 0, on: false, sin: 0, cos: 1, tan: 0, ze: HINGE_Z + LID_D, fn: null };
+  function lidAngle() {
+    lid.sin = Math.min(0.6, Math.max(0, lid.H) / LID_D); lid.cos = Math.sqrt(1 - lid.sin * lid.sin);
+    lid.tan = lid.sin / lid.cos; lid.ze = HINGE_Z + LID_D * lid.cos;
+  }
+  const lidPitch = () => -Math.asin(lid.sin);
+  // lid space (x, up from its underside, along from the hinge) <-> tongue space
+  const toRig = (l, out) => out.set(l.x, l.y * lid.cos + l.z * lid.sin, HINGE_Z - l.y * lid.sin + l.z * lid.cos);
+  const toLid = (p, out) => { const y = p.y, z = p.z - HINGE_Z; return out.set(p.x, y * lid.cos - z * lid.sin, y * lid.sin + z * lid.cos); };
+  function lidStep(h, p, t) { // p: the tongue's push now (0: not in the gap); t: the lick's time at the end of the step
+    const pv = h > 0 ? (p - lid.push) / h : 0;
+    lid.push = p;
+    // a kick: if the lid is riding on the tongue, it is thrown up to fly about kick's h higher
+    for (const [t0, kh] of KICKS) if (t0 > t - h && t0 <= t && p > 0 && lid.H <= p + 0.012) { lid.v = Math.max(lid.v, Math.sqrt(2 * LID_G * kh)); lid.on = false; lid.H = Math.max(lid.H, p) + 1e-4; }
+    lid.v -= LID_G * h; lid.H += lid.v * h;
+    if (p > 0 && lid.H <= p) { // on the tongue
+      if (!lid.on) { const s = pv - lid.v; if (s > 0.3) cue('rattle', { strength: Math.min(1, s / 2.2) }); lid.v = pv + (s > 0.3 ? 0.3 * s : 0); }
+      else lid.v = Math.max(lid.v, pv);
+      lid.H = p; lid.on = true;
+    } else if (lid.H > p + 1e-4) lid.on = false;
+    if (lid.H <= 0) { // on the rim
+      if (lid.v < -0.25) cue('clap', { strength: Math.min(1, -lid.v / 2.2) });
+      lid.v = lid.v < -1 ? -0.48 * lid.v : 0; // (a hard landing bounces once; a soft one stays put)
+      lid.H = 0;
+    }
+  }
+  const tellLid = () => { if (silent || !lid.fn) return; try { lid.fn(lidPitch()); } catch (e) { /* the intro's business */ } };
+
   // ------------------------------------------------------------------------------------------ wet things
-  // Spit is a cartoon liquid (its own little unlit shader): a see-through light body, a darker blue-grey edge so it
-  // reads on the white page, a crisp white highlight dot and a soft bounce.
+  // Spit is a cartoon liquid (its own little unlit shader): a light body, a darker blue-grey edge so it reads on the
+  // white page, a crisp white highlight dot and a soft bounce. The drops are milky and nearly opaque, shaded darker
+  // underneath (beads of spit, not see-through bubbles).
   const liquid = (o) => { const m = liquidMaterial(THREE, o); owned.push(m); return m; };
-  const dropMat = liquid({ tint: 0xd9e3ef, edge: 0x5a7090, alpha: 0.4, edgeAlpha: 0.95, defines: { DROP: '' } });
+  const dropMat = liquid({ tint: 0xf1f5f9, edge: 0x71859f, alpha: 0.9, edgeAlpha: 0.95, defines: { DROP: '' } });
   const crownMat = liquid({ tint: 0xe3eaf3, edge: 0x6a7f9a, alpha: 0.3, edgeAlpha: 0.9, defines: { FADE: '', CROWN: '' }, side: THREE.DoubleSide });
   const puddleMat = liquid({ tint: 0xb6c6da, edge: 0x6f86a3, alpha: 0.5, edgeAlpha: 0.92, defines: { FADE: '', PUDDLE: '' } });
   puddleMat.polygonOffset = true; puddleMat.polygonOffsetFactor = -2; puddleMat.polygonOffsetUnits = -2;
   const stringMat = liquid({ tint: 0xe6edf5, edge: 0x6a809c, alpha: 0.55, edgeAlpha: 0.95 });
 
-  const M4 = new THREE.Matrix4(), Q = new THREE.Quaternion(), V1 = V(), V2 = V(), V3 = V(), SC = V();
+  const M4 = new THREE.Matrix4(), Q = new THREE.Quaternion(), Q2 = new THREE.Quaternion(), V1 = V(), V2 = V(), V3 = V(), SC = V();
   const UP = new THREE.Vector3(0, 1, 0), X = new THREE.Vector3(1, 0, 0), Y = UP, Z = new THREE.Vector3(0, 0, 1);
   const instanced = (geo, m, n, fade) => {
     if (fade) geo.setAttribute('aFade', new THREE.InstancedBufferAttribute(new Float32Array(n).fill(1), 1).setUsage(THREE.DynamicDrawUsage));
@@ -192,7 +310,7 @@ export function createTongue(THREE, opts = {}) {
     fx.add(im); owned.push(geo);
     return im;
   };
-  const MAXD = 56, MAXC = 16, MAXP = 28, MAXS = 4;
+  const MAXD = 56, MAXC = 16, MAXP = 28, MAXS = 6;
   const puddles = instanced(puddleGeometry(THREE, rng), puddleMat, MAXP, true);
   puddles.renderOrder = 1;
   const crowns = instanced(crownGeometry(THREE), crownMat, MAXC, true);
@@ -203,21 +321,21 @@ export function createTongue(THREE, opts = {}) {
   const D = [], C = [], PD = [], STR = [];
   for (let k = 0; k < MAXD; k++) D.push({ on: false, p: V(), v: V(), r: 0, kind: 0, age: 0 });
   for (let k = 0; k < MAXC; k++) C.push({ on: false, p: V(), t: 0, life: 0.3, R: 0, H: 0, rot: 0 });
-  for (let k = 0; k < MAXP; k++) PD.push({ on: false, p: V(), t: 0, life: 2, R: 0, rot: 0 });
+  for (let k = 0; k < MAXP; k++) PD.push({ on: false, p: V(), t: 0, life: 2, R: 0, rot: 0, onLid: false, l: V() });
   const take = (pool, age) => { let best = null; for (const o of pool) { if (!o.on) return o; if (!best || age(o) > age(best)) best = o; } return best; };
   function spawnDrop(p, v, r, kind = 0) {
     const d = take(D, (o) => o.age);
-    d.on = true; d.p.copy(p); d.v.copy(v); d.r = Math.min(r, 0.024); d.kind = kind; d.age = 0;
-    if (d.p.y > -0.05) d.v.z = Math.max(d.v.z, -0.25); // never back into the open lid
+    d.on = true; d.p.copy(p); d.v.copy(v); d.r = Math.min(r * 0.8, 0.018); d.kind = kind; d.age = 0;
     const sp = d.v.length(); if (sp > 5) d.v.multiplyScalar(5 / sp);
   }
-  function puddle(x, y, z, R0, life) {
+  function puddle(x, y, z, R0, life, onLid = false) {
     const p = take(PD, (o) => o.t);
-    p.on = true; p.p.set(x, y + 0.002, z); p.t = 0; p.life = life; p.R = R0; p.rot = rng() * 6.28;
+    p.on = true; p.p.set(x, y + 0.002, z); p.t = 0; p.life = life; p.R = R0; p.rot = rng() * 6.28; p.onLid = onLid;
+    if (onLid) toLid(p.p, p.l); // it rides on the lid
   }
-  function splash(x, y, z, r, speed, onRim) {
+  function splash(x, y, z, r, speed, onLid) {
     const big = r * (0.75 + 0.1 * Math.min(6, speed));
-    if (r > 0.01 && !onRim) { // a crown and droplets thrown from its points (on the rim: just the puddle)
+    if (r > 0.01 && !onLid) { // a crown and droplets thrown from its points (on the lid: just the puddle)
       const c = take(C, (o) => o.t);
       c.on = true; c.p.set(x, y, z); c.t = 0; c.life = 0.24 + 0.08 * rng(); c.R = big * 2.4; c.H = big * (1.7 + 0.5 * rng()); c.rot = rng() * 6.28;
       const n = r > 0.02 ? 4 : r > 0.014 ? 3 : 2;
@@ -226,11 +344,12 @@ export function createTongue(THREE, opts = {}) {
         spawnDrop(V1.set(x + Math.cos(a) * c.R * 0.8, y + c.H * 0.5, z + Math.sin(a) * c.R * 0.8), V2.set(Math.cos(a) * out, 0.9 + rng() * 1.1, Math.sin(a) * out), r * (0.3 + 0.15 * rng()), 1);
       }
     }
-    puddle(x, y, z, Math.min(onRim ? 0.06 : 0.14, r * (2.3 + 0.35 * Math.min(6, speed))), (onRim ? 1.0 : 1.5) + rng() * 0.7);
+    puddle(x, y, z, Math.min(onLid ? 0.05 : 0.14, r * (2.3 + 0.35 * Math.min(6, speed))), onLid ? 0.8 + rng() * 0.4 : 1.5 + rng() * 0.7, onLid);
     cue('splat', { x, y, z, size: r });
   }
 
-  // strings of spit between the tongue's underside and the lip: one indexed mesh, 4 strings of 12 x 6
+  // strings of spit: one indexed mesh, 6 strings of 12 x 6. Each end is on the tongue (a bone and a point in its
+  // frame), on the lid (lid space) or fixed (on the bin).
   const SEG = 12, SS = 6, SV = (SEG + 1) * SS;
   const sPos = new Float32Array(MAXS * SV * 3), sNrm = new Float32Array(MAXS * SV * 3), sIdx = [];
   for (let k = 0; k < MAXS; k++) for (let u = 0; u < SEG; u++) for (let j = 0; j < SS; j++) {
@@ -244,18 +363,20 @@ export function createTongue(THREE, opts = {}) {
   const strings = new THREE.Mesh(sGeo, stringMat);
   strings.frustumCulled = false; strings.visible = false; strings.renderOrder = 3;
   fx.add(strings); owned.push(sGeo);
-  for (let k = 0; k < MAXS; k++) STR.push({ on: false, joint: 0, side: 0, a: V(), b: V(), av: V(), t: 0, snapAt: -1, snapLen: 0.3, sag: 0, bead: 0.5, ph: 0 });
+  const end = () => ({ t: 'fix', k: 0, l: V() });
+  for (let k = 0; k < MAXS; k++) STR.push({ on: false, ea: end(), eb: end(), a: V(), b: V(), av: V(), t: 0, snapAt: -1, snapLen: 0.3, life: 0.45, sag: 0, bead: 0.5, ph: 0, thin: 1 });
 
   // ------------------------------------------------------------------------------------------ the tongue (its model)
   // Everything below is filled in by build() when the GLB arrives.
   let mesh = null, mat = null, failed = null, pendingWarm = null;
   let NJ = 0, L = 1, STALK = 0, restP = [], restQ = [], restLen = [], hw = [], hh = [], sAt = [], relQ = [];
-  let cupInfo = [], chainBones = [], cupBones = [], springF = [], archW = [], curlN = [];
-  let pos = [], rot = [], tgtP, tgtY, angP, angY, velP, velY, contact, wasContact, cpt;
+  let cupInfo = [], chainBones = [], cupBones = [], springF = [], curlN = [], uCrush = null, skinJoint = [];
+  let pos = [], rot = [], rotInv = [], blen = null, tgtP, tgtY, tgtR, angP, angY, angR, velP, velY, velR, kz, kw;
+  let contact, wasContact, cpt, cnr, conLid, cType;
   let tipPin = null, EMIT = [], emitPrev = [], emitAcc = new Float32Array(0);
-  const par = { root: V(), lean: 0, side: 0, grow: 1, reach: 1, drape: 0, arch: 0, curl: 0, yaw: 0, hook: 0, wave: 0, ws: 0, cup: 0, doff: 0, dsig: 1 };
-  let phase = 0, sx = 1, primed = false;
-  const BASE = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(new THREE.Vector3(-1, 0, 0), new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, -1)));
+  const par = { out: 0, reach: 1, push: 0, slide: 0, exit: 0, bend: 0, turn: 0, dpos: 0.06, dsig: 0.05, arch: 0, curl: 0, yaw: 0, hook: 0, roll: 0, wave: 0, ws: 0, cup: 0 };
+  let phase = 0, sx = 1, primed = false, uSlot = 0, kSlot = 0;
+  const slot = { p: V(), q: new THREE.Quaternion(), along: V(), top: V() };
 
   function build(gltf) {
     let m = null, rigNode = null;
@@ -329,7 +450,7 @@ export function createTongue(THREE, opts = {}) {
     geo.setAttribute('aWhere', new THREE.BufferAttribute(top, 2));
 
     // the material: the model's own maps (colour, normal, roughness) under a wet clear coat; a studio env for crisp
-    // highlights; the colour map tinted toward a meatier red; inside the opening, below the rim, it sinks into the black
+    // highlights; the colour map tinted toward a meatier red; under the lid and in the bin it sinks into the black
     mat = m.material;
     owned.push(mat);
     for (const k of ['map', 'normalMap', 'roughnessMap', 'metalnessMap']) if (mat[k]) owned.push(mat[k]);
@@ -346,50 +467,102 @@ export function createTongue(THREE, opts = {}) {
       mat.specularIntensity = 0.5;
     }
     mat.normalScale?.multiplyScalar(1.5);
+    const uLid = { value: new THREE.Vector4(0, lid.ze, 0, 0) };
+    // how crushed each bone is (0: round .. 1: flat), per skin joint
+    const NB_ALL = bones.length;
+    uCrush = { value: new Float32Array(NB_ALL) };
+    skinJoint = jointOfBone;
     mat.onBeforeCompile = (sh) => {
-      sh.uniforms.uHole = { value: new THREE.Vector2(OX, OZ) };
+      sh.uniforms.uHole = { value: new THREE.Vector3(OX, OZ, UX) };
       sh.uniforms.uStalk = { value: STALK };
+      sh.uniforms.uLid = uLid;
+      sh.uniforms.uCrush = uCrush;
       sh.vertexShader = sh.vertexShader
-        .replace('#include <common>', '#include <common>\nattribute vec2 aWhere;\nvarying vec3 vRig;\nvarying vec2 vWhere;')
+        .replace('#include <common>', `#include <common>\nattribute vec2 aWhere;\nvarying vec3 vRig;\nvarying vec2 vWhere;\nvarying float vCrush;\nuniform vec4 uLid;\nuniform vec3 uHole;\nuniform float uCrush[${NB_ALL}];`)
+        // the bones are scaled unevenly (crushed flat in the gap): normals by the inverse transpose
+        .replace('#include <skinnormal_vertex>', `#ifdef USE_SKINNING
+          mat4 skinMatrix = mat4(0.0);
+          skinMatrix += skinWeight.x * boneMatX; skinMatrix += skinWeight.y * boneMatY;
+          skinMatrix += skinWeight.z * boneMatZ; skinMatrix += skinWeight.w * boneMatW;
+          skinMatrix = bindMatrixInverse * skinMatrix * bindMatrix;
+          objectNormal = transpose(inverse(mat3(skinMatrix))) * objectNormal;
+          #endif`)
+        // in the gap it can't be thicker than the gap: under the lid, never above its underside; over the rim's front,
+        // never below its top (the bones do nearly all of it; this makes it exact)
+        .replace('#include <skinning_vertex>', `#include <skinning_vertex>
+          // A ceiling (the lid's underside) and a floor (the rim's top), both faded in over a little way (from the lid's
+          // front edge, from the rim's edges) and continuous: what pokes through a little is pressed onto them; what is
+          // deeper (hidden in the lid or the rim) is eased back to where it was, so nothing tears or steps. (Just
+          // behind the lid's front edge, what is only partly pressed is hidden by the lid's front face.)
+          if (uLid.z > 0.5) {
+            float zr = transformed.z - uLid.y, ax = abs(transformed.x);
+            float fade = (1.0 - smoothstep(0.5, 0.56, ax)) * smoothstep(0.0, -0.025, zr);
+            if (fade > 0.0) {
+              float yTop = (transformed.z + 0.5) * uLid.x - 0.004;
+              float o = transformed.y - yTop;
+              if (o > 0.0) transformed.y -= fade * (o < 0.04 ? o : max(0.0, 0.04 - (o - 0.04)));
+            }
+            float fb = (1.0 - smoothstep(0.54, 0.58, ax)) * smoothstep(0.515, 0.49, transformed.z) * smoothstep(uHole.y - 0.012, uHole.y + 0.002, transformed.z);
+            if (fb > 0.0) {
+              float u = 0.004 - transformed.y;
+              if (u > 0.0) transformed.y += fb * (u < 0.04 ? u : max(0.0, 0.04 - (u - 0.04)));
+            }
+          }
+          float cr = 0.0;
+          cr += skinWeight.x * uCrush[int(skinIndex.x)]; cr += skinWeight.y * uCrush[int(skinIndex.y)];
+          cr += skinWeight.z * uCrush[int(skinIndex.z)]; cr += skinWeight.w * uCrush[int(skinIndex.w)];
+          vCrush = cr;`)
         .replace('#include <project_vertex>', 'vRig = transformed;\nvWhere = aWhere;\n#include <project_vertex>');
       sh.fragmentShader = sh.fragmentShader
-        .replace('#include <common>', '#include <common>\nvarying vec3 vRig;\nvarying vec2 vWhere;\nuniform vec2 uHole;\nuniform float uStalk;')
+        .replace('#include <common>', '#include <common>\nvarying vec3 vRig;\nvarying vec2 vWhere;\nvarying float vCrush;\nuniform vec3 uHole;\nuniform float uStalk;\nuniform vec4 uLid;')
+        // crushed flat in the gap it is dull, not glazed (no hard wet glints on the squeezed flanges)
+        .replace('#include <lights_physical_fragment>', `#include <lights_physical_fragment>
+          material.clearcoat *= 1.0 - 0.85 * vCrush;
+          material.roughness = mix(material.roughness, max(material.roughness, 0.55), vCrush);`)
         // the underside: a deeper, richer red than the pale pink baked into the map
         .replace('#include <map_fragment>', `#include <map_fragment>
           diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * vec3(0.92, 0.6, 0.62), smoothstep(-0.05, -0.65, vWhere.x));`)
         // the studio lights the gloss more than the flesh: a deep, wet red rather than a bright pink
         .replace('#include <lights_fragment_maps>', '#include <lights_fragment_maps>\niblIrradiance *= 0.35;')
-        // inside the opening, below the rim, it sinks into the black of the bin; the stalk (the throat) is dark anywhere
+        // inside the opening, below the rim, it sinks into the black of the bin; under the lid, into the dark of the
+        // gap; the stalk (the throat) is dark anywhere
         .replace('#include <opaque_fragment>', `
           float inHole = (1.0 - smoothstep(uHole.x - 0.05, uHole.x + 0.01, abs(vRig.x))) * (1.0 - smoothstep(uHole.y - 0.05, uHole.y + 0.01, abs(vRig.z)));
           outgoingLight *= mix(1.0, mix(0.02, 1.0, smoothstep(-0.26, 0.01, vRig.y)), inHole);
+          // (as dark as it is deep under the lid for how far the lid is open)
+          float underLid = uLid.w * (1.0 - smoothstep(0.49, 0.53, abs(vRig.x))) * smoothstep(uLid.y + 0.006, uLid.y - 0.07 - 1.5 * uLid.x, vRig.z) * smoothstep(-0.06, -0.01, vRig.y);
+          outgoingLight *= mix(1.0, 0.025, underLid);
           outgoingLight *= mix(0.06, 1.0, smoothstep(uStalk - 0.14, uStalk + 0.06, vWhere.y));
           #include <opaque_fragment>`);
     };
-    mat.customProgramCacheKey = () => 'tongue-model-2';
+    mat.userData.uLid = uLid;
+    mat.customProgramCacheKey = () => 'tongue-model-gap-2';
     mat.needsUpdate = true;
 
     // the chain's state
     pos = Array.from({ length: NJ + 1 }, V); rot = Array.from({ length: NJ }, () => new THREE.Quaternion());
-    tgtP = new Float32Array(NJ); tgtY = new Float32Array(NJ); angP = new Float32Array(NJ); angY = new Float32Array(NJ);
-    velP = new Float32Array(NJ); velY = new Float32Array(NJ);
-    contact = new Uint8Array(NJ + 1); wasContact = new Uint8Array(NJ + 1); cpt = Array.from({ length: NJ + 1 }, V);
-    // where each bend lives (weights over the joints, by arclength); springs softer toward the tip
-    const bodyW = sAt.map((s) => smooth(STALK - 0.05, STALK + 0.1, s));
-    const curlW = sAt.map((s) => smooth(STALK + 0.45 * (L - STALK), L - 0.05, s));
-    const norm = (w) => { const t = w.reduce((a, b) => a + b, 0) || 1; return w.map((x) => x / t); };
-    archW = norm(bodyW); curlN = norm(curlW);
-    springF = sAt.map((s) => 10 - 5 * smooth(STALK, L, s));
+    rotInv = Array.from({ length: NJ }, () => new THREE.Quaternion()); blen = new Float32Array(NJ);
+    const f32 = () => new Float32Array(NJ);
+    tgtP = f32(); tgtY = f32(); tgtR = f32(); angP = f32(); angY = f32(); angR = f32(); velP = f32(); velY = f32(); velR = f32();
+    kz = f32().fill(1); kw = f32().fill(1);
+    contact = new Uint8Array(NJ + 1); wasContact = new Uint8Array(NJ + 1); conLid = new Uint8Array(NJ + 1); cType = new Uint8Array(NJ + 1);
+    cpt = Array.from({ length: NJ + 1 }, V); cnr = Array.from({ length: NJ + 1 }, V);
+    // the front third (curl, hook, cup) by arclength; springs softer toward the tip
+    const curlW = sAt.map((s) => smooth(STALK + 0.5 * (L - STALK), L - 0.04, s));
+    const t = curlW.reduce((a, b) => a + b, 0) || 1;
+    curlN = curlW.map((x) => x / t);
+    springF = sAt.map((s) => 9 - 4.5 * smooth(STALK, L, s));
     // points on the tongue, carried by their bones: the tip, the edges of the front, the top (spit flies off them)
     tipPin = pin(NJ - 1, new THREE.Vector3(0, restLen[NJ - 1] + 0.03, 0.01));
+    const ek = (f) => Math.round(NJ - 1 - f * (NJ - 1 - 3));
     EMIT = [
       [tipPin, 2.2],
-      [pin(NJ - 2, new THREE.Vector3(hw[NJ - 2] * 0.95, 0, 0)), 0.8], [pin(NJ - 2, new THREE.Vector3(-hw[NJ - 2] * 0.95, 0, 0)), 0.8],
-      [pin(NJ - 4, new THREE.Vector3(hw[NJ - 4] * 0.95, 0, 0)), 0.5], [pin(NJ - 4, new THREE.Vector3(-hw[NJ - 4] * 0.95, 0, 0)), 0.5],
-      [pin(NJ - 6, new THREE.Vector3(0, 0, hh[NJ - 6])), 0.3],
+      [pin(ek(0.12), new THREE.Vector3(hw[ek(0.12)] * 0.95, 0, 0)), 0.8], [pin(ek(0.12), new THREE.Vector3(-hw[ek(0.12)] * 0.95, 0, 0)), 0.8],
+      [pin(ek(0.3), new THREE.Vector3(hw[ek(0.3)] * 0.95, 0, 0)), 0.5], [pin(ek(0.3), new THREE.Vector3(-hw[ek(0.3)] * 0.95, 0, 0)), 0.5],
+      [pin(ek(0.45), new THREE.Vector3(0, 0, hh[ek(0.45)])), 0.3],
     ];
     emitPrev = EMIT.map(() => V()); emitAcc = new Float32Array(EMIT.length);
-    evalPose(0); targets(); settle(); solve();
+    evalPose(0); lid.H = 0; lidAngle(); targets(); settle(); solve();
     mesh = m; // now it can lick
   }
 
@@ -401,177 +574,244 @@ export function createTongue(THREE, opts = {}) {
 
   // ------------------------------------------------------------------------------------------ posing the chain
   function evalPose(t) {
-    for (const k in tracks) {
-      const tr = tracks[k];
-      if (Array.isArray(tr)) par[k].set(tr[0](t), tr[1](t), tr[2](t));
-      else par[k] = tr(t);
-    }
-    par.root.x *= sx; par.side *= sx; par.yaw *= sx; par.hook *= sx;
+    for (const k in tracks) par[k] = tracks[k](t);
+    par.push = pushAt(t);
+    par.slide *= sx; par.turn *= sx; par.yaw *= sx; par.hook *= sx; par.roll *= sx;
+    par.out = clamp(par.out, 0, L - STALK - 0.02); par.push = Math.max(0, par.push);
   }
 
-  // The bend at every joint (pitch: toward the top +, yaw: to the tongue's left +): targets from the keys, and the
-  // bends actually drawn, which chase them on springs: softer toward the tip, so the tip lags, whips and overshoots.
-  const ZETA = 0.42;
+  // The bend at every joint out of the gap (pitch: toward the top +, yaw: to the tongue's left +, roll: about its
+  // length): targets from the keys, and the bends actually drawn, which chase them on springs: softer toward the tip,
+  // so the tip lags, whips and overshoots. Joints still in the gap or behind it take their targets at once.
+  const ZETA = 0.42, ROUND_AT = 0.24;
   function targets() {
-    const g = par.grow;
-    // the drape sits just above where the stalk comes out of the opening
-    const sExit = Math.max(0.05, (-par.root.y / g) / Math.max(0.3, Math.cos(par.lean)));
-    // (spread over the joints out of the opening; while only the tip is out, it takes no more than its share, so the
-    // emerging tip curves over the lip instead of folding flat on itself)
-    let dw = 0, full = 0;
+    uSlot = L - par.out;
+    let dw = 0, full = 0, rw = 0, tw = 0;
     for (let k = 1; k < NJ; k++) {
-      const s = sAt[k], gw = Math.exp(-0.5 * ((s - sExit - par.doff) / par.dsig) ** 2);
-      tgtY[k] = s > sExit - 0.06 ? gw : 0; dw += tgtY[k]; full += gw;
+      const d = sAt[k] - uSlot, gw = Math.exp(-0.5 * ((d - par.dpos) / par.dsig) ** 2);
+      tgtY[k] = d > 0 ? gw : 0; dw += tgtY[k]; full += gw;
+      // (rolls and turns to the side happen where it is round again, not where it is still a flat ribbon; a turn
+      // over a few joints, a roll spread evenly over all the rest, so no joint twists much: no candy-wrapping)
+      // (spread over ~0.25 of its length: a wide, flat tongue bent sideways too tightly folds its inner edge through)
+      tgtP[k] = Math.exp(-0.5 * ((d - ROUND_AT) / 0.11) ** 2) * smooth(0.07, 0.16, d); tw += tgtP[k];
+      tgtR[k] = smooth(0.05, 0.32, d) * restLen[k - 1]; rw += tgtR[k];
     }
-    dw = Math.max(dw, 0.4 * full, 1e-6);
+    dw = Math.max(dw, 0.5 * full, 1e-6); rw = Math.max(rw, 1e-6); tw = Math.max(tw, 1e-6);
     for (let k = 1; k < NJ; k++) {
-      const s = sAt[k], en = smooth(STALK, STALK + 0.3, s);
-      const wv = par.wave * en * Math.sin(2 * Math.PI * ((s - STALK) / 0.55 - phase));
-      tgtP[k] = par.drape * tgtY[k] / dw + par.arch * archW[k] + par.curl * curlN[k] + wv;
-      tgtY[k] = par.yaw * archW[k] + par.hook * curlN[k] + 0.4 * par.wave * en * Math.sin(2 * Math.PI * ((s - STALK) / 0.7 - 0.8 * phase) + 1.3) * sx;
+      const d = sAt[k] - uSlot, len = restLen[k - 1], out = smooth(0, 0.05, d), en = smooth(0, 0.25, d);
+      const wv = par.wave * en * Math.sin(2 * Math.PI * (d / 0.5 - phase));
+      const gw = tgtY[k], twk = tgtP[k];
+      tgtP[k] = par.bend * gw / dw + (par.arch * len + par.curl * curlN[k]) * out + wv;
+      tgtY[k] = par.turn * twk / tw + (par.yaw * len + par.hook * curlN[k]) * out + 0.45 * par.wave * en * Math.sin(2 * Math.PI * (d / 0.65 - 0.8 * phase) + 1.3) * sx;
+      tgtR[k] = par.roll * tgtR[k] / rw;
     }
   }
   function springs(dt) {
     const n = Math.max(1, Math.ceil(dt / (1 / 240))), h = dt / n;
     for (let i = 0; i < n; i++) {
       for (let k = 1; k < NJ; k++) {
-        const w = 2 * Math.PI * springF[k];
-        velP[k] += (w * w * (tgtP[k] - angP[k]) - 2 * ZETA * w * velP[k]) * h; angP[k] += velP[k] * h;
-        velY[k] += (w * w * (tgtY[k] - angY[k]) - 2 * ZETA * w * velY[k]) * h; angY[k] += velY[k] * h;
+        if (sAt[k] <= uSlot) { angP[k] = tgtP[k]; angY[k] = tgtY[k]; angR[k] = tgtR[k]; velP[k] = velY[k] = velR[k] = 0; continue; }
+        const w = 2 * Math.PI * springF[k], w2 = w * w, c = 2 * ZETA * w;
+        velP[k] += (w2 * (tgtP[k] - angP[k]) - c * velP[k]) * h; angP[k] += velP[k] * h;
+        velY[k] += (w2 * (tgtY[k] - angY[k]) - c * velY[k]) * h; angY[k] += velY[k] * h;
+        velR[k] += (w2 * (tgtR[k] - angR[k]) - c * velR[k]) * h; angR[k] += velR[k] * h;
       }
+      lidStep(h, pushAt(subT0 + (i + 1) * h), subT0 + (i + 1) * h); // (the lid too, at the same substeps of the lick's time)
     }
   }
-  const settle = () => { angP.set(tgtP); angY.set(tgtY); velP.fill(0); velY.fill(0); };
+  const settle = () => { angP.set(tgtP); angY.set(tgtY); angR.set(tgtR); velP.fill(0); velY.fill(0); velR.fill(0); };
+  let subT0 = 0; // the lick's time at the start of this step
 
-  const eul = new THREE.Euler(), dbg = { collide: true }; // (the lab can switch the bin off: &nocollide)
-  function solve() {
-    const g = par.grow, girth = 1 / Math.sqrt(par.reach);
-    rot[0].copy(BASE);
-    Q.setFromAxisAngle(X, par.lean); rot[0].premultiply(Q);
-    Q.setFromAxisAngle(Z, par.side); rot[0].premultiply(Q);
-    pos[0].copy(par.root);
-    for (let k = 1; k < NJ; k++) {
-      rot[k].copy(rot[k - 1]).multiply(relQ[k]).multiply(Q.setFromEuler(eul.set(angP[k], 0, angY[k], 'XZY')));
-      pos[k].copy(Y).applyQuaternion(rot[k - 1]).multiplyScalar(restLen[k - 1] * g * par.reach).add(pos[k - 1]);
+  // The part in the bin: from the gap back along under the lid, over the inner lip, down the inside of the front wall
+  // and back along the bottom, in the dark. q: distance behind the gap.
+  // (it turns down well behind the inner lip and runs down well clear of the front wall: the bin tapers, and the
+  // stalk is wide)
+  const ARC = 0.12, DOWN = 0.24, BACK = 0.4;
+  const XL = new THREE.Vector3(1, 0, 0), QI = new THREE.Quaternion();
+  function inside(q, outP, outQ) { // (outQ must not be QI)
+    const q1 = Math.max(0.02, lid.ze - OZ + 0.06), qa = q1 + ARC * Math.PI / 2, qb = qa + DOWN, qc = qb + ARC * Math.PI / 2;
+    const A = slot.along, T = slot.top;
+    let ang = 0;
+    outP.copy(slot.p).addScaledVector(A, -Math.min(q, q1));
+    if (q > q1) { // over the inner lip, turning down
+      const b = Math.min(q - q1, qa - q1) / ARC;
+      outP.addScaledVector(T, ARC * (Math.cos(b) - 1)).addScaledVector(A, -ARC * Math.sin(b)); ang = b;
     }
-    pos[NJ].copy(Y).applyQuaternion(rot[NJ - 1]).multiplyScalar(restLen[NJ - 1] * g * par.reach).add(pos[NJ - 1]);
-    if (dbg.collide) collide(g * girth);
-    // write the bones: each one along its (possibly pushed) chord, scaled
+    if (q > qa) outP.addScaledVector(T, -(Math.min(q, qb) - qa)); // down the wall
+    if (q > qb) { // turning back along the bottom
+      const c = Math.min(q - qb, qc - qb) / ARC;
+      outP.addScaledVector(A, ARC * (Math.cos(c) - 1)).addScaledVector(T, -ARC * Math.sin(c)); ang = Math.PI / 2 - c;
+    }
+    if (q > qc) outP.addScaledVector(A, -BACK * Math.tanh((q - qc) / BACK)); // back along the bottom (bunched up there)
+    outP.x = slot.p.x * (1 - smooth(0.1, 0.5, q));
+    outQ.copy(slot.q).multiply(QI.setFromAxisAngle(XL, ang));
+  }
+
+  const eul = new THREE.Euler(), dbg = { collide: true };
+  const CL = 0.004; // clearance in the gap
+  function solve() {
+    lidAngle();
+    // the gap: where the tongue passes the lid's front edge, its spine half way up what it holds the lid at
+    const push = Math.max(par.push, 2 * CL + 0.012);
+    const e = par.exit + 0.5 * Math.atan(lid.tan);
+    slot.along.set(0, Math.sin(e), Math.cos(e)); slot.top.set(0, Math.cos(e), -Math.sin(e));
+    slot.q.setFromRotationMatrix(M4.makeBasis(V1.crossVectors(slot.along, slot.top), slot.along, slot.top));
+    slot.p.set(par.slide, push / 2, lid.ze);
+    uSlot = L - par.out;
+    let ks = 0;
+    while (ks < NJ - 1 && sAt[ks + 1] <= uSlot) ks++;
+    kSlot = ks;
+    const f = clamp((uSlot - sAt[ks]) / restLen[ks], 0, 1);
+    // what is out, from the gap: the rest frames turned so that the rest frame at the gap lies along it
+    Q.copy(restQ[ks]); if (ks + 1 < NJ) Q.slerp(restQ[ks + 1], f);
+    rot[ks].copy(slot.q).multiply(Q.invert()).multiply(restQ[ks]);
+    const rc = Math.max(0.5, par.reach);
+    pos[ks + 1].copy(Y).applyQuaternion(rot[ks]).multiplyScalar(Math.max(0, sAt[ks + 1] - uSlot) * rc).add(slot.p);
+    for (let k = ks + 1; k < NJ; k++) {
+      // (a wide, flat tongue bent too tightly sideways folds its inner edge through itself: each joint turns at most
+      // so far that the bend's radius stays wider than the tongue's half width there; likewise through its thickness)
+      const lp = (k - 1 === ks ? Math.max(0.025, sAt[k] - uSlot) : restLen[k - 1]) * rc; // (the bone in the gap is only partly out)
+      const ym = lp / (1.15 * hw[k] * kw[k]), pm = lp / (1.1 * hh[k] * kz[k]);
+      rot[k].copy(rot[k - 1]).multiply(relQ[k]).multiply(Q.setFromEuler(eul.set(clamp(angP[k], -pm, pm), angR[k], clamp(angY[k], -ym, ym), 'XZY')));
+      pos[k + 1].copy(Y).applyQuaternion(rot[k]).multiplyScalar(restLen[k] * rc).add(pos[k]);
+    }
+    // what is in: along the hidden path
+    for (let k = ks; k >= 0; k--) {
+      const q = uSlot - sAt[k];
+      inside(q, pos[k], Q2);
+      if (k < ks) rot[k].copy(Q2);
+    }
+    if (dbg.collide) collide(ks);
+    squash(push);
+    // write the bones: each one along its (possibly pushed) chord, scaled (and crushed in the gap)
     for (let k = 0; k < NJ; k++) {
       V1.copy(Y).applyQuaternion(rot[k]);
       V2.subVectors(pos[k + 1], pos[k]);
       const len = V2.length();
       V2.divideScalar(len || 1);
       Q.setFromUnitVectors(V1, V2); rot[k].premultiply(Q);
-      SC.set(g * girth, len / restLen[k], g * girth);
+      SC.set(kw[k], Math.max(0.05, len / restLen[k]), kz[k]);
       chainBones[k].matrix.compose(pos[k], rot[k], SC);
       chainBones[k].matrixWorldNeedsUpdate = true;
     }
+    const c0 = cupInfo.length ? cupInfo[0].parent : 0;
     for (let c = 0; c < cupInfo.length; c++) {
       const ci = cupInfo[c];
       // more cup toward the tip
-      M4.makeRotationAxis(Y, par.cup * ci.sign * (0.6 + 0.4 * (ci.parent - cupInfo[0].parent) / Math.max(1, NJ - 1 - cupInfo[0].parent)));
+      M4.makeRotationAxis(Y, par.cup * ci.sign * (0.6 + 0.4 * (ci.parent - c0) / Math.max(1, NJ - 1 - c0)));
       cupBones[c].matrix.copy(chainBones[ci.parent].matrix).multiply(M4);
       cupBones[c].matrixWorldNeedsUpdate = true;
     }
+    mat?.userData.uLid?.value.set(lid.tan, lid.ze, 1, 1);
+    if (uCrush) for (let b = 0; b < skinJoint.length; b++) uCrush.value[b] = smooth(0.62, 0.25, kz[skinJoint[b]]);
+    for (let k = kSlot; k < NJ; k++) { rotInv[k].copy(rot[k]).invert(); blen[k] = pos[k].distanceTo(pos[k + 1]); }
+  }
+  // Is p (object3d space) inside the tongue out of the gap? (each bone an elliptic cylinder, wide across, thin through)
+  function inTongue(p) {
+    for (let k = kSlot; k < NJ; k++) {
+      V3.subVectors(p, pos[k]).applyQuaternion(rotInv[k]);
+      if (V3.y < -0.02 || V3.y > blen[k] + 0.02) continue;
+      const ex = V3.x / (hw[k] * kw[k]), ez = V3.z / (hh[k] * kz[k]);
+      if (ex * ex + ez * ez < 1) return true;
+    }
+    return false;
   }
 
-  // The bin: the tongue lies on the rim, never through it; hangs down the front, not through it; stays off the walls
-  // inside the opening and above the floor in there. The bin is a block (the rim's outside, all the way down) with
-  // the opening cut into it, and the tongue a tube round its spine: points along every bone are kept at least its
-  // thickness away from the block by its distance field (so a push changes smoothly as the tongue moves: no pops),
-  // and each push is shared by the bone's two ends; a few passes settle it.
-  const RIMH = 0.084, INFLOOR = -0.5; // the rim's depth; the bin's floor inside (the dark), from the rim plane
-  const CARRY = 0.45; // how much of a push the next joint along takes (and the next, x0.45 again...)
-  const PU = V(), SP = V(), N2 = V(), CP = V();
-  // seen from above (first quadrant): the distance from (ax, az) to the rim's ring and the way away from it (N2);
-  // 0 on the ring
-  function ring2(ax, az) {
-    if (ax > UX || az > UZ) { const dx = Math.max(ax - UX, 0), dz = Math.max(az - UZ, 0), d = Math.hypot(dx, dz); N2.set(dx / d, 0, dz / d); return d; }
-    if (ax < OX && az < OZ) { const dx = OX - ax, dz = OZ - az; if (dx < dz) { N2.set(-1, 0, 0); return dx; } N2.set(0, 0, -1); return dz; }
-    N2.set(0, 1, 0);
-    return 0;
+  // Crushed in the gap: in the gap it is as thick as the push lets it be (its spine half way up); outside it rounds
+  // out gradually (a wedge that swells over SWELL_LEN, not a bulge at the lid's face), and what is out is a touch
+  // flatter near the gap than at rest (a stretched tongue), full toward the tip; behind the gap, along under the lid,
+  // it stays crushed (a touch thinner where the lid comes down toward the hinge) until it has dropped over the inner
+  // lip, then fills out in the dark. Crushed, it spreads sideways a little (MAXW: at most ~0.43 across, ~1.2 times
+  // its own width: squeezed flesh, not foil wings).
+  const KMIN = 0.12, SWELL_LEN = 0.24, MAXW = 0.215;
+  function squash(push) {
+    const hs = Math.max(0.005, push / 2 - CL);
+    const strip = Math.max(0.02, lid.ze - OZ);
+    for (let k = 0; k < NJ; k++) {
+      const d = 0.5 * (sAt[k] + (k + 1 < NJ ? sAt[k + 1] : L)) - uSlot; // its middle, past the gap
+      // stretched, it thins; deep in the bin it is slim (it fits in there, out of sight)
+      const thin = d > 0 ? 1 / Math.sqrt(Math.max(0.5, par.reach)) : 1 - 0.5 * smooth(strip + 0.04, strip + 0.25, -d);
+      const full = hh[k] * thin * (0.78 + 0.22 * smooth(0.1, 0.5, d));
+      const half = d >= 0 ? hs + (Math.max(hs, full) - hs) * smooth(0, SWELL_LEN, d) : -d < strip ? hs * (1 - 0.12 * (-d / strip)) : hs * 0.88 + 0.5 * Math.max(0, -d - strip - 0.07);
+      kz[k] = clamp(half / hh[k], KMIN, thin);
+      kw[k] = Math.max(thin, Math.min(Math.pow(1 / kz[k], 0.5), MAXW / hw[k]));    }
   }
-  // Which side of the block a point is on (1: down in the opening, 2: beside the bin, below the rim plane, 3: above the
-  // rim plane; 0: in the block). Walking along the chain from the root (down in the opening), the tongue can only get
-  // from one side to another over the top: a test point on the far side of a wall from the one before it (the lip is
-  // thin; a fast bend can put the hanging part right through it) is pushed back to that one's side, and one that pokes
-  // into the block goes back out the way the chain came (so the tongue hanging down the front is never pushed through
-  // the wall into the opening, nor the stalk out through it).
-  function sideOf(p) {
-    if (p.y > 0) return 3;
-    const ax = Math.abs(p.x), az = Math.abs(p.z);
-    if (ax < OX && az < OZ) return 1;
-    return ax > UX || az > UZ ? 2 : 0;
+
+  // ------------------------------------------------------------------------------------------ the bin and the lid
+  // Out of the gap the tongue lies on the bin and the lid, never through them. Both are prisms (an octagon: a box with
+  // its corners cut, extruded): the rim, the body under it, and the lid's band and raised panel (in lid space). Test
+  // points along every bone out of the gap are kept at least the tongue's half thickness that way (its cross-section
+  // an ellipse: wide across, thinner through) away from them by their distance fields, and each push is shared by the
+  // bone's two ends; what hangs beyond is carried along; a few passes settle it.
+  const G2 = { x: 0, y: 0 };
+  function oct2(px, pz, a, b, c) { // signed distance from (px, pz) (first quadrant) to |x|<=a, |z|<=b, |x|+|z|<=c; G2: way out
+    if (px <= a && pz <= b && px + pz <= c) {
+      const da = a - px, db = b - pz, dc = (c - px - pz) * Math.SQRT1_2;
+      if (da <= db && da <= dc) { G2.x = 1; G2.y = 0; return -da; }
+      if (db <= dc) { G2.x = 0; G2.y = 1; return -db; }
+      G2.x = G2.y = Math.SQRT1_2; return -dc;
+    }
+    SG.d = Infinity;
+    seg(px, pz, a, -1, a, c - a); seg(px, pz, a, c - a, c - b, b); seg(px, pz, c - b, b, -1, b);
+    G2.x = (px - SG.x) / (SG.d || 1); G2.y = (pz - SG.z) / (SG.d || 1);
+    return SG.d;
   }
-  function pushOut(p, h, w, from) { // -> PU (zero if clear); true when the push lays it on the rim's top (CP: where)
-    PU.set(0, 0, 0);
-    const ax = Math.abs(p.x), az = Math.abs(p.z), sxp = p.x < 0 ? -1 : 1, szp = p.z < 0 ? -1 : 1;
-    if (p.y < FLOOR + h) { PU.y = FLOOR + h - p.y; return false; } // the ground
-    const d2 = ring2(ax, az);
-    if (p.y > 0) { // above the rim plane: off the ring's top and its edges
-      const d = Math.hypot(d2, p.y);
-      if (d >= h) return false;
-      const k = (h - d) / Math.max(d, 1e-6);
-      PU.set(N2.x * sxp * d2 * k, p.y * k, N2.z * szp * d2 * k);
-      if (d2 < 1e-6) PU.set(0, h - p.y, 0);
-      CP.set(p.x - N2.x * sxp * d2, 0, p.z - N2.z * szp * d2);
-      return p.y / Math.max(d, 1e-6) > 0.35;
-    }
-    const inOpen = ax < OX && az < OZ;
-    if ((inOpen && from === 2) || (d2 > 0 && !inOpen && from === 1 && p.y < -h)) {
-      // it went straight through a wall since last time (the lip is thin): back out the way it came
-      if (from === 2) { if (UZ + h - az < UX + h - ax) PU.z = szp * (UZ + h - az); else PU.x = sxp * (UX + h - ax); }
-      else if (az > OZ - h && (ax < OX || az - OZ < ax - OX)) PU.z = szp * (OZ - h - az); else PU.x = sxp * (OX - w * 0.85 - ax);
-      return false;
-    }
-    if (inOpen) { // down in the opening: off its walls (across x, the tongue's half width counts), its floor
-      const mx = OX - w * 0.85, mz = OZ - h;
-      if (ax > mx) PU.x = sxp * (mx - ax);
-      if (az > mz) PU.z = szp * (mz - az);
-      if (p.y < INFLOOR + h) PU.y = INFLOOR + h - p.y;
-      return false;
-    }
-    if (d2 > 0) { // beside the bin, below the rim: off its sides
-      if (d2 < h) PU.set(N2.x * sxp, 0, N2.z * szp).multiplyScalar(h - d2);
-      return false;
-    }
-    // in the block: out the shortest way back to the side it came from (up, only through the rim; out a side; back
-    // into the opening)
-    let best = p.y > -RIMH ? h - p.y : Infinity, kind = 0;
-    const lost = !from || (from === 3 && p.y <= -RIMH); // came from nowhere known (or fell right through the rim)
-    if (from === 2 || lost) {
-      if (UX + h - ax < best) { best = UX + h - ax; kind = 1; }
-      if (UZ + h - az < best) { best = UZ + h - az; kind = 2; }
-    }
-    if ((from === 1 && p.y < -0.6 * RIMH) || lost) { // (near the top, out of the opening it goes over the lip)
-      if (az < OZ && ax - (OX - w * 0.85) < best) { best = ax - (OX - w * 0.85); kind = 3; }
-      if (ax < OX && az - (OZ - h) < best) { best = az - (OZ - h); kind = 4; }
-    }
-    if (best === Infinity) { best = UZ + h - az; kind = 2; }
-    if (kind === 0) PU.y = best; else if (kind === 1) PU.x = sxp * best; else if (kind === 2) PU.z = szp * best; else if (kind === 3) PU.x = -sxp * best; else PU.z = -szp * best;
-    CP.set(p.x, 0, p.z);
-    return kind === 0;
+  function prism(x, y, z, a, b, c, y0, y1, n) { // signed distance, its gradient in n
+    const sxp = x < 0 ? -1 : 1, szp = z < 0 ? -1 : 1;
+    const d2 = oct2(Math.abs(x), Math.abs(z), a, b, c), gx = G2.x * sxp, gz = G2.y * szp;
+    const up = y - y1 > y0 - y, dy = up ? y - y1 : y0 - y;
+    if (d2 > 0 && dy > 0) { const d = Math.hypot(d2, dy); n.set(gx * d2 / d, (up ? 1 : -1) * dy / d, gz * d2 / d); return d; }
+    if (d2 > dy) { n.set(gx, 0, gz); return d2; }
+    n.set(0, up ? 1 : -1, 0); return dy;
   }
-  const US = [0.34, 0.67, 1];
-  function collide(scale) {
-    wasContact.set(contact); contact.fill(0);
+  const NB = V(), NL = V(), PL = V();
+  function binSdf(p, n) {
+    const d1 = prism(p.x, p.y, p.z, UX, UZ, 0.974, -0.084, 0, n);
+    const d2 = prism(p.x, p.y, p.z, 0.474, 0.43, 0.834, FLOOR - 1, -0.084, NB);
+    if (d2 < d1) { n.copy(NB); return d2; }
+    return d1;
+  }
+  function lidSdf(p, n) {
+    toLid(p, PL);
+    let d = prism(PL.x, PL.y, PL.z - 0.47, 0.51, 0.53, 0.96, 0, 0.105, NL);
+    const d2 = prism(PL.x, PL.y, PL.z - 0.5, 0.33, 0.3, 9, 0, 0.18, NB);
+    if (d2 < d) { d = d2; NL.copy(NB); }
+    n.set(NL.x, NL.y * lid.cos + NL.z * lid.sin, -NL.y * lid.sin + NL.z * lid.cos);
+    return d;
+  }
+  const CARRY = 0.45, US = [0.34, 0.67, 1];
+  const SP = V(), PU = V(), NN = V(), BX = V(), BZ = V();
+  function radius(k, n) { // the tongue's half thickness toward n at bone k (an ellipse across x top)
+    BX.set(1, 0, 0).applyQuaternion(rot[k]); BZ.set(0, 0, 1).applyQuaternion(rot[k]);
+    const a = hw[k] * kw[k] * n.dot(BX), b = hh[k] * kz[k] * n.dot(BZ);
+    return Math.sqrt(a * a + b * b);
+  }
+  function collide(ks) {
+    wasContact.set(contact); contact.fill(0); conLid.fill(0);
     for (let pass = 0; pass < 4; pass++) {
-      let any = false, from = sideOf(pos[0]) || 1;
-      for (let k = 0; k < NJ; k++) {
+      let any = false;
+      for (let k = ks; k < NJ; k++) {
         for (let i = 0; i < 3; i++) {
           const u = US[i];
-          SP.lerpVectors(pos[k], pos[k + 1], u);
+          const A = k === ks ? slot.p : pos[k];
+          SP.lerpVectors(A, pos[k + 1], u);
+          const s = (k === ks ? uSlot : sAt[k]) + u * (k === ks ? Math.max(0, sAt[k + 1] - uSlot) : restLen[k]) - uSlot;
+          if (s < 0.045) continue; // (in the gap: the squash keeps it out of the lid and the rim)
           const j = Math.min(NJ - 1, k + (u > 0.5 ? 1 : 0));
-          const onRim = pushOut(SP, hh[j] * scale, hw[j] * scale, from);
-          from = sideOf(SP.add(PU)) || from;
+          let d = binSdf(SP, NN), r = radius(j, NN) + 0.006, hit = 1; // (a hair of clearance: the skin bulges a little past the bones' ellipse)
+          PU.set(0, 0, 0);
+          if (d < r) PU.copy(NN).multiplyScalar(r - d);
+          const dl = lidSdf(SP, V3), rl = radius(j, V3);
+          if (dl < rl && rl - dl > PU.length()) { PU.copy(V3).multiplyScalar(rl - dl); hit = 2; d = dl; NN.copy(V3); }
+          if (SP.y + PU.y < FLOOR + hh[j] * kz[j]) PU.y = FLOOR + hh[j] * kz[j] - SP.y;
           if (PU.lengthSq() < 1e-10) continue;
           any = true;
-          if (onRim) { contact[k + 1] = 1; cpt[k + 1].set(clamp(CP.x, -UX, UX), 0, clamp(CP.z, -UZ, UZ)); }
-          // the bone's two ends share the push (the root stays put); what hangs beyond is carried along
-          const a = k ? (1 - u) : 0, b = u, n = a * a + b * b;
-          if (k) pos[k].addScaledVector(PU, a / n);
-          for (let i = k + 1, f = b / n; i <= NJ; i++, f *= CARRY) pos[i].addScaledVector(PU, f);
+          (hit === 1 ? contact : conLid)[k + 1] = 1; cType[k + 1] = hit;
+          cpt[k + 1].copy(SP).addScaledVector(NN, -d); cnr[k + 1].copy(NN);
+          // the bone's two ends share the push (the gap stays put); what hangs beyond is carried along
+          const a = k > ks ? (1 - u) : 0, b = u, nn = a * a + b * b;
+          if (a) pos[k].addScaledVector(PU, a / nn);
+          for (let m = k + 1, w = b / nn; m <= NJ; m++, w *= CARRY) pos[m].addScaledVector(PU, w);
         }
       }
       if (!any) break;
@@ -580,10 +820,6 @@ export function createTongue(THREE, opts = {}) {
 
   function pin(k, local) { return { k, local }; }
   const where = (pn, out) => out.copy(pn.local).applyMatrix4(chainBones[pn.k].matrix);
-  function underside(s, out) {
-    const k = s.joint;
-    return out.set(s.side * hw[k], restLen[k] * 0.3, -hh[k] * 0.85).applyMatrix4(chainBones[k].matrix);
-  }
 
   // ------------------------------------------------------------------------------------------ the lick
   let Lk = null;
@@ -593,11 +829,12 @@ export function createTongue(THREE, opts = {}) {
     M4.copy(O.fxParent.matrixWorld).invert().multiply(object3d.matrixWorld);
     M4.decompose(fx.position, fx.quaternion, fx.scale);
   }
-  function lick({ speed = 1, mirror = false } = {}) {
+  function startLick({ speed = 1, mirror = false, lid: fn = null } = {}) {
     if (Lk) return Lk.promise;
     let resolve;
     const promise = new Promise((r) => { resolve = r; });
     if (failed || disposed) { resolve(); return promise; }
+    lid.fn = typeof fn === 'function' ? fn : null;
     Lk = { t: 0, speed: Math.max(0.2, +speed || 1), sx: mirror ? -1 : 1, resolve, promise, cue: 0, burst: 0, str: 0, waiting: true, waitT: 0 };
     if (mesh) start(Lk);
     return promise;
@@ -606,55 +843,61 @@ export function createTongue(THREE, opts = {}) {
     l.waiting = false;
     alignFx();
     sx = l.sx; phase = 0; primed = false; contact.fill(0); emitAcc.fill(0);
+    lid.H = 0; lid.v = 0; lid.push = 0; lid.on = false;
     evalPose(0); targets(); settle(); solve();
-    mesh.visible = true;
+    mesh.visible = false;
+    tellLid();
   }
   function finish() {
     const l = Lk;
     Lk = null;
     if (mesh) mesh.visible = false;
-    for (const s of STR) if (s.on && s.snapAt < 0) snapString(s);
-    // the lid may slam now: nothing is left in the air over the opening
-    for (const d of D) if (d.on && d.p.y > -0.05 && Math.abs(d.p.x) < UX + 0.03 && Math.abs(d.p.z) < UZ + 0.03) d.on = false;
+    for (const s of STR) if (s.on && s.snapAt < 0 && (s.ea.t === 'pin' || s.eb.t === 'pin')) snapString(s);
+    lid.H = 0; lid.v = 0; lid.push = 0; lidAngle();
+    tellLid();
+    lid.fn = null;
     l.resolve();
   }
 
-  const tipPrev = V(), tipVel = V();
   function stepLick(dt) {
     const l = Lk;
-    l.t = Math.min(T_END, l.t + dt * l.speed);
-    const t = l.t, sdt = dt * l.speed;
-    where(tipPin, tipPrev);
+    const t0 = Math.min(T_END, l.t);
+    l.t += dt * l.speed;
+    const t = Math.min(T_END, l.t), sdt = dt * l.speed;
     evalPose(t);
     phase += sdt * par.ws;
     targets();
+    subT0 = t0;
     springs(sdt);
     solve();
-    if (dt > 0) tipVel.copy(where(tipPin, V1)).sub(tipPrev).divideScalar(dt);
+    mesh.visible = par.out > 0.004;
     emit(dt);
-    // lifting off the lip leaves strings of spit
+    // peeling off the bin or the lid leaves strings of spit
     for (let k = 3; k <= NJ; k++) {
-      if (!wasContact[k] || contact[k] || rng() > 0.6) continue;
-      if (STR.some((s) => s.on && s.snapAt < 0 && Math.abs(s.joint - k) < 2)) continue;
+      if (!wasContact[k] || contact[k] || conLid[k] || rng() > 0.5) continue;
+      if (STR.some((s) => s.on && s.snapAt < 0 && s.ea.t === 'pin' && Math.abs(s.ea.k - k) < 3)) continue;
       const s = STR.find((o) => !o.on);
       if (!s) break;
-      startString(s, Math.min(k, NJ - 1), rnd(-0.6, 0.6), cpt[k]);
+      peelString(s, Math.min(k, NJ - 1), cpt[k], cnr[k], cType[k]);
     }
-    while (l.cue < CUES.length && CUES[l.cue][0] <= t) { cue(CUES[l.cue][1]); l.cue++; }
+    for (let k = 0; k <= NJ; k++) if (conLid[k]) contact[k] = 1;
+    while (l.cue < CUES.length && CUES[l.cue][0] <= t) { cue(CUES[l.cue][1], CUES[l.cue][2]); l.cue++; }
     while (l.burst < BURSTS.length && BURSTS[l.burst][0] <= t) { burst(BURSTS[l.burst][1], BURSTS[l.burst][2]); l.burst++; }
-    while (l.str < STRINGS.length && STRINGS[l.str][0] <= t) { string(STRINGS[l.str][1]); l.str++; }
-    if (t >= T_END) finish();
+    while (l.str < STRINGS.length && STRINGS[l.str][0] <= t) { gapString(STRINGS[l.str][1]); l.str++; }
+    tellLid();
+    // done when the lid has clapped shut and stopped bouncing
+    if (l.t >= T_END && ((lid.H <= 0 && lid.v === 0) || l.t > T_END + 0.6)) finish();
   }
 
-  // Spit flies off wherever the tongue moves fast, mostly the tip.
+  // Spit flies off wherever the tongue moves fast, mostly the tip (only out of the gap).
   function emit(dt) {
     for (let e = 0; e < EMIT.length; e++) {
       const [pn, wgt] = EMIT[e];
       where(pn, V1);
-      if (primed && dt > 0) {
+      if (primed && dt > 0 && mesh.visible) {
         V2.subVectors(V1, emitPrev[e]).divideScalar(dt);
         const sp = V2.length();
-        if (sp > 2.4 && V1.y > -0.02) {
+        if (sp > 2.4 && V1.z > lid.ze + 0.03) {
           emitAcc[e] += wgt * 0.9 * (sp - 2.4) * dt;
           while (emitAcc[e] >= 1) {
             emitAcc[e] -= 1;
@@ -665,42 +908,63 @@ export function createTongue(THREE, opts = {}) {
       }
       emitPrev[e].copy(V1);
     }
-    primed = true;
+    primed = mesh.visible;
   }
+  const tipVel = V(), tipPrev = V();
   function burst(n, from) {
+    where(tipPin, V1);
     for (let k = 0; k < n; k++) {
       if (from === 'drool') { // a fat drop lets go of the hanging tip
         where(tipPin, V1);
         spawnDrop(V1, V2.set(rnd(-0.05, 0.05), -0.3, 0.15), 0.022);
-      } else if (from === 'slap') { // squeezed out from under its edges as it lands: out to the sides, up and forward
-        const j = NJ - 2 - Math.floor(rng() * 5), s = k % 2 ? -1 : 1;
+      } else if (from === 'gap') { // squirted out of the gap beside the tongue as it squeezes through
+        const s = k % 2 ? -1 : 1, w = hw[kSlot] * kw[kSlot];
+        V1.set(slot.p.x + s * (w * rnd(0.7, 1.05)), Math.max(0.01, slot.p.y * rnd(0.6, 1.2)), lid.ze + 0.015);
+        spawnDrop(V1, V2.set(s * rnd(0.2, 0.8), rnd(-0.1, 0.7), rnd(0.5, 1.3)), 0.009 + rng() * 0.01);
+      } else if (from === 'slap') { // squeezed out from under its edges as it hits: out to the sides and forward
+        const j = NJ - 2 - Math.floor(rng() * 6), s = k % 2 ? -1 : 1;
         where(pin(j, V3.set(s * hw[j] * 1.05, 0, hh[j] * 0.3)), V1);
-        spawnDrop(V1, V2.set(s * rnd(0.5, 1.4), rnd(0.9, 2.0), rnd(0.5, 1.4)), 0.012 + rng() * 0.012);
+        spawnDrop(V1, V2.set(s * rnd(0.9, 1.6), rnd(0.5, 1.4), rnd(0.2, 0.7)), 0.012 + rng() * 0.012);
       } else { // off the tip, along its motion, mostly forward
-        where(tipPin, V1);
+        where(tipPin, V1).add(V3.set(rnd(-0.03, 0.03), rnd(-0.03, 0.03), rnd(-0.01, 0.03))); // (not all from one point)
         const f = rnd(0.35, 0.7);
         spawnDrop(V1, V3.copy(tipVel).multiplyScalar(f).add(V2.set(rnd(-0.7, 0.7), rnd(0.4, 1.2), rnd(0.4, 1.2))), 0.013 + rng() * 0.012);
       }
     }
   }
-  function startString(s, k, side, at) {
-    s.on = true; s.joint = k; s.side = side; s.t = 0; s.snapAt = -1; s.snapLen = 0.14 + rng() * 0.1; s.sag = 0; s.bead = 0.3 + rng() * 0.4; s.ph = rng() * 6.28;
-    underside(s, s.a); s.av.set(0, 0, 0);
-    if (at) { s.b.copy(at); s.b.x += side * hw[k] * 0.5; } else s.b.set(s.a.x, 0.004, clamp(s.a.z, OZ + 0.01, UZ - 0.01));
-    s.b.y = Math.max(s.b.y, 0.004);
+  function newString(s) {
+    s.on = true; s.t = 0; s.snapAt = -1; s.sag = 0; s.bead = 0.3 + rng() * 0.4; s.ph = rng() * 6.28; s.av.set(0, 0, 0); s.thin = 1;
   }
-  function string(side) { // from the joint lying on the lip now (or the nearest one to it)
-    let k = -1;
-    for (let j = 2; j < NJ; j++) if (contact[j]) { k = j; break; }
-    if (k < 0) { let best = 9; for (let j = 2; j < NJ; j++) { const d = Math.abs(pos[j].y) + Math.max(0, OZ - Math.abs(pos[j].z)); if (d < best) { best = d; k = j; } } }
-    const s = STR.find((o) => !o.on) || STR[0];
-    startString(s, k, side, null);
+  function gapString(side) { // across the gap beside the tongue: from the rim to the lid's front edge
+    const s = STR.find((o) => !o.on);
+    if (!s) return;
+    newString(s);
+    const x = clamp(slot.p.x + sx * side * (hw[kSlot] * kw[kSlot] + rnd(0.03, 0.08)), -0.4, 0.4);
+    s.ea.t = 'lid'; s.ea.l.set(x, -0.003, LID_D - rnd(0.02, 0.04));
+    s.eb.t = 'fix'; s.eb.l.set(x + rnd(-0.02, 0.02), 0.002, lid.ze - rnd(0.02, 0.05));
+    s.snapLen = 0.06 + rng() * 0.04; s.life = 0.55; s.thin = 0.7;
+    endAt(s.ea, s.a); endAt(s.eb, s.b);
+  }
+  function peelString(s, k, at, n, type) { // from where it touched (1: the bin, 2: the lid) to the tongue's surface there
+    newString(s);
+    s.ea.t = 'pin'; s.ea.k = k;
+    // the point of the tongue facing what it touched, in the bone's frame (rest scale: the bone matrix crushes it)
+    Q.copy(rot[k]).invert(); V1.copy(n).negate().applyQuaternion(Q);
+    s.ea.l.set(V1.x * hw[k] * 0.9, restLen[k] * 0.3, V1.z * hh[k] * 0.9);
+    if (type === 2) { s.eb.t = 'lid'; toLid(at, s.eb.l); } else { s.eb.t = 'fix'; s.eb.l.copy(at); }
+    s.snapLen = 0.14 + rng() * 0.1; s.life = 0.4;
+    endAt(s.ea, s.a); endAt(s.eb, s.b);
+  }
+  function endAt(e, out) {
+    if (e.t === 'pin') return out.copy(e.l).applyMatrix4(chainBones[e.k].matrix);
+    if (e.t === 'lid') return toRig(e.l, out);
+    return out.copy(e.l);
   }
   function snapString(s) {
     s.snapAt = s.t;
     cue('snap');
     const mx = (s.a.x + s.b.x) / 2, my = (s.a.y + s.b.y) / 2 - s.sag, mz = (s.a.z + s.b.z) / 2;
-    spawnDrop(V1.set(mx, my, mz), V2.set(s.av.x * 0.25 + rnd(-0.2, 0.2), Math.min(0, s.av.y * 0.2) - 0.3, Math.max(-0.2, s.av.z * 0.25) + rnd(0, 0.3)), 0.012 + rng() * 0.007);
+    spawnDrop(V1.set(mx, my, mz), V2.set(s.av.x * 0.25 + rnd(-0.2, 0.2), Math.min(0, s.av.y * 0.2) - 0.3, s.av.z * 0.25 + rnd(0, 0.3)), (0.012 + rng() * 0.007) * s.thin);
   }
 
   // ------------------------------------------------------------------------------------------ per frame
@@ -710,18 +974,22 @@ export function createTongue(THREE, opts = {}) {
       const s = STR[k], base = k * SV * 3;
       if (!s.on) continue;
       s.t += dt;
-      if (Lk && !Lk.waiting && s.snapAt < 0) { // follow the tongue
-        underside(s, V1);
-        if (dt > 0) s.av.copy(V1).sub(s.a).divideScalar(dt);
-        s.a.copy(V1);
+      if (s.snapAt < 0) { // its ends follow the tongue and the lid
+        if (s.ea.t !== 'pin' || (Lk && !Lk.waiting && mesh?.visible)) {
+          endAt(s.ea, V1);
+          if (dt > 0) s.av.copy(V1).sub(s.a).divideScalar(dt);
+          s.a.copy(V1);
+        }
+        endAt(s.eb, s.b);
       }
       const len = s.a.distanceTo(s.b);
-      if (s.snapAt < 0 && (len > s.snapLen || s.t > 0.4 || !Lk)) snapString(s);
-      // after the snap, each half whips back to its own end within 0.1 s and is gone (a wet spot on the lip)
+      if (s.snapAt < 0 && (len > s.snapLen || s.t > s.life || (s.ea.t === 'pin' && !(Lk && mesh?.visible)))) snapString(s);
+      // after the snap, each half whips back to its own end within 0.1 s and is gone (a wet spot)
       const broke = s.snapAt >= 0 ? Math.min(1, (s.t - s.snapAt) / 0.1) : 0;
       if (broke >= 1) {
         s.on = false; sPos.fill(0, base, base + SV * 3);
-        puddle(s.b.x, 0, s.b.z, 0.025 + rng() * 0.015, 0.9);
+        if (s.eb.t === 'fix' && s.eb.l.y < -0.05) {} // (on the bin's face: nothing to see)
+        else if (s.eb.t === 'lid') puddle(s.b.x, s.b.y, s.b.z, 0.018 + rng() * 0.01, 0.7, true);
         continue;
       }
       any = true;
@@ -730,15 +998,18 @@ export function createTongue(THREE, opts = {}) {
       const sagT = Math.min(0.08, 0.3 * across + 0.08 * len, 0.33 * len) * (1 - broke);
       s.sag += (sagT - s.sag) * Math.min(1, dt * 12);
       const wob = 0.14 * len * Math.sin(s.t * 27 + s.ph) * (1 - broke); // it sways, sideways
-      // thins as it stretches (same volume), webbed thick where it meets the tongue and the lip, a bead of spit on it
-      const rMid = clamp(0.0008 / Math.max(0.05, len), 0.0032, 0.007), rEnd = Math.min(0.012, 0.004 + 0.12 * len);
+      // thins as it stretches (same volume), webbed thick where it meets its ends, a bead of spit on it
+      const rMid = clamp(0.0008 / Math.max(0.05, len), 0.0032, 0.007) * s.thin, rEnd = Math.min(0.012, 0.004 + 0.12 * len) * s.thin;
       const ease = 1 - (1 - broke) * (1 - broke);
       for (let u = 0; u <= SEG; u++) {
         const f = u / SEG;
         const g = broke > 0 ? (f < 0.5 ? f * (1 - ease) : 1 - (1 - f) * (1 - ease)) : f; // each half to its own end
         const bow = 4 * g * (1 - g);
         const cx = s.a.x + (s.b.x - s.a.x) * g + wob * bow, cy = s.a.y + (s.b.y - s.a.y) * g - s.sag * bow, cz = s.a.z + (s.b.z - s.a.z) * g + s.sag * 0.5 * bow;
-        const r = (rMid + (rEnd - rMid) * Math.pow(Math.abs(2 * f - 1), 4) + 0.007 * Math.exp(-Math.pow((f - s.bead) / 0.08, 2))) * (1 - 0.5 * broke);
+        // (its ends narrow into what they stick to, and once it snaps the broken ends taper to points and the halves
+        // thin away: no open stubs)
+        const r = (rMid + (rEnd - rMid) * Math.pow(Math.abs(2 * f - 1), 4) + 0.007 * s.thin * Math.exp(-Math.pow((f - s.bead) / 0.08, 2)))
+          * Math.min(1, 0.35 + 5 * Math.min(f, 1 - f)) * (broke > 0 ? smooth(0, 0.2, Math.abs(f - 0.5)) * (1 - broke) : 1);
         V2.set(s.b.x - s.a.x + wob * (4 - 8 * g), (s.b.y - s.a.y) - s.sag * (4 - 8 * g), s.b.z - s.a.z + s.sag * 0.5 * (4 - 8 * g)).normalize();
         // the ring's frame, carried along from the last ring (so the tube never twists and pinches)
         if (u === 0) V1.crossVectors(V2, Math.abs(V2.x) < 0.9 ? X : Z);
@@ -757,22 +1028,28 @@ export function createTongue(THREE, opts = {}) {
     if (any) { sGeo.attributes.position.needsUpdate = true; sGeo.attributes.normal.needsUpdate = true; }
   }
 
+  // The lid's top, in lid space: the band 0.105 thick (its front face lower), the panel 0.18 in the middle.
+  const lidTop = (l) => (Math.abs(l.x) < 0.33 && l.z > 0.2 && l.z < 0.8 ? 0.18 : 0.105);
   function stepDrops(dt) {
     let n = 0;
     for (const d of D) {
       if (!d.on) continue;
       d.age += dt;
-      const py = d.p.y;
       d.v.y -= G * dt;
       d.v.multiplyScalar(1 - 0.12 * dt);
       d.p.addScaledVector(d.v, dt);
+      // into the tongue: it is gone (wet on wet: no sticking pearls)
+      if (d.age > 0.04 && Lk && !Lk.waiting && mesh?.visible && inTongue(d.p)) { d.on = false; continue; }
       const ax = Math.abs(d.p.x), az = Math.abs(d.p.z), sp = d.v.length();
-      if (ax < OX && az < OZ) { if (d.p.y < -0.03) { d.on = false; continue; } } // into the dark
-      else if (ax < UX && az < UZ && d.p.y < d.r * 0.4 && py >= -0.05) { // on the rim
+      // on the lid: lands on its top (a little puddle that rides on it) or runs into its face (gone)
+      toLid(d.p, V1);
+      if (Math.abs(V1.x) < 0.51 && V1.z > -0.06 && V1.z < LID_D && V1.y < lidTop(V1) + d.r * 0.4 && V1.y > -0.02) {
         d.on = false;
-        if (d.kind === 0) splash(d.p.x, 0, d.p.z, d.r * 0.8, sp, true);
+        if (d.kind === 0 && d.v.y < 0 && V1.y > lidTop(V1) - 0.03) splash(d.p.x, d.p.y, d.p.z, d.r * 0.8, sp, true);
         continue;
-      } else if (ax < 0.48 && az < 0.44 && d.p.y < -0.09) { d.on = false; continue; } // against the body
+      }
+      if (d.p.y < 0.01 && ax < UX + d.r && az < UZ + d.r && d.p.y > -0.09) { d.on = false; continue; } // the rim's face
+      if (d.p.y <= -0.08 && ax < 0.48 && az < 0.44) { d.on = false; continue; } // the body
       if (d.p.y < FLOOR + d.r * 0.3) {
         d.on = false;
         if (d.kind === 0) splash(d.p.x, FLOOR, d.p.z, d.r, sp, false);
@@ -817,9 +1094,11 @@ export function createTongue(THREE, opts = {}) {
       const grow = p.t < 0.16 ? backOut(p.t / 0.16) : 1;
       const s = p.R * grow * (1 - 0.25 * Math.max(0, (u - 0.5) / 0.5));
       Q.setFromAxisAngle(UP, p.rot);
+      if (p.onLid) { toRig(p.l, p.p); Q.premultiply(Q2.setFromAxisAngle(X, -Math.asin(lid.sin))); } // it rides on the lid
       M4.compose(p.p, Q, SC.set(s, s * 0.2, s));
       puddles.setMatrixAt(n, M4);
-      fadeP.array[n++] = u < 0.45 ? 1 : 1 - smooth(0.45, 1, u);
+      // (on the black lid a full puddle reads as a grey smudge: there it is a faint wet sheen)
+      fadeP.array[n++] = (u < 0.45 ? 1 : 1 - smooth(0.45, 1, u)) * (p.onLid ? 0.45 : 1);
     }
     puddles.count = n;
     puddles.instanceMatrix.needsUpdate = true; fadeP.needsUpdate = true;
@@ -830,9 +1109,12 @@ export function createTongue(THREE, opts = {}) {
     clock += dt;
     if (pendingWarm && mesh) warm(...pendingWarm);
     if (Lk) {
-      if (!Lk.waiting) stepLick(dt);
-      else if (mesh) start(Lk);
-      else if (failed || disposed || (Lk.waitT += dt) > O.wait) { const l = Lk; Lk = null; l.resolve(); }
+      if (!Lk.waiting) {
+        where(tipPin, tipPrev);
+        stepLick(dt);
+        if (dt > 0 && mesh) tipVel.copy(where(tipPin, V1)).sub(tipPrev).divideScalar(dt);
+      } else if (mesh) start(Lk);
+      else if (failed || disposed || (Lk.waitT += dt) > O.wait) { const l = Lk; Lk = null; lid.fn = null; l.resolve(); }
     }
     stepStrings(dt);
     stepDrops(dt);
@@ -862,11 +1144,11 @@ export function createTongue(THREE, opts = {}) {
       inst.forEach((m, k) => { m.count = counts[k]; });
     }
     if (!Lk) {
-      const keep = [seedState, phase, clock, lastSplat];
+      const keep = [seedState, phase, clock, lastSplat, lastSnap, lastRattle];
       silent = true;
-      try { lick(); for (let k = 0; k < 40; k++) update(1 / 30); } finally {
+      try { startLick(); for (let k = 0; k < 90; k++) update(1 / 30); } finally {
         stop(); silent = false;
-        [seedState, phase, clock, lastSplat] = keep;
+        [seedState, phase, clock, lastSplat, lastSnap, lastRattle] = keep;
       }
     }
   }
@@ -878,9 +1160,12 @@ export function createTongue(THREE, opts = {}) {
     strings.visible = false;
   }
   function stop() {
-    if (Lk) { const l = Lk; Lk = null; l.resolve(); }
+    const l = Lk;
+    Lk = null;
     if (mesh) mesh.visible = false;
     clearFx();
+    lid.H = 0; lid.v = 0; lid.push = 0; lidAngle();
+    if (l) { tellLid(); lid.fn = null; l.resolve(); }
   }
   function dispose() {
     stop();
@@ -891,18 +1176,24 @@ export function createTongue(THREE, opts = {}) {
   }
 
   const api = {
-    object3d, fx, ready, lick, update, warm, stop, dispose,
+    object3d, fx, ready, update, warm, stop, dispose,
+    lick: startLick,
     get busy() { return !!Lk; },
+    get lidPitch() { return Lk ? lidPitch() : 0; },
     // for the lab: the chain (object3d space) and the pose at a given time, without the drips
     debug: {
       get mesh() { return mesh; }, get pos() { return pos; }, get rot() { return rot; }, get NJ() { return NJ; },
-      get hw() { return hw; }, get hh() { return hh; }, get bones() { return chainBones; }, par, flags: dbg,
+      get hw() { return hw; }, get hh() { return hh; }, get kz() { return kz; }, get kw() { return kw; },
+      get bones() { return chainBones; }, par, flags: dbg, lid,
+      get lidPitch() { return lidPitch(); },
       resolve() { if (mesh) solve(); },
       poseAt(t, set = {}) {
         if (!mesh) return;
         evalPose(t);
-        for (const k in set) { if (k === 'root') par.root.set(...set.root); else par[k] = set[k]; }
+        for (const k in set) par[k] = set[k];
+        lid.H = Math.max(0, par.push); lidAngle();
         targets(); settle(); solve();
+        mesh.visible = par.out > 0.004;
       },
     },
   };
@@ -910,17 +1201,32 @@ export function createTongue(THREE, opts = {}) {
 }
 
 // ------------------------------------------------------------------------------------------------ shapes, helpers
+// the nearest point of a segment to (px, pz), if nearer than SG.d so far
+const SG = { d: Infinity, x: 0, z: 0 };
+function seg(px, pz, x0, z0, x1, z1) {
+  const ex = x1 - x0, ez = z1 - z0, t = clamp(((px - x0) * ex + (pz - z0) * ez) / (ex * ex + ez * ez), 0, 1);
+  const cx = x0 + ex * t, cz = z0 + ez * t, d = Math.hypot(px - cx, pz - cz);
+  if (d < SG.d) { SG.d = d; SG.x = cx; SG.z = cz; }
+}
 const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
 const backOut = (t) => 1 + 2.7 * Math.pow(t - 1, 3) + 1.7 * Math.pow(t - 1, 2);
 
-// One track per number (three for root) from the rows that key it.
+// The tongue's push in the gap: the keyed one and the kicks' jolts (a quick half sine, a little thicker in the gap;
+// the throw itself is in lidStep).
+function pushAt(t) {
+  let p = TRACKS.push(t);
+  for (const [t0, h, dur] of KICKS) {
+    const u = (t - t0) / dur;
+    if (u > 0 && u < 1) p += Math.min(0.025, 0.15 * h) * Math.sin(Math.PI * u);
+  }
+  return Math.max(0, p);
+}
+
+// One track per number from the rows that key it.
 function buildTracks(rows) {
   const tracks = {};
-  for (const k of Object.keys(rows[0][1])) {
-    const keys = rows.filter(([, p]) => k in p).map(([t, p]) => [t, p[k]]);
-    tracks[k] = Array.isArray(keys[0][1]) ? [0, 1, 2].map((c) => track(keys.map(([t, v]) => [t, v[c]]))) : track(keys);
-  }
+  for (const k of Object.keys(rows[0][1])) tracks[k] = track(rows.filter(([, p]) => k in p).map(([t, p]) => [t, p[k]]));
   return tracks;
 }
 
@@ -1051,7 +1357,13 @@ void main() {
     vec3 n = normalize(vN);
     if (!gl_FrontFacing) n = -n;
     float rim = 1.0 - abs(dot(n, v));
-    float ed = smoothstep(0.45, 0.8, rim);
+    #ifdef DROP
+      // a bead: milky, darker and bluer underneath, a thin edge
+      col = mix(col, vec3(0.70, 0.77, 0.86), smoothstep(0.3, -0.8, n.y) * 0.8);
+      float ed = smoothstep(0.62, 0.9, rim);
+    #else
+      float ed = smoothstep(0.45, 0.8, rim);
+    #endif
     #ifdef CROWN
       float tipW = smoothstep(0.45, 1.0, vH);
       ed *= 0.75;

@@ -1,20 +1,21 @@
 // Screenshots of the tongue-model lab (dev/lab-tongue-model.html) at chosen moments, stepped deterministically
 // (headless Edge).
-//   node dev/tongue-model-shot.cjs <out prefix> <t1,t2,...> [--view both|throw|front|side|tclose|fclose|cam|a,b]
-//        [--size 1600x800]
+//   node dev/tongue-model-shot.cjs <out prefix> <t1,t2,...> [--view throw,phone,front (default) | throw | phone |
+//        front | side | close | tclose | pclose | fclose | cam | any list] [--size 1700x800]
 //        [--sheet cols] [--cell 480] [--port 8787] [--q "speed=1&mirror&bones"] [--check]
 // Times are seconds after the lick starts. --sheet: one contact sheet <prefix>-sheet.png instead of one PNG a moment.
-// --check: at each moment, count the tongue's vertices that go through the bin (rim, walls, floor, behind); the time
-// printed is the lick time actually reached (the lab steps whole 60 Hz frames).
+// --check: at each moment, count the tongue's vertices that go through the bin or the lid (rim, walls, lid, floor;
+// 'at' lists a few of them), and its reach out of the gap; the time printed is the lick time actually reached (the
+// lab steps whole 60 Hz frames).
 const { chromium } = require('C:/Ideas/Shapeshot/node_modules/playwright-core');
 const fs = require('fs');
 const args = process.argv.slice(2);
 const [prefix, times = '0'] = args;
 const opt = (k, d) => { const i = args.indexOf(k); return i > 0 ? args[i + 1] : d; };
 (async () => {
-  const [w, h] = opt('--size', '1600x800').split('x').map(Number);
+  const [w, h] = opt('--size', '1700x800').split('x').map(Number);
   const at = 0.1;
-  const url = `http://localhost:${opt('--port', '8787')}/dev/lab-tongue-model.html?shot&at=${at}&view=${opt('--view', 'both')}${opt('--q') ? '&' + opt('--q') : ''}`;
+  const url = `http://localhost:${opt('--port', '8787')}/dev/lab-tongue-model.html?shot&at=${at}&view=${opt('--view', 'throw,phone,front')}${opt('--q') ? '&' + opt('--q') : ''}`;
   const b = await chromium.launch({ channel: 'msedge', headless: true, args: ['--use-angle=d3d11', '--enable-unsafe-swiftshader'] });
   const p = await (await b.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1 })).newPage();
   const errors = [];

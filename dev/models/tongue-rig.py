@@ -10,8 +10,10 @@
 #     --width W      the widest part, in bin units (default 0.40)
 #     --stretch S    extra length of the body (the part out of the bin; default 1.12)
 #     --stalk D      extra length at the root, in bin units: the part that stays down in the dark bin (default 0.34)
-#     --bones N      bones along the body (default 9; +2 in the stalk, + a twin per side for each bone of the front
-#                    third, to cup the tip)
+#     --bones N      bones along the body (default 14; + a twin per side for each bone of the front third, to cup
+#                    the tip). Many short bones: the intro flattens the tongue bone by bone where it squeezes through
+#                    the gap under the lid, and rolls it about its own axis spread over the body (no candy-wrapping)
+#     --stalkbones N bones in the stalk (default 3)
 #     --tex PX       base colour and normal map size (default 1024; roughness gets half)
 #     --format F     WEBP | JPEG (default WEBP)    --quality Q  (default 86)    --plain  no meshopt compression
 #     --lift L       the colour map: white glare capped to pink, the darkest baked occlusion lifted by L toward the
@@ -33,7 +35,7 @@
 #      root end is stretched into a stalk (it lives in the bin), the body is stretched a little, and every vertex is
 #      put back in its frame on the new spine. An exact remap (no skinning), so no volume loss or tearing.
 #   4. Root at the origin, the tongue lying along -Y (Blender; glTF +Z, toward the viewer), top up, scaled to bin units.
-#   5. An armature along the new spine: 2 stalk bones + N body bones (shorter toward the tip). Weights straight
+#   5. An armature along the new spine: 3 stalk bones + N body bones (shorter toward the tip). Weights straight
 #      from the spine parameter: each vertex blends the two bones whose middles it lies between (smooth bends, no
 #      bleeding between the folds of the model). The outer edges of the front third go to twins of their chain
 #      bones (cup_l_<k>, cup_r_<k>: same frame, children of bone k), so rolling the twins about the bone's axis
@@ -61,7 +63,8 @@ def cli():
         'fbx': pos[0], 'out': pos[1],
         'relax': opt('--relax', 0.3), 'twist': opt('--twist', 0.0), 'lateral': opt('--lateral', 0.0),
         'width': opt('--width', 0.40),
-        'stretch': opt('--stretch', 1.12), 'stalk': opt('--stalk', 0.34), 'bones': opt('--bones', 9),
+        'stretch': opt('--stretch', 1.12), 'stalk': opt('--stalk', 0.34), 'bones': opt('--bones', 14),
+        'stalkbones': opt('--stalkbones', 3),
         'tex': opt('--tex', 1024), 'format': opt('--format', 'WEBP'), 'render': opt('--render', ''),
         'smooth': opt('--smooth', 0.05), 'quality': opt('--quality', 86), 'meshopt': '--plain' not in a,
         'lift': opt('--lift', 0.45),
@@ -388,11 +391,12 @@ def frame_at(s):
 
 stalkEnd = (zone + D) * sigma
 nb = A['bones']
-# joints: 2 stalk bones, then body bones getting shorter toward the tip (spacing ~ 1 - 0.45 s)
+# joints: the stalk bones, then body bones getting shorter toward the tip (spacing ~ 1 - 0.45 s)
 w_ = np.array([1 - 0.45 * k / max(1, nb - 1) for k in range(nb)])
 body = stalkEnd + np.concatenate([[0], np.cumsum(w_ / w_.sum())]) * (Ltot - stalkEnd)
-js = np.concatenate([[0, stalkEnd * 0.5], body])  # joint arclengths, root .. tip end
-names = ['stalk_0', 'stalk_1'] + ['body_%d' % k for k in range(nb)]
+ns = A['stalkbones']
+js = np.concatenate([np.linspace(0, stalkEnd, ns + 1)[:-1], body])  # joint arclengths, root .. tip end
+names = ['stalk_%d' % k for k in range(ns)] + ['body_%d' % k for k in range(nb)]
 arm = bpy.data.armatures.new('tongue_rig')
 ao = bpy.data.objects.new('tongue_rig', arm)
 bpy.context.scene.collection.objects.link(ao)
@@ -446,7 +450,7 @@ cupW = 0.9 * sm_(0.3, 0.9, np.abs(lat)) * sm_(cupS - 0.05, cupS + 0.5 * span, s_
 # the width axis of the rest frame is -X: lat > 0 is -X, the tongue's own right (looking from the root to the tip,
 # top up); +X its left
 left = lat < 0
-twins = [b for b in range(nbn) if (Wc[:, b] * cupW).sum() > 2.0]
+twins = [b for b in range(nbn) if (Wc[:, b] * cupW).sum() > 18.0 / nb]
 allnames = list(names)
 cols = [Wc[:, b] for b in range(nbn)]
 cups = []

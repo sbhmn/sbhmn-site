@@ -9,6 +9,7 @@ import { GLTFLoader } from '/assets/vendor/three/addons/loaders/GLTFLoader.js';
 import { mergeVertices } from '/assets/vendor/three/addons/utils/BufferGeometryUtils.js';
 import { createPaper, createPaperBall } from '/assets/intro/paper.js';
 import { createDrips } from '/assets/intro/drips.js';
+import { createSfx } from '/assets/intro/sfx.js';
 
 const html = document.documentElement;
 const replayWrap = document.querySelector('.replay-wrap');
@@ -90,6 +91,7 @@ async function start() {
     stage.remove(); renderer.dispose(); markDone(); reveal(); return;
   }
   // The crumpled homepage you throw (small, needed now); the sheet it unfolds into and the tongue load meanwhile.
+  const sfx = createSfx(); // real recorded sounds (CC0), fetched now, decoded on the first touch
   const ballP = createPaperBall().catch((e) => { console.warn('paper ball', e); return null; });
   let sheet = null, tongue = null, drips = null;
   const sheetP = createPaper().then((s) => { sheet = s; scene.add(s.object3d); return s; }).catch((e) => { console.warn('paper', e); return null; });
@@ -201,7 +203,19 @@ async function start() {
   // --- the tongue: the owner's rigged model by default (assets/intro/tongue-model.js), the low-poly one with
   // ?tongue=low or if the model fails. It licks the paper in, then the lid slams.
   const tongueKind = new URLSearchParams(location.search).get('tongue') === 'low' ? 'low' : 'model';
-  const onCue = (name) => { if (name === 'slap') { thump(0.3, 64, 0.22); shake = Math.max(shake, 0.03); } else if (name === 'splat') blip(0.05); };
+  const LICKS = ['lick1', 'lick2', 'lick3'], DRIPS = ['drip1', 'drip2', 'drip3'];
+  const onCue = (name, info = {}) => {
+    const s = info.strength ?? 1;
+    if (name === 'pop') sfx.play('lid-clap', { gain: 0.35, rate: 1.15 });
+    else if (name === 'squeeze') sfx.play('squeeze', { gain: 0.9 });
+    else if (name === 'lick') sfx.any(LICKS, { gain: 0.55 + 0.45 * s });
+    else if (name === 'flick') sfx.any(LICKS, { gain: 0.5, rate: 1.25 });
+    else if (name === 'slap') { sfx.any(['splat1', 'splat2'], { gain: 0.2 + 0.7 * s }); shake = Math.max(shake, 0.03 * s); }
+    else if (name === 'slurp') sfx.play('slurp', { gain: 0.9 });
+    else if (name === 'clap') sfx.play('lid-clap', { gain: 0.4 + 0.6 * s });
+    else if (name === 'rattle') sfx.play('lid-clap', { gain: 0.1 + 0.25 * s, rate: 1.2 });
+    else if (name === 'splat') sfx.any(DRIPS, { gain: 0.25, vary: 0.15 });
+  };
   const tongueP = (async () => {
     const make = async (path) => (await import(path)).createTongue(THREE, { fxParent: scene, onCue });
     let t = null;
@@ -284,23 +298,9 @@ async function start() {
   }
   raf = requestAnimationFrame(frame);
 
-  // --- sound: a thud and a rattle, synthesized, only after the visitor's own swipe
+  // --- sound: real recordings (assets/intro/sfx.js); audio starts on the visitor's own first touch
   let ac = null;
-  const audio = () => { try { ac ??= new (window.AudioContext || window.webkitAudioContext)(); ac.resume?.(); } catch (e) {} return ac; };
-  function thump(gain = 0.45, freq = 68, dur = 0.3) {
-    const a = ac; if (!a) return;
-    const t = a.currentTime;
-    const o = a.createOscillator(), g = a.createGain();
-    o.type = 'sine'; o.frequency.setValueAtTime(freq * 1.9, t); o.frequency.exponentialRampToValueAtTime(freq * 0.55, t + dur);
-    g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(0.0008, t + dur);
-    o.connect(g).connect(a.destination); o.start(t); o.stop(t + dur);
-    const n = a.createBufferSource(), buf = a.createBuffer(1, Math.floor(a.sampleRate * dur), a.sampleRate), d = buf.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 4);
-    n.buffer = buf;
-    const f = a.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 520;
-    const g2 = a.createGain(); g2.gain.value = gain * 0.7;
-    n.connect(f).connect(g2).connect(a.destination); n.start(t);
-  }
+  const audio = () => { try { ac ??= new (window.AudioContext || window.webkitAudioContext)(); ac.resume?.(); sfx.attach(ac); } catch (e) {} return ac; };
 
   // --- throwing
   const ball = { p: START.clone(), v: new THREE.Vector3(), flying: false, in: false, rest: 0, t: 0 };
@@ -349,11 +349,12 @@ async function start() {
     if (prevY - BALL_R >= RIM_Y - 0.005 && p.y - BALL_R < RIM_Y && v.y < 0) {
       const slack = 0.02 + Math.min(3, misses) * 0.03;
       if (Math.abs(p.x) < OPEN_X - BALL_R * 0.4 + slack && Math.abs(p.z) < OPEN_Z - BALL_R * 0.4 + slack) {
-        ball.in = true; v.x *= 0.3; v.z *= 0.3; scored(); return;
+        ball.in = true; v.x *= 0.3; v.z *= 0.3; sfx.play('paper-in', { gain: 0.85 }); scored(); return;
       }
       if (Math.abs(p.x) < OUT_X + BALL_R * 0.5 && Math.abs(p.z) < OUT_Z + BALL_R * 0.5) {
         // off the rim: up and away from the opening
         p.y = RIM_Y + BALL_R; v.y = Math.abs(v.y) * 0.45;
+        sfx.play('paper-in', { gain: 0.35, rate: 1.25 });
         const away = new THREE.Vector3(p.x, 0, p.z).normalize();
         v.addScaledVector(away, 0.8);
       }
@@ -384,6 +385,7 @@ async function start() {
     if (ball.flying || ball.in || done) return;
     ball.v.set(vx, vy, vz);
     ball.flying = true;
+    sfx.play('throw', { gain: 0.55, rate: 1.2 });
     hintBox.style.opacity = 0;
   }
   canvas.addEventListener('pointerdown', (e) => {
@@ -420,17 +422,26 @@ async function start() {
     if (done) return;
     done = true;
     await wait(140); if (aborted) return;
-    // The tongue comes out for it, licks, and goes back in; then the lid slams.
+    // The owner's tongue squeezes out of the gap AFTER the lid slams, the lid riding on it ('gap' staging); the
+    // low-poly fallback still licks with the lid open, before the slam.
     const t = tongue ?? await Promise.race([tongueP, new Promise((r) => setTimeout(() => r(null), 1500))]);
-    if (t && !aborted) await t.lick({ spread: Math.min(1, 0.55 + 0.45 * camera.aspect) });
+    const gap = !!t && 'lidPitch' in t;
+    if (t && !gap && !aborted) await t.lick({ spread: Math.min(1, 0.55 + 0.45 * camera.aspect) });
     if (aborted) return;
     // The lid slams.
     const from = pitch.rotation.x;
     await tween(180, (t) => { pitch.rotation.x = from + (0 - from) * t; }, easeIn); if (aborted) return;
-    thump(0.5); shake = 0.06;
+    sfx.play('lid-slam'); shake = 0.06;
     monster.position.y = 0; monster.visible = true; // under the shut lid now, its head just below the rim
     await tween(120, (t) => { pitch.rotation.x = -0.07 * Math.sin(Math.PI * t); });
     await tween(90, (t) => { pitch.rotation.x = -0.022 * Math.sin(Math.PI * t); }); if (aborted) return;
+    pitch.rotation.x = 0;
+    if (gap) {
+      await wait(160); if (aborted) return;
+      await t.lick({ lid: (p) => { pitch.rotation.x = p; } });
+      pitch.rotation.x = 0;
+      if (aborted) return;
+    }
     await wait(300); if (aborted) return;
     // Round to the front.
     phase = 'pan';
@@ -441,23 +452,12 @@ async function start() {
     }, easeInOut); if (aborted) return;
     phase = 'front';
     await wait(350); if (aborted) return;
-    // Something inside: it shoves the lid up from below, the bin rocks.
-    for (let k = 0; k < 3; k++) {
-      const s = 1 + k * 0.35;
-      thump(0.22 * s, 52, 0.18);
-      await tween(240 + k * 60, (t) => {
-        const f = Math.sin(Math.PI * t) * s;
-        bin.rotation.z = Math.sin(t * 46) * 0.022 * f;
-        bin.position.x = Math.sin(t * 61) * 0.012 * f;
-        monster.position.y = Math.abs(Math.sin(t * 23)) * 0.03 * f;
-        pitch.rotation.x = lift(monster.position.y);
-      });
-      bin.rotation.z = 0; bin.position.x = 0; monster.position.y = 0; pitch.rotation.x = 0;
-      if (aborted) return;
-      await wait(260 - k * 50); if (aborted) return;
-    }
-    await wait(450); if (aborted) return;
+    // Something inside loses it: one long fit that builds and goes crazy. The bin rocks from wheel to wheel, hops off
+    // the ground, the lid clatters as the thing slams it from below; one last bang and it all drops still.
+    await shakeFit(1800); if (aborted) return;
+    await wait(500); if (aborted) return;
     // It rises, lifting the lid on its head, tipped up on the right like the logo; the eyes open in the dark.
+    sfx.play('growl', { gain: 0.9, delay: 0.55, vary: 0.02 });
     await tween(1900, (t, raw) => {
       const e = easeOut(t);
       monster.position.y = 0.095 * e + Math.sin(raw * 40) * 0.002 * (1 - raw);
@@ -482,6 +482,41 @@ async function start() {
     await spit();
   }
 
+  // The fit: an envelope that builds (0 -> 1 over ~70%), peaks, then a final slam at ~86% and a quick settle.
+  // Rocking pivots on the wheel that stays down (the other side lifts), plus hops, a forward/back tilt, the lid
+  // clattering on the monster's head, and thumps on a quickening beat.
+  async function shakeFit(ms) {
+    sfx.play('shake', { gain: 0.95, vary: 0.02 }); // the recording runs the whole fit; the final bang is its own
+    let nextHit = 0, phase = 0, hop = 0, hopV = 0, prevRaw = 0, banged = false;
+    const W = 0.47; // half the wheelbase: the pivot when one side lifts
+    await tween(ms, (t, raw) => {
+      const dtl = Math.max(0, raw - prevRaw) * ms / 1000; prevRaw = raw;
+      const build = Math.min(1, raw / 0.6), env = raw < 0.86 ? 0.25 + 0.75 * build * build : Math.max(0, 1 - (raw - 0.86) / 0.14);
+      // rocking: frequency rises from ~6 to ~13 Hz, amplitude follows the envelope, a little noise
+      phase += dtl * Math.PI * 2 * (6 + 7 * build);
+      const rock = Math.sin(phase) * 0.13 * env + (Math.random() - 0.5) * 0.02 * env;
+      // hops: kicked from inside on each hit, gravity brings it down hard
+      hopV -= 9.8 * dtl; hop = Math.max(0, hop + hopV * dtl); if (hop === 0 && hopV < 0) hopV = 0;
+      bin.rotation.z = rock;
+      bin.position.x = -Math.sign(rock) * W * (1 - Math.cos(rock)) + (Math.random() - 0.5) * 0.01 * env;
+      bin.position.y = Math.abs(Math.sin(rock)) * W + hop;
+      bin.rotation.x = Math.sin(phase * 0.47 + 1.3) * 0.05 * env;
+      bin.rotation.y = Math.sin(phase * 0.71 + 0.4) * 0.07 * env + (Math.random() - 0.5) * 0.03 * env; // it twists on the spot
+      bin.position.z = Math.max(0, Math.sin(phase * 0.33)) * 0.05 * env; // and lunges forward
+      // the lid bangs on the thing's head
+      const bang = Math.max(0, Math.sin(phase * 1.7)) * 0.07 * env + (raw > 0.5 && raw < 0.86 ? Math.random() * 0.03 : 0);
+      monster.position.y = bang;
+      pitch.rotation.x = lift(bang);
+      shake = Math.max(shake, 0.026 * env);
+      if (raw >= nextHit && raw < 0.86) {
+        hopV = Math.max(hopV, (0.3 + 1.25 * build) * (Math.random() < 0.6 ? 1 : 0.45));
+        nextHit = raw + (0.11 - 0.06 * build) + Math.random() * 0.03;
+      }
+      if (raw >= 0.86 && !banged) { banged = true; nextHit = 1; sfx.play('bang'); shake = 0.05; hopV = 0; }
+    });
+    bin.rotation.set(0, 0, 0); bin.position.set(0, 0, 0); monster.position.y = 0; pitch.rotation.x = 0;
+  }
+
   // One letter: from near the camera, spinning, it accelerates into the bin's face; on impact it squashes, the bin
   // jolts back, chips fly, the camera shakes and the thing inside flinches.
   async function slam(m) {
@@ -495,7 +530,7 @@ async function start() {
     }, easeIn);
     if (aborted) return;
     m.position.copy(home); m.rotation.set(LEAN, 0, 0);
-    thump(0.32, 96, 0.17); shake = Math.max(shake, 0.02);
+    sfx.any(['thud1', 'thud2'], { gain: 0.9 }); shake = Math.max(shake, 0.02);
     burst(new THREE.Vector3(home.x, home.y, home.z + 0.03), 5);
     tween(150, (t) => { const k = Math.sin(Math.PI * t); m.scale.set(1 + 0.08 * k, 1 + 0.08 * k, 1 - 0.5 * k); bin.position.z = -0.022 * k; });
     tween(140, (t) => { eyeL.scale.y = eyeR.scale.y = 1 - 0.65 * Math.sin(Math.PI * t); });
@@ -512,12 +547,12 @@ async function start() {
       pitch.rotation.x = lift(monster.position.y) - 0.16 * e;
       eyeL.scale.y = eyeR.scale.y = 1 - 0.55 * e;
     }); if (aborted) return;
-    ptoo();
+    sfx.any(['spit1', 'spit2']);
     const mouth = bin.localToWorld(new THREE.Vector3(0, 0.84, 0.42));
     const mp = mouth.clone().project(camera);
     const from = [((mp.x + 1) / 2) * innerWidth, ((1 - mp.y) / 2) * innerHeight];
     try {
-      drips = createDrips({ auto: false, seed: 5, onSplat: (x, y, s) => blip(Math.min(0.12, 0.03 + s / 900)) });
+      drips = createDrips({ auto: false, seed: 5, onSplat: (x, y, s) => sfx.any(['splat1', 'splat2', 'splat3'], { gain: Math.min(0.7, 0.18 + s / 300), pan: (x / innerWidth) * 2 - 1 }) });
       drips.spray(10, undefined, { delay: 0.12, from });
     } catch (e) { drips = null; }
     tween(300, (t) => { monster.position.y = m0 + 0.06 * (1 - t); pitch.rotation.x = lift(monster.position.y) - 0.16 * (1 - easeOut(t)); eyeL.scale.y = eyeR.scale.y = 0.45 + 0.55 * t; });
@@ -526,7 +561,7 @@ async function start() {
     if (sp) {
       await sp.spit({
         camera, from: mouth, sequence: 'full',
-        onFrame: ({ slap, landed }) => { if (slap) { thump(0.22, 110, 0.12); shake = Math.max(shake, 0.012); } else if (!landed) crinkle(0.07 + Math.random() * 0.06); },
+        onFrame: ({ slap, landed }) => { if (slap) { sfx.play('thud2', { gain: 0.45, rate: 1.3 }); shake = Math.max(shake, 0.012); } else if (!landed) sfx.any(['crinkle1', 'crinkle2', 'crinkle3', 'crinkle4'], { gain: 0.6, vary: 0.12 }); },
       });
       if (aborted) return;
       await wait(140); if (aborted) return;
@@ -539,38 +574,7 @@ async function start() {
     end();
   }
 
-  // A wet blip for each drop landing (tongue drips, spit on the glass).
-  function blip(gain = 0.05) {
-    const a = ac; if (!a || a.state === 'closed') return;
-    const t = a.currentTime, dur = 0.06;
-    const o = a.createOscillator(), g = a.createGain();
-    o.type = 'sine'; o.frequency.setValueAtTime(900 + Math.random() * 700, t); o.frequency.exponentialRampToValueAtTime(240, t + dur);
-    g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(0.0005, t + dur);
-    o.connect(g).connect(a.destination); o.start(t); o.stop(t + dur);
-  }
 
-  // Spit and paper sounds, synthesized like the thuds.
-  function ptoo() {
-    const a = ac; if (!a) return;
-    const t = a.currentTime, dur = 0.22;
-    const nbuf = a.createBuffer(1, Math.floor(a.sampleRate * dur), a.sampleRate), d = nbuf.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 2);
-    const n = a.createBufferSource(); n.buffer = nbuf;
-    const f = a.createBiquadFilter(); f.type = 'bandpass'; f.frequency.setValueAtTime(1800, t); f.frequency.exponentialRampToValueAtTime(500, t + dur); f.Q.value = 1.2;
-    const g = a.createGain(); g.gain.setValueAtTime(0.5, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    n.connect(f).connect(g).connect(a.destination); n.start(t);
-    thump(0.18, 120, 0.12);
-  }
-  function crinkle(gain) {
-    const a = ac; if (!a) return;
-    const t = a.currentTime, dur = 0.05;
-    const nbuf = a.createBuffer(1, Math.floor(a.sampleRate * dur), a.sampleRate), d = nbuf.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (Math.random() < 0.3 ? 1 : 0.2) * (1 - i / d.length);
-    const n = a.createBufferSource(); n.buffer = nbuf;
-    const f = a.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 2500;
-    const g = a.createGain(); g.gain.value = gain;
-    n.connect(f).connect(g).connect(a.destination); n.start(t);
-  }
 
   // skipped: everything goes at once. Otherwise the spit on the glass keeps running down over the live page, then dries.
   function end(skipped = false) {
@@ -604,7 +608,10 @@ async function start() {
   if (location.search.includes('debug')) {
     // advance(s): run the scene s seconds at 60 fps right now (awaiting the show's steps between frames).
     const advance = async (s) => { for (let i = 0; i < s * 60 && !aborted; i++) { tick(1 / 60); await Promise.resolve(); } };
-    window.__intro = { ball, pitch, roll, cam, monster, eyeL, eyeR, letters, fangs, throwBall, advance, get tongue() { return tongue; }, get sheet() { return sheet; }, get drips() { return drips; }, get misses() { return misses; }, get done() { return done; }, get clock() { return clock; } };
+    // sfxLog: every sound played, [scene seconds, name], to check the timeline without ears
+    const sfxLog = [], play0 = sfx.play.bind(sfx);
+    sfx.play = (n, o) => { sfxLog.push([+(clock / 1000).toFixed(2), n]); play0(n, o); };
+    window.__intro = { ball, pitch, roll, cam, monster, eyeL, eyeR, letters, fangs, throwBall, advance, sfx, audio, sfxLog, get tongue() { return tongue; }, get sheet() { return sheet; }, get drips() { return drips; }, get misses() { return misses; }, get done() { return done; }, get clock() { return clock; } };
   }
 }
 
