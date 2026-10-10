@@ -3,9 +3,10 @@
 import * as THREE from 'three';
 import { FontLoader } from '/assets/vendor/three/addons/loaders/FontLoader.js';
 import { TextGeometry } from '/assets/vendor/three/addons/geometries/TextGeometry.js';
+import { v } from '/assets/v.js';
 
 let fontP = null;
-export const loadFont = () => (fontP ??= new FontLoader().loadAsync('/assets/fonts/big-shoulders-800.typeface.json'));
+export const loadFont = () => (fontP ??= new FontLoader().loadAsync(v('/assets/fonts/big-shoulders-800.typeface.json')));
 
 /**
  * A centred text mesh. `size` is the cap height-ish in world units; `depth` the extrusion.

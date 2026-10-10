@@ -235,6 +235,7 @@
 // 33 bone matrices, up to 280 drops, each tested against the tongue).
 import { GLTFLoader } from '/assets/vendor/three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from '/assets/vendor/three/addons/libs/meshopt_decoder.module.js';
+import { v } from '/assets/v.js';
 
 const LID_G = 15; // the lid's front edge falls like a hinged plate's (3g/2 per unit depth)
 const HIT = 1; // a key arrived at falling (see track)
@@ -1029,7 +1030,7 @@ vCrush = cr;`)
     mesh = m; // now it can lick
   }
 
-  const ready = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(O.url).then((gltf) => {
+  const ready = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(v(O.url)).then((gltf) => {
     if (!disposed) build(gltf);
     return api;
   });

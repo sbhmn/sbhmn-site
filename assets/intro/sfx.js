@@ -12,6 +12,7 @@
 //   sfx.any(['lick1', 'lick2', 'lick3'], { gain }); // a random one of several, never the same twice in a row (its handle)
 // Every play gets a little random pitch and level variation (vary: 0.06 by default) so repeats don't sound pasted.
 // A clip that hasn't decoded yet is simply skipped.
+import { v } from '/assets/v.js';
 const NAMES = [
   'throw', 'paper-in', 'lid-slam', 'lid-clap', 'squeeze', 'lick1', 'lick2', 'lick3', 'slurp', 'drip1', 'drip2', 'drip3',
   'growl', 'thud1', 'thud2', 'spit1', 'spit2', 'splat1', 'splat2', 'splat3',
@@ -19,7 +20,7 @@ const NAMES = [
 ];
 
 export function createSfx({ base = '/assets/audio/', volume = 0.85 } = {}) {
-  const raw = new Map(NAMES.map((n) => [n, fetch(`${base}${n}.mp3`).then((r) => (r.ok ? r.arrayBuffer() : null)).catch(() => null)]));
+  const raw = new Map(NAMES.map((n) => [n, fetch(v(`${base}${n}.mp3`)).then((r) => (r.ok ? r.arrayBuffer() : null)).catch(() => null)]));
   const buffers = new Map();
   let ctx = null, master = null;
   const last = new Map();
