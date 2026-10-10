@@ -1,9 +1,11 @@
-// The sbhmn.com intro: throw the paper in the bin. The lid slams, the camera comes round to the front, something
-// rattles inside, then a black thing rises and lifts the lid: red eyes, teeth. SBHMN slams into the bin letter by
-// letter. It spits the paper back at you; the paper uncrumples, stop motion, into a flat sheet that fills the screen,
-// and that sheet becomes the page. The bin is low poly, built from the logo's own proportions (assets/3d/bin.glb; 1 unit
-// = 500 logo px, standing on y = 0, front facing +z); its letters and fangs are the logo's own outlines
-// (assets/3d/bin-letters.json, tools/art/sbhmn-site-assets.mjs in the game repo).
+// The sbhmn.com intro: throw the paper in the bin. The lid slams; the camera cranes up over the bin as a tongue
+// squeezes out under the lid and licks it all round, the lid riding on it (assets/intro/tongue-model.js), and slurps
+// back in; the lid slams again. The camera comes round to the front, something rattles inside, then a black thing
+// rises and lifts the lid: red eyes, teeth. SBHMN slams into the bin letter by letter. It spits the paper back at you;
+// the paper uncrumples, stop motion, into a flat sheet that fills the screen, and that sheet becomes the page. The bin
+// is low poly, built from the logo's own proportions (assets/3d/bin.glb; 1 unit = 500 logo px, standing on y = 0, front
+// facing +z); its letters and fangs are the logo's own outlines (assets/3d/bin-letters.json,
+// tools/art/sbhmn-site-assets.mjs in the game repo).
 import * as THREE from 'three';
 import { GLTFLoader } from '/assets/vendor/three/addons/loaders/GLTFLoader.js';
 import { mergeVertices } from '/assets/vendor/three/addons/utils/BufferGeometryUtils.js';
@@ -49,9 +51,9 @@ async function start() {
   }
   const stage = document.createElement('div');
   stage.className = 'intro';
-  stage.innerHTML = `<div class="hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"><path d="M12 20V5M5 11l7-7 7 7"/></svg><span>Throw it in the bin</span></div><button class="skip" type="button">Skip</button>`;
+  stage.innerHTML = `<div class="hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"><path d="M12 20V5M5 11l7-7 7 7"/></svg><span>Grab it. Bin it.</span></div><button class="skip" type="button">Skip</button>`;
   const canvas = renderer.domElement;
-  canvas.setAttribute('aria-label', 'A paper toss game: swipe up to throw the paper into the bin');
+  canvas.setAttribute('aria-label', 'A paper toss game: grab the paper and flick it up into the bin, or press Enter');
   stage.prepend(canvas);
   document.body.append(stage);
   const hint = stage.querySelector('.hint span');
@@ -203,18 +205,39 @@ async function start() {
   // --- the tongue: the owner's rigged model by default (assets/intro/tongue-model.js), the low-poly one with
   // ?tongue=low or if the model fails. It licks the paper in, then the lid slams.
   const tongueKind = new URLSearchParams(location.search).get('tongue') === 'low' ? 'low' : 'model';
-  const LICKS = ['lick1', 'lick2', 'lick3'], DRIPS = ['drip1', 'drip2', 'drip3'];
+  const LICKS = ['lick1', 'lick2', 'lick3'], DRIPS = ['drip1', 'drip2', 'drip3'], SPLASHES = ['splash1', 'splash2', 'splash3'], GOO = ['goo1', 'goo2'];
+  // The tongue's sounds. The small ones (a lick, a slap, a drop landing) sit under the big wet splashes. The slurp's
+  // clip (1.93 s) is a long rising suck that runs into a wet smack at SMACK s, then gulps: the tongue's pull in is
+  // much shorter, so the clip starts part way in, the suck under the pull, and its smack lands as the tip vanishes
+  // (info.in: how long until then; the low-poly tongue sends none: it is gone ~0.18 s after it starts its slurp). The
+  // lid then slams shut: a real slam, and the slurp fades out from just after its smack, before the gulps, so the slam
+  // punches (the slurp is mastered much louder: -13 LUFS, the slam -25; the low-poly tongue's lid slams in the show
+  // below, so there the slurp fades on its own).
+  const SMACK = 1.53, LOW_IN = 0.18;
+  let slurping = null;
   const onCue = (name, info = {}) => {
     const s = info.strength ?? 1;
     if (name === 'pop') sfx.play('lid-clap', { gain: 0.35, rate: 1.15 });
     else if (name === 'squeeze') sfx.play('squeeze', { gain: 0.9 });
-    else if (name === 'lick') sfx.any(LICKS, { gain: 0.55 + 0.45 * s });
-    else if (name === 'flick') sfx.any(LICKS, { gain: 0.5, rate: 1.25 });
-    else if (name === 'slap') { sfx.any(['splat1', 'splat2'], { gain: 0.2 + 0.7 * s }); shake = Math.max(shake, 0.03 * s); }
-    else if (name === 'slurp') sfx.play('slurp', { gain: 0.9 });
-    else if (name === 'clap') sfx.play('lid-clap', { gain: 0.4 + 0.6 * s });
-    else if (name === 'rattle') sfx.play('lid-clap', { gain: 0.1 + 0.25 * s, rate: 1.2 });
-    else if (name === 'splat') sfx.any(DRIPS, { gain: 0.25, vary: 0.15 });
+    else if (name === 'lick') sfx.any(LICKS, { gain: 0.3 + 0.3 * s });
+    else if (name === 'flick') sfx.any(LICKS, { gain: 0.3, rate: 1.25 });
+    else if (name === 'slap') sfx.any(['splat1', 'splat2'], { gain: 0.25 + 0.4 * s });
+    else if (name === 'splash') sfx.any(SPLASHES, { gain: 0.55 + 0.4 * s });
+    else if (name === 'goo') sfx.any(GOO, { gain: 0.4 });
+    else if (name === 'snap') sfx.any(GOO, { gain: 0.16, rate: 1.3 });
+    else if (name === 'slurp') {
+      const h = slurping = sfx.play('slurp', { gain: 0.6, offset: Math.max(0, SMACK - (info.in ?? LOW_IN)), vary: 0.02 });
+      // (its smack rings on ~0.1 s past the tip vanishing: faded from 40 ms after it, so the lid's slam right after
+      // punches through it instead of landing in its tail)
+      if (info.in == null) wait((LOW_IN + 0.1) * 1000).then(() => h?.stop(140));
+      else wait((info.in + 0.04) * 1000).then(() => h?.stop(120));
+    }
+    else if (name === 'clap') {
+      if (s < 0.7) sfx.play('lid-clap', { gain: 0.2 + 0.4 * s });
+      else { sfx.play('lid-slam', { gain: 1.15 }); slurping?.stop(100); slurping = null; shake = Math.max(shake, 0.02); }
+    }
+    else if (name === 'rattle') sfx.play('lid-clap', { gain: 0.1 + 0.22 * s, rate: 1.2 });
+    else if (name === 'splat' && info.size > 0.011) sfx.any(DRIPS, { gain: 0.14, vary: 0.15 }); // (only the bigger drops)
   };
   const tongueP = (async () => {
     const make = async (path) => (await import(path)).createTongue(THREE, { fxParent: scene, onCue });
@@ -235,12 +258,39 @@ async function start() {
 
   // --- camera views
   const cam = { pos: new THREE.Vector3(), target: new THREE.Vector3(0, 0.5, 0), fov: 40 };
+  // How far back a camera at elevation el (radians), straight in front, looking at T must be to frame every corner of
+  // box ([x0, x1, y0, y1, z0, z1], bin space) with margin (a share of the frame) kept clear at the edges.
+  // (the box: what the tongue does, measured every 1/60 s: ~0.1 past the rim's sides, ~0.6 above the rim, down the
+  // bin's front to the base, with room to spare at the sides; its swoop down the front comes ~0.5 toward the camera,
+  // past the box, for a moment: the frame holds it anyway, and boxing it too would back the camera off. The camera
+  // looks at the bin's middle line)
+  const LICK_BOX = [-0.8, 0.74, 0.2, 1.42, -0.45, 0.8], LICK_EL = THREE.MathUtils.degToRad(32), LICK_T = new THREE.Vector3(0, 0.8, 0.16);
+  function fitOrbit(el, T, fov, aspect, box, margin) {
+    const f = new THREE.Vector3(0, -Math.sin(el), -Math.cos(el)), r = new THREE.Vector3(1, 0, 0), u = new THREE.Vector3().crossVectors(r, f);
+    const ty = (1 - margin) * Math.tan(THREE.MathUtils.degToRad(fov / 2)), tx = ty * aspect, P = new THREE.Vector3();
+    let d = 0;
+    for (let i = 0; i < 8; i++) {
+      P.set(box[i & 1], box[2 + ((i >> 1) & 1)], box[4 + ((i >> 2) & 1)]).sub(T);
+      d = Math.max(d, Math.max(Math.abs(P.dot(r)) / tx, Math.abs(P.dot(u)) / ty) - P.dot(f));
+    }
+    return d;
+  }
   const view = {
     throw() {
       const fov = 40, aspect = camera.aspect, base = 3.9;
       const fit = 1.9 / (2 * base * Math.tan(THREE.MathUtils.degToRad(fov / 2)) * aspect);
       const d = base * Math.max(1, fit);
       return { pos: new THREE.Vector3(0, 0.5, 0).addScaledVector(new THREE.Vector3(0, 1.25, 3.7).normalize(), d), target: new THREE.Vector3(0, 0.5, 0), fov };
+    },
+    // the lick: craned up over the bin, 32 degrees down (the throw camera looks 19 degrees down: from there the lid's
+    // top is a sliver), so its top reads, framing everything the tongue does: out of the right side, across the top,
+    // over at the left side, up off the lid and down the front onto the base. Never further back than the throw camera:
+    // on a portrait phone, where the bin's width sets how far back both stand, it rises and looks down, it doesn't back
+    // off
+    lick() {
+      const fov = 40, dThrow = view.throw().pos.distanceTo(new THREE.Vector3(0, 0.5, 0));
+      const d = Math.min(dThrow, fitOrbit(LICK_EL, LICK_T, fov, camera.aspect, LICK_BOX, 0.04));
+      return { pos: new THREE.Vector3(0, Math.sin(LICK_EL), Math.cos(LICK_EL)).multiplyScalar(d).add(LICK_T), target: LICK_T.clone(), fov };
     },
     front() {
       const fov = 18, t = 2 * Math.tan(THREE.MathUtils.degToRad(fov / 2));
@@ -256,6 +306,7 @@ async function start() {
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     if (phase === 'throw') Object.assign(cam, view.throw());
+    if (phase === 'lick') Object.assign(cam, view.lick());
     if (phase === 'front') Object.assign(cam, view.front());
   }
   window.addEventListener('resize', resize);
@@ -303,24 +354,103 @@ async function start() {
   const audio = () => { try { ac ??= new (window.AudioContext || window.webkitAudioContext)(); ac.resume?.(); sfx.attach(ac); } catch (e) {} return ac; };
 
   // --- throwing
-  const ball = { p: START.clone(), v: new THREE.Vector3(), flying: false, in: false, rest: 0, t: 0 };
-  let misses = 0, samples = [], dragging = false, done = false;
-  function resetBall() {
-    ball.p.copy(START); ball.v.set(0, 0, 0); ball.flying = false; ball.in = false; ball.rest = 0; ball.t = 0;
-    paper.visible = true; paper.scale.setScalar(1);
+  // The paper is a thing you hold. Press on it, or anywhere (it comes to the pointer), and it follows the pointer on a
+  // plane facing the camera through its rest spot, a touch behind (a spring), rolling a little as it moves. It stays
+  // on the player's side: on screen it can't be lifted past the bin's front rim (it slows into a ceiling just under
+  // it), so it never looks as if it is over the opening. Let go while flicking it up and it flies from where it is;
+  // let go without a flick and it drops, like anything let go of, then pops back at its spot: no harm done, no miss.
+  // The flick is read for intent, not precision: a cheap mouse sends sparse, uneven events, its sensor (or a thumb
+  // lifting off a phone) settles back a little at the end of a flick, and people stop a beat before they let go. So
+  // readFlick() finds the flick's peak, forgives a small settle back after it and the still beat before the release
+  // (a longer one after a clear stroke toward the bin), and reads the ~200 ms into the peak, recency weighted. Then the
+  // aim assist (launch()) bends any roughly upward flick, of almost any speed, into a lob that drops in, from the
+  // first throw. A sideways fling or a feeble twitch gets little help and misses: the miss lines still have work to do.
+  // ball: p, v in flight; held: following the pointer; drop: let go without a flick, falling; hv: the held (or
+  // dropping) paper's velocity; t, rest: the flight's (or the drop's) clock and its time lying still; out: missed,
+  // about to reset; show: popping back in at its spot (0 -> 1); gone: shrinking away after a drop (0 -> 1).
+  const ball = { p: START.clone(), v: new THREE.Vector3(), hv: new THREE.Vector3(), flying: false, in: false, held: false, drop: false, out: false, rest: 0, t: 0, show: 1, gone: 0 };
+  // the hold: the pointer it follows, the spot it chases, the grab's offset on screen (px, the paper's centre minus
+  // the pointer: kept when the press was on the paper, else 0), the pointer's recent samples (client px, ms), the
+  // pick-up's little squeeze (0 -> 1) and how the last release was read (for ?debug)
+  const grab = { id: null, to: new THREE.Vector3(), ox: 0, oy: 0, samples: [], pop: 1, read: null };
+  const MOUTH = new THREE.Vector3(0, RIM_Y + BALL_R, 0); // where an ideal throw's centre crosses the rim's height
+  const RIM_FRONT = new THREE.Vector3(0, RIM_Y, OUT_Z); // the top of the bin's front rim: the held paper stays under it
+  const CRINKLES = ['crinkle1', 'crinkle2', 'crinkle3', 'crinkle4'];
+  const dragPlane = new THREE.Plane(), ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+  const tmp = new THREE.Vector3(), scr = new THREE.Vector3(), look = new THREE.Vector3(), fromCam = new THREE.Vector3(), arc = new THREE.Vector3();
+  let misses = 0, done = false, bob = 0;
+  // Back at its spot, still. It pops back in (show: 0 -> 1) after a miss or a drop; not at the very start.
+  function resetBall(popIn = true) {
+    ball.p.copy(START); ball.v.set(0, 0, 0); ball.hv.set(0, 0, 0); ball.rest = 0; ball.t = 0; ball.gone = 0;
+    ball.flying = ball.in = ball.held = ball.drop = ball.out = false;
+    ball.show = popIn ? 0 : 1;
+    grab.id = null; grab.pop = 1; bob = 0;
+    paper.visible = true; paper.scale.setScalar(popIn ? 0.001 : 1);
+    stage.classList.remove('held', 'busy');
   }
-  resetBall();
+  resetBall(false);
   function step(dt, now) {
     stepChips(dt);
-    if (!ball.flying) {
-      if (!ball.in) { paper.position.copy(ball.p); paper.position.y += Math.sin(now / 420) * 0.012; paper.rotation.y += dt * 0.4; }
+    if (ball.flying) {
+      const n = 4, h = dt / n;
+      for (let i = 0; i < n && ball.flying; i++) physics(h);
+      paper.position.copy(ball.p);
+      paper.rotation.x -= dt * ball.v.length() * 3.2;
+      paper.rotation.z += dt * ball.v.x * 4;
       return;
     }
-    const n = 4, h = dt / n;
-    for (let i = 0; i < n && ball.flying; i++) physics(h);
+    if (ball.in) return;
+    if (ball.held) follow(dt);
+    else if (ball.drop) fall(dt);
+    // at rest it bobs and turns; the bob eases back in after a hold, so nothing jumps
+    bob = ball.held || ball.drop || ball.out ? 0 : Math.min(1, bob + dt * 1.5);
     paper.position.copy(ball.p);
-    paper.rotation.x -= dt * ball.v.length() * 3.2;
-    paper.rotation.z += dt * ball.v.x * 4;
+    paper.position.y += Math.sin(now / 420) * 0.012 * bob;
+    paper.rotation.y += dt * 0.4;
+    // its size: popping back in (a touch of overshoot), the pick-up's squeeze, shrinking away after a drop (caught
+    // while it shrinks, it grows back)
+    grab.pop = Math.min(1, grab.pop + dt / 0.2);
+    ball.show = Math.min(1, ball.show + dt / 0.3);
+    if (!ball.drop) ball.gone = Math.max(0, ball.gone - dt / 0.12);
+    paper.scale.setScalar(Math.max(0.001, backOut(ball.show) * (1 + 0.08 * Math.sin(Math.PI * grab.pop)) * (1 - ball.gone)));
+  }
+  // The held paper chases its spot on a slightly underdamped spring (it trails a fast drag by a few cm and settles
+  // with the smallest overshoot; from across the screen it gets there in ~0.12 s). Substeps keep the stiff spring
+  // stable at low frame rates. It rolls with its motion, like a ball turned in the fingers.
+  function follow(dt) {
+    const w = 38, z = 0.75, n = Math.ceil(dt / 0.004), h = dt / n;
+    for (let i = 0; i < n; i++) {
+      tmp.subVectors(grab.to, ball.p).multiplyScalar(w * w).addScaledVector(ball.hv, -2 * z * w);
+      ball.hv.addScaledVector(tmp, h);
+      ball.p.addScaledVector(ball.hv, h);
+    }
+    paper.rotation.x -= ball.hv.y * dt * 2.4;
+    paper.rotation.z -= ball.hv.x * dt * 2.4;
+  }
+  // Let go without a flick: it falls with the hand's last motion and bounces on the floor. Once it is out of view it
+  // pops straight back at its spot; still in view (on a phone the floor is), it lies there a beat, shrinks away, then
+  // pops back. It can be caught at any point.
+  function fall(dt) {
+    const p = ball.p, v = ball.hv, n = 4, h = dt / n;
+    ball.t += dt;
+    for (let i = 0; i < n; i++) {
+      v.y -= G * h;
+      p.addScaledVector(v, h);
+      if (p.y < BALL_R) {
+        p.y = BALL_R;
+        if (v.y < 0) v.y = -v.y * 0.32;
+        const f = Math.pow(0.02, h); v.x *= f; v.z *= f; // the floor's grip
+        if (Math.abs(v.y) < 0.25) ball.rest += h;
+      }
+    }
+    paper.rotation.x += (v.z - v.y) * dt * 2.4;
+    paper.rotation.z -= v.x * dt * 2.4;
+    const r = canvas.getBoundingClientRect(), q = toScreen(p), m = paperPx(p);
+    if (q.y - m > r.bottom || q.x + m < r.left || q.x - m > r.right) { resetBall(); return; }
+    if (ball.rest > 0.35 || ball.t > 1.2 || ball.gone > 0) {
+      ball.gone = Math.min(1, ball.gone + dt / 0.15);
+      if (ball.gone >= 1) resetBall();
+    }
   }
   function physics(h) {
     const p = ball.p, v = ball.v, prevY = p.y;
@@ -375,46 +505,244 @@ async function start() {
     if (ball.rest > 0.5 || ball.t > 4 || p.z < -4 || Math.abs(p.x) > 5) missed();
   }
   function missed() {
-    ball.flying = false;
+    ball.flying = false; ball.out = true;
     misses++;
     hint.textContent = MISSES[(misses - 1) % MISSES.length];
     hintBox.style.opacity = 1;
     wait(350).then(() => { if (!aborted) resetBall(); });
   }
+  // Throws from wherever the paper is (at rest: START), ending any hold or drop. The dev tools' perfect throw from
+  // rest is throwBall(0, 3.35, -3.35).
   function throwBall(vx, vy, vz) {
-    if (ball.flying || ball.in || done) return;
+    if (ball.flying || ball.in || ball.out || done) return;
+    if (grab.id !== null) { const id = grab.id; grab.id = null; try { canvas.releasePointerCapture(id); } catch (e) {} }
+    ball.held = ball.drop = false; ball.t = ball.rest = ball.gone = 0;
+    grab.pop = 1; ball.show = 1; paper.scale.setScalar(1); // a quick flick can cut the pick-up's squeeze (or the pop back in) short
     ball.v.set(vx, vy, vz);
     ball.flying = true;
+    stage.classList.remove('held'); stage.classList.add('busy');
     sfx.play('throw', { gain: 0.55, rate: 1.2 });
     hintBox.style.opacity = 0;
   }
+
+  // Screen <-> world. toScreen: client px; paperPx: the paper's radius on screen (px) at v.
+  function toScreen(v) {
+    const r = canvas.getBoundingClientRect();
+    scr.copy(v).project(camera);
+    return { x: r.left + ((scr.x + 1) / 2) * r.width, y: r.top + ((1 - scr.y) / 2) * r.height };
+  }
+  function paperPx(v) {
+    const depth = Math.max(0.05, fromCam.subVectors(v, camera.position).dot(camera.getWorldDirection(look)));
+    return (BALL_R * (canvas.getBoundingClientRect().height / 2)) / (depth * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
+  }
+  // Where the held paper goes for a pointer at (cx, cy): the pointer plus the grab's offset, on the drag plane (it
+  // faces the camera through the rest spot). Its centre is kept a little over a paper's radius from the screen's
+  // edges, and under the bin's front rim: its top edge stays a few px below the rim's front edge on screen, so it
+  // never looks as if it is over the opening (a soft ceiling: it slows into it over most of a radius rather than
+  // stopping dead; the pointer itself can go on up for the flick, which reads the pointer). Then, in 3D, it stays
+  // above the floor and well in front of the bin (a guard: on that plane the ceiling keeps it nearer still).
+  function holdAt(cx, cy, out) {
+    const r = canvas.getBoundingClientRect(), R = paperPx(START), m = 1.2 * R + 6;
+    const x = THREE.MathUtils.clamp(cx + grab.ox, r.left + m, r.right - m);
+    let y = Math.min(cy + grab.oy, r.bottom - m);
+    const cap = Math.min(toScreen(RIM_FRONT).y + R + 4, toScreen(START).y), soft = 0.8 * R;
+    if (y < cap + soft) y = cap + soft - soft * Math.tanh((cap + soft - y) / soft);
+    ndc.set(((x - r.left) / r.width) * 2 - 1, 1 - ((y - r.top) / r.height) * 2);
+    dragPlane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(look).negate(), START);
+    ray.setFromCamera(ndc, camera);
+    if (!ray.ray.intersectPlane(dragPlane, out)) out.copy(START);
+    out.y = Math.max(BALL_R + 0.02, out.y); out.z = Math.max(1.2, out.z);
+    return out;
+  }
+
+  // The release, read for intent. null: a put-down (it never moved, or was held still for a beat before letting go,
+  // or the last move wasn't a flick). Otherwise { up, e, run }: the speed toward the bin on screen (screen heights per
+  // second), the angle off that line (radians, + to the right) and the length of the last stroke toward it (screen
+  // heights). The line toward the bin runs from the paper to the bin's mouth on screen but always leans up (at most
+  // ~32° off vertical): flicking straight up from anywhere is never far off.
+  function readFlick(endT) {
+    const s = grab.samples, H = canvas.getBoundingClientRect().height || innerHeight;
+    // the moment it arrived where it was let go: duplicates and the still beat after don't count (within 1.5 px of the
+    // end, whatever the mouse's report rate: a 1000 Hz one moves well under a pixel between samples on a slow drag)
+    const fin = s[s.length - 1];
+    let k = s.length - 1;
+    while (k > 0 && Math.hypot(s[k - 1].x - fin.x, s[k - 1].y - fin.y) < 1.5) k--;
+    if (k === 0) { grab.read = { still: 'never moved' }; return null; }
+    const still = endT - s[k].t;
+    const a = toScreen(ball.p), m = toScreen(MOUTH);
+    let ux = m.x - a.x, uy = Math.min(m.y - a.y, -0.3 * H, -1.6 * Math.abs(m.x - a.x));
+    const ul = Math.hypot(ux, uy); ux /= ul; uy /= ul;
+    const prog = (i) => s[i].x * ux + s[i].y * uy; // how far toward the bin (px)
+    // the peak: the furthest toward the bin in the last 130 ms of motion (and the sample before them: a sparse mouse
+    // may report only once in that time). What came after it is the settle back (a cheap sensor's jitter, the hand
+    // easing off, a thumb rolling as it lifts); the flick is read into the peak.
+    let pk = k;
+    for (let i = k - 1; i >= 0 && s[k].t - s[i + 1].t <= 130; i--) if (prog(i) > prog(pk) + 1) pk = i;
+    // the stroke into the peak: back while it keeps heading toward the bin (a wobble back of a few px is fine), as
+    // far as the last pause (the move that came after the pause is its start); its length (run, screen heights), its
+    // path and its time (a gap counting as at most 50 ms, as below)
+    const wob = Math.max(6, 0.01 * H);
+    let run = 0, path = 0, dur = 0;
+    for (let i = pk, acc = 0, pl = 0, d = 0; i > 0 && s[pk].t - s[i - 1].t < 1200; i--) {
+      acc += prog(i) - prog(i - 1);
+      pl += Math.hypot(s[i].x - s[i - 1].x, s[i].y - s[i - 1].y);
+      d += Math.min(50, Math.max(0, s[i].t - s[i - 1].t));
+      if (acc < run * H - wob) break;
+      if (acc / H > run) { run = acc / H; path = pl; dur = d; }
+      if (s[i].t - s[i - 1].t > 160) break;
+    }
+    // the settle back is forgiven while it is small and quick: up to 5% of the screen, well short of the stroke before
+    // it, over at most 150 ms (or two of a sparse mouse's reports). A flick up and a deliberate pull back down is no flick.
+    const settle = prog(pk) - prog(k);
+    const settled = settle <= Math.min(Math.max(24, 0.05 * H), 0.5 * run * H + 8) && (s[k].t - s[pk].t <= 150 || k - pk <= 2);
+    // a velocity, recency weighted over the 200 ms up to sample `end`; a gap counts as at most 50 ms (after a gap, the
+    // move came in its last moments: a mouse reports as soon as it moves)
+    const vel = (end) => {
+      let vx = 0, vy = 0, wt = 0;
+      for (let i = end; i > 0 && s[end].t - s[i].t < 200; i--) {
+        const dt = Math.min(50, Math.max(0, s[i].t - s[i - 1].t)), w = Math.exp((s[i].t - s[end].t) / 100);
+        vx += w * (s[i].x - s[i - 1].x); vy += w * (s[i].y - s[i - 1].y); wt += w * dt;
+      }
+      wt = Math.max(wt, 8);
+      return [vx / wt, vy / wt];
+    };
+    const [vx, vy] = vel(pk), toward = vx * ux + vy * uy;
+    // the best ~60 ms burst toward the bin in the 250 ms into the peak: people slow down before they let go
+    let burst = 0, bx = 0, by = 0;
+    for (let i = pk; i > 0 && s[pk].t - s[i].t < 250; i--) {
+      let j = i - 1;
+      while (j > 0 && s[i].t - s[j].t < 60) j--;
+      const dx = s[i].x - s[j].x, dy = s[i].y - s[j].y, b = (dx * ux + dy * uy) / Math.max(40, s[i].t - s[j].t);
+      if (b > burst) { burst = b; bx = dx; by = dy; }
+    }
+    // its strength: the velocity into the peak, the burst, or the stroke's own average (a steady drag that eased off);
+    // its direction: the velocity's, or the burst's when that is the stronger reading
+    const avg = dur > 0 ? (run * H) / Math.max(40, dur) : 0;
+    const up = (Math.max(toward, 0.8 * burst, 0.9 * avg) * 1000) / H;
+    const [dx, dy] = 0.8 * burst > toward ? [bx, by] : [vx, vy];
+    const e = Math.atan2(-dx * uy + dy * ux, dx * ux + dy * uy);
+    // A clear stroke toward the bin (6% of the screen or more, fairly straight, within ~40° of the line) is a throw
+    // however slowly it was made, a crawl included (it gets a gentle throw's strength at least), and the hand may stop
+    // for up to 400 ms before letting go: careful hands stop, then let go. Anything else needs a move toward the bin of
+    // 0.09 screens a second and 1.8% of the screen, let go within 160 ms of it.
+    const clear = run >= 0.06 && run * H >= 0.7 * path && Math.abs(e) < 0.7;
+    const flick = settled && run >= 0.018 && Math.abs(e) < 1.4 && (clear ? still <= 400 && up >= 0.04 : still <= 160 && up >= 0.09);
+    // else a fling: hard, any way but down the screen, read at the release itself, over the path since the last pause
+    // (at most 250 ms of it); its strength is its whole speed (it isn't toward the bin, but it is hard)
+    let len = 0;
+    for (let i = k; i > 0 && s[k].t - s[i].t < 250; i--) {
+      len += Math.hypot(s[i].x - s[i - 1].x, s[i].y - s[i - 1].y) / H;
+      if (s[i].t - s[i - 1].t > 160) break;
+    }
+    const [fx, fy] = vel(k), speed = Math.hypot(fx, fy), sps = (speed * 1000) / H; // screen heights per second
+    const fling = !flick && still <= 160 && sps >= 1 && len >= 0.05 && fy < 0.25 * speed;
+    const fe = Math.atan2(-fx * uy + fy * ux, fx * ux + fy * uy); // the fling's angle off the line to the bin
+    grab.read = { up: +up.toFixed(3), e: +(fling ? fe : e).toFixed(3), run: +run.toFixed(4), settle: Math.round(settle), still: Math.round(still), clear, len: +len.toFixed(4), speed: +sps.toFixed(3), flick, fling }; // for ?debug
+    if (flick) return { up: clear ? Math.max(up, 0.25) : up, e, run };
+    if (!fling) return null;
+    return { up: Math.max((Math.max(0, fx * ux + fy * uy) * 1000) / H, 0.8 * sps), e: fe, run };
+  }
+
+  // Aim assist, from the first throw. The flick says roughly where (e) and how hard (up); that raw throw's landing spot
+  // is pulled toward the bin's mouth, then thrown as a lob from wherever the paper is (a harder flick, a higher lob).
+  // Within ~60° of the line to the bin the direction gets almost all the help (the help fades out by ~80°: a flick
+  // 30-40° off vertical reads wider than it is, as the paper trails the pointer and the line runs from the paper); a
+  // stroke of 4% of the screen or more gets almost all the help on strength. So a roughly upward flick of almost any
+  // speed drops in, and a sideways fling (~90°) or a feeble twitch can still miss. Each miss adds a little more help
+  // (on top of the drift toward the opening in physics()).
+  function launch({ up, e, run }) {
+    const p0 = ball.p, dx = MOUTH.x - p0.x, dz = MOUTH.z - p0.z, D = Math.hypot(dx, dz) || 1, hx = dx / D, hz = dz / D;
+    const ss = THREE.MathUtils.smoothstep, more = Math.min(3, misses) * 0.02;
+    const qDir = 1 - ss(Math.abs(e), 1.05, 1.4), qLen = ss(run, 0.01, 0.04);
+    const aDir = Math.min(0.97, 0.92 * qDir + more), aStr = Math.min(0.97, 0.92 * qLen * (0.3 + 0.7 * qDir) + more);
+    const yaw = THREE.MathUtils.clamp(e * 0.75 * (1 - aDir), -1.6, 1.6); // + to the right, as seen from the camera
+    const r = Math.pow(THREE.MathUtils.clamp(Math.sqrt(up / 1.1), 0.12, 2.4), 1 - aStr); // range, 1 = the mouth
+    const lx = p0.x + D * r * (hx * Math.cos(yaw) - hz * Math.sin(yaw)), lz = p0.z + D * r * (hz * Math.cos(yaw) + hx * Math.sin(yaw));
+    // the lob's top: higher for a harder flick, lower for a weak one, and lower from up high; then lowered (in 4 cm
+    // steps, down to 12 cm over the mouth) until the whole arc stays on screen, the paper's centre at least 1.5 of its
+    // radii under the screen's top edge
+    const lift = (0.42 + 0.3 * ss(up, 0.4, 3)) * Math.min(1, 0.35 + 0.65 * r) - 0.6 * Math.max(0, p0.y - START.y);
+    const low = Math.max(p0.y, MOUTH.y) + 0.12;
+    let top = Math.max(low, Math.max(p0.y, MOUTH.y) + lift);
+    const flight = (top) => { const vy = Math.sqrt(2 * G * (top - p0.y)); return [vy, vy / G + Math.sqrt((2 * (top - MOUTH.y)) / G)]; };
+    const sky = canvas.getBoundingClientRect().top;
+    for (let n = 0; n < 20 && top > low; n++) {
+      const [vy, T] = flight(top);
+      let peak = Infinity;
+      for (let i = 1; i <= 12; i++) {
+        const t = (T * i) / 12;
+        arc.set(p0.x + ((lx - p0.x) * t) / T, p0.y + vy * t - (G * t * t) / 2, p0.z + ((lz - p0.z) * t) / T);
+        peak = Math.min(peak, toScreen(arc).y - 1.5 * paperPx(arc));
+      }
+      if (peak >= sky) break;
+      top = Math.max(low, top - 0.04);
+    }
+    const [vy, T] = flight(top);
+    return [(lx - p0.x) / T, vy, (lz - p0.z) / T];
+  }
+
+  // Pick it up: pressed on the paper, it stays where it was gripped; pressed anywhere else, it comes to the pointer.
+  // Caught while it drops, it keeps its motion and the spring takes over.
+  function pickUp(e) {
+    grab.id = e.pointerId;
+    grab.samples = [{ x: e.clientX, y: e.clientY, t: e.timeStamp }];
+    if (!ball.drop) ball.hv.set(0, 0, 0);
+    ball.p.copy(paper.position); // where it is drawn, bob and all: nothing jumps
+    ball.held = true; ball.drop = false; ball.t = ball.rest = 0;
+    const q = toScreen(ball.p);
+    grab.ox = q.x - e.clientX; grab.oy = q.y - e.clientY;
+    if (Math.hypot(grab.ox, grab.oy) > 1.6 * paperPx(ball.p)) grab.ox = grab.oy = 0;
+    holdAt(e.clientX, e.clientY, grab.to);
+    grab.pop = 0;
+    stage.classList.add('held');
+    hintBox.style.opacity = 0;
+    sfx.any(CRINKLES, { gain: 0.3, rate: 1.15 });
+  }
+  function letGo(e, canThrow) {
+    if (grab.id === null || e.pointerId !== grab.id) return;
+    grab.id = null; ball.held = false;
+    stage.classList.remove('held');
+    const last = grab.samples[grab.samples.length - 1];
+    if (canThrow && (e.clientX !== last.x || e.clientY !== last.y)) grab.samples.push({ x: e.clientX, y: e.clientY, t: e.timeStamp });
+    const f = canThrow ? readFlick(e.timeStamp) : null;
+    if (f) { throwBall(...launch(f)); return; }
+    // no flick: it drops, with a little of the hand's motion (a paper still racing to the pointer doesn't shoot off).
+    // Not a miss, just a nudge.
+    ball.hv.clampLength(0, 1.2);
+    ball.drop = true; ball.t = ball.rest = 0;
+    hint.textContent = 'Flick it up. Let go.';
+    hintBox.style.opacity = 1;
+  }
   canvas.addEventListener('pointerdown', (e) => {
     audio();
-    if (ball.flying || done) return;
-    dragging = true; samples = [{ x: e.clientX, y: e.clientY, t: e.timeStamp }];
-    canvas.setPointerCapture?.(e.pointerId);
+    if (grab.id !== null || !e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    if (ball.flying || ball.in || ball.out || done) return;
+    try { canvas.setPointerCapture(e.pointerId); } catch (err) {} // drags that leave the canvas still count
+    pickUp(e);
   });
   canvas.addEventListener('pointermove', (e) => {
-    if (!dragging) return;
-    samples.push({ x: e.clientX, y: e.clientY, t: e.timeStamp });
-    if (samples.length > 12) samples.shift();
+    if (e.pointerId !== grab.id) return;
+    // every sample the browser merged into this event, for the flick (a fast mouse sends more than one per frame)
+    const evs = e.getCoalescedEvents?.() ?? [];
+    for (const c of evs.length ? evs : [e]) grab.samples.push({ x: c.clientX, y: c.clientY, t: c.timeStamp || e.timeStamp });
+    // the last 1.5 s (a slow, careful stroke can take a second; a 1000 Hz mouse sends ~1500 samples in that time, and
+    // the count cap is only a guard)
+    const s = grab.samples;
+    let cut = 0;
+    while (s.length - cut > 2000 || (s.length - cut > 2 && s[s.length - 1].t - s[cut].t > 1500)) cut++;
+    if (cut) s.splice(0, cut);
+    holdAt(e.clientX, e.clientY, grab.to);
   });
-  const release = (e) => {
-    if (!dragging) return;
-    dragging = false;
-    samples.push({ x: e.clientX, y: e.clientY, t: e.timeStamp });
-    const end = samples[samples.length - 1];
-    const first = samples.find((s) => end.t - s.t < 110) ?? samples[0];
-    const ms = Math.max(16, end.t - first.t), H = window.innerHeight;
-    const up = ((first.y - end.y) / ms) * 1000 / H; // screens per second, swiping up
-    const side = ((end.x - first.x) / ms) * 1000 / H;
-    if (up < 0.6) return;
-    const vz = THREE.MathUtils.clamp(up * 1.0, 1.4, 6.5);
-    throwBall(THREE.MathUtils.clamp(side * 0.55, -2.5, 2.5), vz * 1.0, -vz);
+  canvas.addEventListener('pointerup', (e) => letGo(e, true));
+  canvas.addEventListener('pointercancel', (e) => letGo(e, false));
+  canvas.addEventListener('lostpointercapture', (e) => letGo(e, false));
+  // Enter / Space: the perfect throw (from rest exactly the dev tools' one; from anywhere else the ideal lob)
+  const onKey = (e) => {
+    if ((e.key !== 'Enter' && e.key !== ' ') || document.activeElement === skipBtn) return;
+    e.preventDefault(); audio();
+    if (!ball.held && !ball.drop && ball.p.equals(START)) throwBall(0, 3.35, -3.35);
+    else throwBall(...launch({ up: 1.1, e: 0, run: 1 }));
   };
-  canvas.addEventListener('pointerup', release);
-  canvas.addEventListener('pointercancel', () => { dragging = false; });
-  const onKey = (e) => { if ((e.key === 'Enter' || e.key === ' ') && document.activeElement !== skipBtn) { e.preventDefault(); audio(); throwBall(0, 3.35, -3.35); } };
   window.addEventListener('keydown', onKey);
 
   // --- the show
@@ -433,14 +761,32 @@ async function start() {
     await tween(180, (t) => { pitch.rotation.x = from + (0 - from) * t; }, easeIn); if (aborted) return;
     sfx.play('lid-slam'); shake = 0.06;
     monster.position.y = 0; monster.visible = true; // under the shut lid now, its head just below the rim
+    if (gap) {
+      // The camera cranes up over the bin for the tongue (from the throw camera the lid's top is a sliver): one slow,
+      // gentle move, eased in and out (a sine: no lurch), starting as the slammed lid settles, so it is well up (~25
+      // degrees) by the first roll-over above the lid and settled (32) as the tongue leaves the top; it holds while the
+      // tongue swoops down the front, licks the bottom, rests and slurps in, and the pan to the front starts from there
+      // the moment the lid has slammed.
+      phase = 'lick';
+      const c0 = { pos: cam.pos.clone(), target: cam.target.clone(), fov: cam.fov };
+      tween(1650, (k) => {
+        if (phase !== 'lick') return;
+        const b = view.lick();
+        cam.pos.lerpVectors(c0.pos, b.pos, k); cam.target.lerpVectors(c0.target, b.target, k); cam.fov = c0.fov + (b.fov - c0.fov) * k;
+      }, (t) => (1 - Math.cos(Math.PI * t)) / 2);
+    }
     await tween(120, (t) => { pitch.rotation.x = -0.07 * Math.sin(Math.PI * t); });
     await tween(90, (t) => { pitch.rotation.x = -0.022 * Math.sin(Math.PI * t); }); if (aborted) return;
     pitch.rotation.x = 0;
     if (gap) {
-      await wait(160); if (aborted) return;
-      // lid(p) lifts the front; roll(r) tips it toward the tongue's side (r > 0: the right side up, pivoting on the
-      // left edge; r < 0: the left side up, pivoting on the right edge). The last roll(0) leaves the pivot on the left,
-      // where the monster's tipped-lid pose expects it.
+      await wait(60); if (aborted) return;
+      // One quick take (~3 s): the tongue's base rides the gap round the lid's edge (out of the middle of the right
+      // side, round the front, to the left side, back round the front-left corner and on to the middle of the front)
+      // while it licks the top and rolls over above it twice, then rises off it and swoops down the front in one arc,
+      // turning round as it goes, licks the bottom, rests, slurps in, and the lid slams. lid(p) lifts the front;
+      // roll(r) tips the lid toward the tongue's side (r > 0: the right side up, pivoting on the left edge; r < 0: the
+      // left side up, pivoting on the right edge). The last roll(0) leaves the pivot on the left, where the monster's
+      // tipped-lid pose expects it.
       await t.lick({
         lid: (p) => { pitch.rotation.x = p; },
         roll: (r) => { const px = r < 0 ? 0.51 : -0.51; roll.position.x = px; lidMesh.position.x = -px; roll.rotation.z = r; },
@@ -448,29 +794,28 @@ async function start() {
       pitch.rotation.x = 0; roll.rotation.z = 0; roll.position.x = -0.51; lidMesh.position.x = 0.51;
       if (aborted) return;
     }
-    await wait(300); if (aborted) return;
+    // The owner wants this stretch quick, with no real pauses: every beat starts as the last one ends.
     // Round to the front.
     phase = 'pan';
     const a = { pos: cam.pos.clone(), target: cam.target.clone(), fov: cam.fov };
-    await tween(1300, (t) => {
+    await tween(750, (t) => {
       const b = view.front();
       cam.pos.lerpVectors(a.pos, b.pos, t); cam.target.lerpVectors(a.target, b.target, t); cam.fov = a.fov + (b.fov - a.fov) * t;
     }, easeInOut); if (aborted) return;
     phase = 'front';
-    await wait(350); if (aborted) return;
-    // Something inside loses it: one long fit that builds and goes crazy. The bin rocks from wheel to wheel, hops off
-    // the ground, the lid clatters as the thing slams it from below; one last bang and it all drops still.
-    await shakeFit(1800); if (aborted) return;
-    await wait(500); if (aborted) return;
+    // Something inside loses it: one short fit that builds and goes crazy. The bin rocks hard from wheel to wheel,
+    // barely leaving the ground, the lid clatters as the thing slams it from below; one last bang and it all drops still.
+    await shakeFit(950); if (aborted) return;
+    await wait(80); if (aborted) return;
     // It rises, lifting the lid on its head, tipped up on the right like the logo; the eyes open in the dark.
-    sfx.play('growl', { gain: 0.9, delay: 0.55, vary: 0.02 });
+    sfx.play('growl', { gain: 0.9, delay: 0.3, vary: 0.02 });
     // SBHMN slams into the bin, letter by letter, from the camera's side, while the teeth are coming down.
     let lettersP = null;
     const slamLetters = async () => {
       for (let k = 0; k < letters.length; k++) { slam(letters[k]); await wait(k === letters.length - 1 ? 260 : 165); if (aborted) return; }
     };
-    await tween(1900, (t, raw) => {
-      if (!lettersP && raw >= 0.5) lettersP = slamLetters();
+    await tween(1250, (t, raw) => {
+      if (!lettersP && raw >= 0.4) lettersP = slamLetters();
       const e = easeOut(t);
       monster.position.y = 0.095 * e + Math.sin(raw * 40) * 0.002 * (1 - raw);
       monster.rotation.z = 0.05 * e;
@@ -482,18 +827,19 @@ async function start() {
       const f = THREE.MathUtils.clamp((raw - 0.45) / 0.3, 0, 1);
       for (const fang of fangs) { fang.visible = f > 0; fang.scale.y = Math.max(0.001, backOut(f)); }
     }); if (aborted) return;
-    await wait(250);
     await tween(170, (t) => { eyeL.scale.y = eyeR.scale.y = 1 - 0.92 * Math.sin(Math.PI * t); }); if (aborted) return;
     await (lettersP ?? slamLetters()); if (aborted) return;
-    await wait(650); if (aborted) return;
+    await wait(220); if (aborted) return;
     await spit();
   }
 
   // The fit: an envelope that builds (0 -> 1 over ~70%), peaks, then a final slam at ~86% and a quick settle.
-  // Rocking pivots on the wheel that stays down (the other side lifts), plus hops, a forward/back tilt, the lid
-  // clattering on the monster's head, and thumps on a quickening beat.
+  // Rocking pivots on the wheel that stays down (the other side lifts a little), plus small kicks off the floor (the
+  // owner: it shouldn't come up high), a forward/back tilt, the lid clattering on the monster's head, and thumps on a
+  // quickening beat.
   async function shakeFit(ms) {
-    sfx.play('shake', { gain: 0.95, vary: 0.02 }); // the recording runs the whole fit; the final bang is its own
+    // the recording is longer than the fit: it is faded out under the final bang
+    const rattle = sfx.play('shake', { gain: 0.95, vary: 0.02 });
     let nextHit = 0, phase = 0, hop = 0, hopV = 0, prevRaw = 0, banged = false;
     const W = 0.47; // half the wheelbase: the pivot when one side lifts
     await tween(ms, (t, raw) => {
@@ -501,7 +847,7 @@ async function start() {
       const build = Math.min(1, raw / 0.6), env = raw < 0.86 ? 0.25 + 0.75 * build * build : Math.max(0, 1 - (raw - 0.86) / 0.14);
       // rocking: frequency rises from ~6 to ~13 Hz, amplitude follows the envelope, a little noise
       phase += dtl * Math.PI * 2 * (6 + 7 * build);
-      const rock = Math.sin(phase) * 0.13 * env + (Math.random() - 0.5) * 0.02 * env;
+      const rock = Math.sin(phase) * 0.075 * env + (Math.random() - 0.5) * 0.02 * env;
       // hops: kicked from inside on each hit, gravity brings it down hard
       hopV -= 9.8 * dtl; hop = Math.max(0, hop + hopV * dtl); if (hop === 0 && hopV < 0) hopV = 0;
       bin.rotation.z = rock;
@@ -516,10 +862,10 @@ async function start() {
       pitch.rotation.x = lift(bang);
       shake = Math.max(shake, 0.026 * env);
       if (raw >= nextHit && raw < 0.86) {
-        hopV = Math.max(hopV, (0.3 + 1.25 * build) * (Math.random() < 0.6 ? 1 : 0.45));
-        nextHit = raw + (0.11 - 0.06 * build) + Math.random() * 0.03;
+        hopV = Math.max(hopV, (0.1 + 0.32 * build) * (Math.random() < 0.6 ? 1 : 0.45));
+        nextHit = raw + (0.13 - 0.06 * build) + Math.random() * 0.03;
       }
-      if (raw >= 0.86 && !banged) { banged = true; nextHit = 1; sfx.play('bang'); shake = 0.05; hopV = 0; }
+      if (raw >= 0.86 && !banged) { banged = true; nextHit = 1; rattle?.stop(90); sfx.play('bang'); shake = 0.05; hopV = 0; }
     });
     bin.rotation.set(0, 0, 0); bin.position.set(0, 0, 0); monster.position.y = 0; pitch.rotation.x = 0;
   }
@@ -617,8 +963,10 @@ async function start() {
     const advance = async (s) => { for (let i = 0; i < s * 60 && !aborted; i++) { tick(1 / 60); await Promise.resolve(); } };
     // sfxLog: every sound played, [scene seconds, name], to check the timeline without ears
     const sfxLog = [], play0 = sfx.play.bind(sfx);
-    sfx.play = (n, o) => { sfxLog.push([+(clock / 1000).toFixed(2), n]); play0(n, o); };
-    window.__intro = { ball, pitch, roll, cam, monster, eyeL, eyeR, letters, fangs, throwBall, advance, sfx, audio, sfxLog, get tongue() { return tongue; }, get sheet() { return sheet; }, get drips() { return drips; }, get misses() { return misses; }, get done() { return done; }, get clock() { return clock; } };
+    sfx.play = (n, o) => { sfxLog.push([+(clock / 1000).toFixed(2), n]); return play0(n, o); };
+    // paperAt(): where the paper is on screen (client px), for driving the throw with a real pointer; grab.read: how
+    // the last release was read
+    window.__intro = { ball, grab, pitch, roll, cam, monster, eyeL, eyeR, letters, fangs, throwBall, paperAt: () => toScreen(paper.position), advance, sfx, audio, sfxLog, get tongue() { return tongue; }, get sheet() { return sheet; }, get drips() { return drips; }, get misses() { return misses; }, get done() { return done; }, get clock() { return clock; } };
   }
 }
 

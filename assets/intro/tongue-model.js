@@ -2,49 +2,91 @@
 // groove down the middle (assets/3d/tongue-model.glb, built by dev/models/tongue-rig.py from the owner's FBX: relaxed
 // out of its S-twist into a gently curved, left-right symmetric rest pose, a stalk added at the root, skinned to a
 // chain of 17 short bones, with twin bones along the front that cup the tip).
-// The lid has slammed shut on the paper. Then, as the owner asked (times at speed 1, after lick()):
-//   0.00  a beat: the lid shut, nothing.
-//   0.25  POP: the lid's front lifts a crack at the RIGHT end (shoved from inside near the right front corner; the
-//         lid tips up on that side). The tongue SLIDES OUT SLOWLY from there, flattened through the gap (toothpaste),
-//         its tip feeling the air, and rears up in front of the lid, its top (the groove, the taste buds) to the camera.
-//  1.1-1.18  it flops back over the lid's front edge onto the LID'S TOP (a slap), lying on it.
-//  1.25-2.3  LICKS THE TOP: a long greedy stroke, reaching back over the raised panel and sweeping across the lid to
-//         the left, the tip curling up at the end; it lifts, rears, swings back and slaps down again (1.9), and drags
-//         across the lid to the left, all of it dragged along the gap (the lid rocks over from its right to its left).
-//  2.3-2.8  goes to the LEFT side of the bin: the tip goes over the lid's left edge (a slap, 2.52) and, stretched long
-//         and thin, licks down the bin's left side, lying on it.
-//  2.8-3.22  ROTATES: it peels off the lid and rears up at the left, its top to you, then rolls over forward like a
-//         breaking wave (3.0), twisting, its underside coming round to face you, and slaps down onto the bin's front
-//         (3.22): now its top is on the bin (licking) and its underside shows.
-//  3.25-3.6  LICKS THE BOTTOM: hanging down the front, its tip on the base, it swings across it, flicking off at the
-//         end of each stroke.
-//  3.6-3.95  stops around the MIDDLE: it drags up and hangs on the middle of the front, a beat; the tip twitches.
-//  3.95   SLURPS back in through the gap, squeezed flat, the lid BUMPING on it; the lid is flung up and SLAMS shut
-//         (4.27, a hard clap) and bounces once. The promise resolves at 4.32.
-// It is wet and heavy: wherever it licks it lies on the surface (the lid's top, the bin's left side, the front and the
-// base), sliding over it and draped over the edges; never floating off it, never sinking in. That comes from rails:
-// for those beats the keys don't bend the joints, they say where on the bin it lies (how far it is out, where it comes
-// out along the gap, which way it heads across the lid or down the front) and the chain is laid along a line that lies
-// on the surfaces, a ball as thick as the tongue rolled over the bin's and the lid's outline (see the rails below).
-// Flattened a little where it lies, and folded over an edge it is pressed flatter at the fold: the sculpt's thick
-// root, doubled over, would otherwise split open into two lobes along its groove (which is also filled a little, see
-// aFill).
-// The LID RIDES ON IT: a hinged plate with weight, not keyframed: the tongue holds its front edge up where it comes
-// out (~0.07, a crack); on every slap and stroke it jolts up in the gap and throws the lid, which flies, falls back and
-// knocks on it. Pushed up near a front corner, the lid tips toward that corner (when the intro passes roll, see
-// lick()), so as the tongue drags from the right end of the gap to the left the lid rocks over. The tongue never goes
-// through the lid, the rim or the bin (in the gap a vertex clamp in the shader makes it exact; out of it the rails lie
-// on them, and test points along the bones are kept off them: in the air by turning the rest of the chain away at a
-// joint a little way back, on a rail only a real dip in, locally. The chain keeps its lengths either way, so the
+// The gap between the shut lid and the rim runs all round the lid's edge: it is a TRACK, and the tongue's base rides
+// it like a carriage (see TRK_SIDE). The lid has slammed shut on the paper. Then, as the owner asked, ONE quick, smooth
+// take of 3 seconds (times at speed 1, after lick(); every move eased, no beat so short it reads as a glitch; the intro
+// cranes its camera up over the bin meanwhile, so the lid's top reads):
+//   0.04  POP: the lid's whole RIGHT edge pops up (shoved from inside at the middle of the right side; the lid tips up
+//         about its left edge). The tongue slides out of the middle of the right side, flattened through the gap, up
+//         the lid's edge and over onto its TOP, its front held up off it, feeling the air,
+//   0.30  and slaps down on it (a small splash): it lies on the top, its top up (the groove, the taste buds), licking,
+//         pressed out broad and flat (a bit wider there than anywhere else: 'wide').
+//  0.30-1.46  LICKS THE TOP, its base gliding along the track under it from the right side round the front to the left
+//         side and back round the front-left corner, the lid riding on it and rocking over as it goes (a roll on a side,
+//         a pitch at the front, a blend round a corner; lying on the top, its heading swings round a corner after its
+//         base, not with it). A ROLL-OVER above the lid (0.34-0.66), its base still at the middle of the right side,
+//         lying across the top to the left: its front peels up off the top (strings of spit stretching and snapping),
+//         hovers level above it and rolls over about its length in the air (its pink top turns to face you, then its
+//         underside comes up), rolls back as it falls and slaps back down like a weight, squashed flat and broad for an
+//         instant: a BIG SPLASH (0.66: milky drops of mixed sizes, many of them fat, thrown up well above the lid and
+//         raining back down onto it and the floor for half a second, and a fast fan of fine spray streaking wide; glossy
+//         wet spots left on the lid where they land and where it lay, a soft glint sliding over each as they dry; drool
+//         running down over its front edge, a fat bead at its foot that drips off, leaving a wet streak). A greedy wipe
+//         (0.66-1.0): its base glides round the front-right corner and along the front, its root drawn in narrow, its tip
+//         sweeping across the top like a windscreen wiper. A second ROLL-OVER (1.02-1.34) as its base comes to the LEFT
+//         side, lying across the top to the right, and another BIG SPLASH (1.34). Its base glides back round the
+//         front-left corner, a last stroke across the top's left part. Wherever it lies licking, it leaves the lid wet.
+//  1.46-1.93  ROTATES ROUND, in ONE swoop at the front's left end: its front peels up off the top and it rises off it
+//         over the lid's front edge, its face to you, turning round about its own length as it goes (its pink top, its
+//         edge, its underside; the root turning in the gap too, held open for it, squeezed narrow); at the top of the
+//         swoop (1.70, a little above the lid) it curls over to the left, over the lid's front-left corner, and swings on,
+//         down and round in front of the bin, turned top up,
+//  1.93-2.12  onto the bin's front: it hangs down it, its underside on it, its top out to you (the groove, the taste
+//         buds), licking it (a slap at 2.09),
+//  2.12-2.26  and LICKS THE BOTTOM: its tip down by the base, one sweep across the bottom of the bin's front as its base
+//         slides to the middle;
+//  2.30-2.45  it draws up and RESTS in the MIDDLE of the front, a short beat, the tip curling up and out toward you;
+//  2.45-2.82  it SLURPS back in through the gap in one steady pull, faster and faster, squeezed flat and narrow, the lid
+//         bumping on it; the tip vanishes at 2.82 (the slurp's wet smack), and the lid, let go, SLAMS shut (2.90),
+//         bounces once and lies still. The promise resolves at ~2.95.
+// It is short and fat, not a hose: at most 0.7 of it is ever out (0.77 would be all of it but the stalk; on the top a
+// good 0.2 of that is folded over the lid's edge), and it stretches a little to reach down the bin's front.
+// Which way up it is in the gap ('flip') changes once: licking the lid it comes out upside down, so laid over the
+// lid's edge and across its top it lies on its underside, its top up, to the camera (the lick reads as a tongue there,
+// not a red lump: it is most of the show); hanging down the bin's front it comes out top up, its underside on the bin,
+// its top out to you (the 'blep'). In between, in the swoop, in the air, it turns round about its length (the owner's
+// "rotate around"; its bends turned with it, so it keeps its curve as it turns), the turn in the gap squeezed to fit
+// (see squash). The swoop is out of the front, not a side: out of a side its faces turn edge-on to you as it rises.
+// It lies ACROSS the top as it rolls over (seen from the front, a tongue rolling about a length that points away from
+// you is a fin; rolling about one that runs across, its faces come round to you), and a roll-over rolls back flat as
+// it lands (a tongue whose root lies flat, rolled over a half turn and left so, stands up on its edge across the lid
+// like a wall).
+// It is wet and heavy: wherever it licks it lies on the surface (the lid's top, the bin's front), sliding over it and
+// draped over the edges; never floating off it, never sinking in. That comes from rails: for those beats the keys
+// don't bend the joints, they say where on the bin it lies (how far it is out, where its base is on the track, which
+// way it heads across the lid's top and how far it is peeled up off it, which way it goes down the front) and the
+// chain is laid along a line that lies on the surfaces, a ball as thick as the tongue rolled over the bin's and the
+// lid's outline (see the rails below). The bone in the gap is aimed along the rail too, so the chain laid on it is the
+// same whichever joint is in the gap: it slides through the gap evenly, no ratchet as each joint passes it. Flattened
+// a little where it lies; over the lid's edge it wraps it as tight as its own thickness lets it (its groove, filled a
+// little anyway, see aFill). Between the lid and the bin's front it is in the air: the free pose (bends keyed at the
+// joints), sprung on its own, so it is already where it is keyed as it hands over from a rail.
+// The LID RIDES ON IT: a hinged plate with weight, not keyframed: the tongue holds its edge up where it comes out
+// (~0.06); as it pops the lid, heaves its front up off the top, rises off it for the swoop and is slurped in, it jolts
+// up in the gap and throws the lid, which flies, falls back and knocks on it. Where the tongue is, the lid lifts (when the
+// intro passes roll, see lick()): out of a side, that whole side lifts (a roll about the far side's edge); out of the
+// front, the front edge (a pitch, tipping toward the nearer corner); round a corner, a blend; so as the base goes round,
+// the lid rocks over. The tongue never goes through the lid, the rim or the bin (in the gap a vertex clamp in the
+// shader makes it exact, wherever along the track it is; behind the gap, in the dark, it is kept under the lid's
+// underside however the lid is tipped; out of it the rails lie on them, and test points along the bones are kept off
+// them: in the air by turning the rest of the chain away at a joint a little way back, on a rail only a real dip in,
+// locally; its section taken as a superellipse, full at the corners, its width counting only where its edge really
+// meets a face (near a corner the face's plane runs on into the air). The chain keeps its lengths either way, so the
 // texture never stretches over an edge).
-// Animated here, not baked: in the air, keyframed bends at every joint chased by springs (the tip lags, whips and
-// overshoots); on a rail, laid along it, the tip's own curl, hook and wave still sprung on top. Each joint bends at
-// most so far that the bend stays wider than the tongue there (no edge folding through itself), and twists are spread
-// along its length (no candy-wrapping).
-// Spit squirts out of the gap beside the tongue, flies off the fast moves (milky beads; one that flies into the tongue
-// is gone), falls and splashes on the floor (a crown, a few droplets, a puddle that dries away) or lands on the lid (a
-// faint wet spot riding on it); strings of spit stretch across the gap as the lid pops and where the tongue peels off
-// the bin or the lid, and snap.
+// Animated here, not baked: in the air, keyframed bends at every joint chased by springs (the tip lags and follows
+// through, damped: no flutter, and damped harder while it turns round, so a bent tip can't swing to and fro; the lag
+// fades out toward the gap); on a rail, laid along it, the tip's own curl, hook and wave still sprung on top. It turns
+// about its length (roll, twist, ttw, spin: on the top a roll-over spins its front over; flip, in the gap), and a twist
+// lying on a rail is built into the rail's frames (eased along the bones and between the rail's points, so the line it
+// lies on never jumps), so it never lifts it off its line. Each joint bends
+// at most so far that the bend stays wider than the tongue there (no edge folding through itself), and twists are
+// spread along its length (no candy-wrapping). Every number is keyed, sampled and smoothed (see buildTracks), so
+// nothing has a corner: only a slap lands hard.
+// Spit squirts out of the gap beside the tongue, flies off the fast moves (milky beads, streaking as they fly; one that
+// flies into the tongue is gone), falls and splashes on the floor (a crown, a few droplets, a puddle that dries away)
+// or lands on the lid (a glossy wet spot riding on it); strings of spit stretch across the gap as the lid pops and from
+// its face to the lid as it peels up, and snap; drool runs down over the lid's front edge, a fat bead at its foot that
+// drips off, leaving a wet streak that dries away.
 //
 //   import { createTongue } from '/assets/intro/tongue-model.js';
 //   const tongue = createTongue(THREE, { fxParent: scene });  // returns at once; its model (~0.37 MB) loads behind
@@ -58,23 +100,24 @@
 //   await tongue.lick({
 //     lid: (p) => { pitch.rotation.x = p; },
 //     roll: (r) => { const px = r < 0 ? 0.51 : -0.51; roll.position.x = px; lidMesh.position.x = -px; roll.rotation.z = r; },
-//   });                                         // 4.32 s at speed 1 (don't open the lid yourself)
+//   });                                         // ~2.95 s at speed 1 (don't open the lid yourself)
 //   // the lid is shut again (the last lid() call was exactly 0, and the last roll() 0: its pivot back on the left
 //   // edge): carry on
 // `const tongue = await createTongue(...)` works too (it is not a promise; await just hands it back).
 //
 // Coordinates: bin units (1 unit ~ the bin's height). object3d's origin is the centre of the opening on the rim
 // plane, +y up, +z toward the front (the camera), +x the viewer's right. The floor is at local y = -rimY. The lid (as
-// in assets/3d/bin.glb): hinged at (0, 0, -0.5) here, 1.0 deep, 1.02 wide, its front edge flush with the rim's front
-// (z = 0.5); pitch 0 = shut, < 0 = open (rotation.x of a group at the hinge); its front edge is then lifted by
-// sin(-pitch). The tongue lives in the bin under the lid (drawn sinking into the dark there; the hidden part runs down
-// the inside of the front wall and back along the bottom, narrow, within the intro's black monster block) and comes out
-// only through the gap at the front, anywhere along it (it slides along it: from x 0.3 to -0.28 and back to the
-// middle), straight or at a slant. It reaches (measured every 1/30 s) 0.70 above the rim (rearing up), 0.57 in front of
-// the rim (z up to 1.07, rolling over), down the bin's front to the floor (the tip on the base), and 0.67 to the left
-// (0.12 past the rim's side, down the bin's side); mirrored, to the right. Hidden until lick(); hidden again when it
-// resolves.
-// It is staged for the throw camera (and the throw camera backed off on a portrait phone, where it still reads).
+// in assets/3d/bin.glb): hinged at (0, 0, -0.5) here, 1.0 deep, 1.02 wide (its sides at x = +-0.51), its front edge
+// flush with the rim's front (z = 0.5), its front corners cut; pitch 0 = shut, < 0 = open (rotation.x of a group at the
+// hinge); its front edge is then lifted by sin(-pitch). The tongue lives in the bin under the lid (drawn sinking into
+// the dark there; the hidden part runs in from wherever it comes out, between straight in and toward the bin's
+// middle, down the inside of that wall and back along the bottom, narrow, within the intro's black monster block) and
+// comes out only through the gap, anywhere along the track: out of the right side, the front or the left side
+// (sideways out of a side, at a diagonal round a corner), straight or at a slant. It reaches (measured every 1/60 s)
+// ~0.6 above the rim (its front lifted, rolling over, and at the top of the swoop), ~0.09 past the rim's left and
+// right sides, ~0.53 in front of the rim (swooping down in front of the bin), and down the bin's front to just above
+// the base (0.55 below the rim); mirrored, the other way round.
+// Hidden until lick(); hidden again when it resolves.
 //
 // createTongue(THREE, opts):
 //   url      '/assets/3d/tongue-model.glb'
@@ -89,56 +132,54 @@
 //                              time) for it, then gives up (the promise resolves, nothing shows, lid() is never called)
 //   onCue    (name, info) => {} for sounds. Times in seconds after lick() at speed 1 (measured at 60 fps, +-1 frame; at
 //                              speed s divide by s):
-//                              'pop'      0.27             the lid's right front corner is shoved up from inside (a thunk)
-//                              'squeeze'  0.30             the tongue starts to squeeze out through the gap (a squelch)
-//                              'slap'     { strength } it lands on something: 1.18 (0.7: on the lid's top), 1.90 (0.6:
-//                                                      down on the lid again), 2.52 (0.4: over the lid's left edge,
-//                                                      onto the bin's left side), 3.22 (1: onto the bin's front, after
-//                                                      it rolls over)
-//                              'lick'     { strength } a stroke: 1.25 (0.8: across the lid's top, over the panel),
-//                                                      1.97 (1: dragged across the top to the left), 2.42 (0.7: on to
-//                                                      the left), 2.63 (0.6: down the left side), 3.30 (0.9), 3.43
-//                                                      (0.8) and 3.57 (0.6: across the bottom of the front)
-//                              'roll'     3.00             reared up at the left, it rolls over toward you
-//                              'flick'    3.80             the tip twitches (resting in the middle)
-//                              'slurp'    3.97             sucked back in through the gap
-//                              'clap'     { strength } the lid lands on the rim: 4.27 (1: it slams shut) and once more
-//                                                      after its bounce, 4.32 (0.42)
-//                              'rattle'   { strength } the lid knocks on the tongue: thrown up and landing back on it,
-//                                                      or tipping over from one corner to the other: 0.43 (0.51), 0.95
-//                                                      (0.31), 1.32 (0.56), 1.48 (0.26), 1.77 (0.40), 2.05 (0.62), 2.62
-//                                                      (0.43), 2.77 (0.32), 3.10 (0.75), 3.38 (0.64), 3.55 (0.37), 3.87
-//                                                      (0.27), 4.08 (0.39: the bump as it is slurped in) (weaker ones,
-//                                                      < 0.25, and any within 0.1 s of the last, are not sent)
-//                              'snap'                  a string of spit breaks (~8 a lick: 0.28, 0.83, 1.33, 1.55, 2.10,
-//                                                      2.82, 3.23, 3.53; at most one per 0.12 s)
+//                              'pop'      0.05             the lid's right side is shoved up from inside (a thunk)
+//                              'squeeze'  0.08             the tongue squeezes out through the gap (a squelch)
+//                              'slap'     { strength } it lands on something, lightly: 0.30 (0.6: onto the lid's top),
+//                                                      2.10 (0.8: onto the bin's front, after the swoop)
+//                              'splash'   { strength } it slaps back down on the top after a roll-over, hard, spit
+//                                                      flying: 0.67 (1), 1.35 (1)
+//                              'lick'     { strength } a stroke: across the top 0.38 (0.7), 0.77 (0.6); across the
+//                                                      bottom 2.17 (0.9)
+//                              'goo'                   its front peels up off the top, strings of spit stretching:
+//                                                      0.38, 1.07, 1.47
+//                              'flick'    1.72, 2.37   it turns round (at the top of the swoop); the tip curls (resting)
+//                              'slurp'    { in } 2.47  sucked back in through the gap; in: seconds (at the lick's
+//                                                      speed) until the tip vanishes (0.35 at speed 1: put a clip's
+//                                                      smack there)
+//                              'clap'     { strength } the lid lands on the rim: 2.90 (1: it slams shut) and once more
+//                                                      after its bounce, 2.95 (0.35)
+//                              'rattle'   { strength } the lid knocks back down on the tongue after a jolt threw it up:
+//                                                      0.23 (0.47), 0.50 (0.37), 1.17 (0.37), 2.73 (0.34)
+//                                                      (only real knocks: weaker ones, < 0.3, and any within 0.22 s of
+//                                                      the last or 60 ms of the pop, are not sent)
+//                              'snap'                  a string of spit breaks (~6 a lick; at most one per 0.12 s)
 //                              'splat'    { x, y, z, size } (fx space) a drop lands; at most one per 60 ms
 //                              Errors thrown by the hook are swallowed.
 // returns {
 //   object3d                   the tongue (and, by default, the drips)
-//   fx                         the group holding the drops, crowns, puddles and strings
+//   fx                         the group holding the drops, crowns, puddles, wet spots and strings
 //   ready                      a promise: resolves (to this object) when the model has arrived, rejects if it can't
 //                              load (then lick() resolves at once and nothing shows; the procedural tongue is the
 //                              fallback)
 //   lick({ lid, roll, speed = 1, mirror = false, mode = 'gap' }) => Promise
 //                              lid: (pitch) => {}: called every update() while it licks (from the first one), with the
-//                              lid pitch it wants (radians, <= 0, 0 = shut; -0.17 at most, the front edge up 0.17):
-//                              set the real lid's pitch group's rotation.x to it (the intro must not open the lid
-//                              itself). It starts at 0 (call lick() with the lid shut and settled; the first 0.22 s it
-//                              holds it at 0, the beat) and the last call is exactly 0. Optional: without it, read
-//                              tongue.lidPitch.
+//                              lid pitch it wants (radians, <= 0, 0 = shut; about -0.11 at most, the front edge up
+//                              0.11): set the real lid's pitch group's rotation.x to it (the intro must not open the
+//                              lid itself). It starts at 0 (call lick() with the lid shut and settled) and the last call
+//                              is exactly 0. Optional: without it, read tongue.lidPitch.
 //                              roll: (r) => {} (optional): called right after lid(), with the lid's roll (radians,
-//                              -0.10 .. +0.09): r > 0 tips its RIGHT side up about its LEFT edge (x = -0.51), r < 0
+//                              about -0.08 .. +0.1): r > 0 tips its RIGHT side up about its LEFT edge (x = -0.51), r < 0
 //                              its LEFT side up about its RIGHT edge (x = +0.51); rotation.z of a group inside the
 //                              pitch group, pivoting on that edge (the snippet above). The last call is exactly 0.
-//                              Without it the lid is not tipped: its whole front lifts as one, a crack all along (the
-//                              tongue plays the same: it lies on the lid as it really is, and is kept out of it). Pass
-//                              it to see the crack open at the right and the lid rock over to the left as the tongue
-//                              drags across. Or read tongue.lidRoll.
-//                              speed: playback rate. mirror: left and right swapped (exact; the roll too).
+//                              Without it the lid is not tipped: wherever the tongue comes out, the whole lid hinges up
+//                              to lift its edge there (the tongue plays the same: it lies on the lid as it really is,
+//                              and is kept out of it). Pass it to see the right side pop up first and the lid rock
+//                              round with the tongue. Or read tongue.lidRoll.
+//                              speed: playback rate. mirror: left and right swapped (exact; the roll too: it comes out
+//                              of the left side and goes round to the right).
 //                              mode: 'gap' (the only staging; anything else is treated as 'gap'). Called while busy:
 //                              returns the running lick's promise. Resolves once the lid has slammed shut and settled
-//                              (4.32 s at speed 1).
+//                              (~2.95 s at speed 1).
 //   lidPitch, lidRoll          (getters) the lid pitch / roll it wants now (0 when idle; lidRoll stays 0 unless lick()
 //                              got roll)
 //   update(dt)                 dt clamped to 0.05; frame-rate independent (springs and the lid stepped at 240 Hz)
@@ -148,7 +189,7 @@
 //                              silently (no cues, no lid() calls, state restored). Called before the model has arrived,
 //                              it is done in the first update() after it arrives (so `await tongue.ready` first if you
 //                              want it done during setup). Without it the tongue's first frame stalls (~270 ms in
-//                              headless Edge; with it, the worst frame of the lick is under 1 ms).
+//                              headless Edge; with it, the worst frame of the lick is ~1 ms).
 //   stop()                     for a Skip button: the tongue goes, every drip goes, lid(0) (and roll(0)) is called
 //                              once (the lid shut) and the running lick's promise resolves
 //   dispose()                  stop() + removes object3d and fx from their parents and frees its GPU resources
@@ -158,134 +199,228 @@
 // Where the drips live: they are simulated in fx's local space, which matches object3d's at the start of each lick.
 // By default fx is a child of object3d. If the intro moves the bin afterwards (rattle) while puddles are still drying
 // (up to ~2.2 s), pass opts.fxParent = scene: fx is then added to the scene and placed at object3d's world transform at
-// each lick() start, and the drips stay put when the bin moves. Spit on the lid rides on it as lid() says while the
-// lick runs and dries within 1.2 s (it does not follow the lid if the intro moves it afterwards).
+// each lick() start, and the drips stay put when the bin moves. The wet spots on the lid ride on it as lid() says while
+// the lick runs; once it resolves they dry up within 0.45 s and no new ones are made (they would not follow the lid if
+// the intro moved it afterwards).
 // Budget: one skinned mesh (10.6k vertices, 17.6k triangles, 33 bones; skinning on the GPU), one draw call each for
-// drops, crowns, puddles and strings (a small unlit liquid shader) + the shadow pass for the tongue and the drops.
-// Per frame on the CPU: ~0.1 ms, at most ~0.4 ms (headless Edge: the rails, 17 joints on springs, the lid, the
-// collisions, 33 bone matrices, up to 56 drops, each tested against the tongue).
+// drops, crowns, puddles, wet spots and strings (a small unlit liquid shader) + the shadow pass for the tongue and the
+// drops. Per frame on the CPU: ~0.3 ms, at most ~1.2 ms (headless Edge: the track, the rails, 17 joints on springs, the
+// lid, the collisions, 33 bone matrices, up to 280 drops, each tested against the tongue).
 import { GLTFLoader } from '/assets/vendor/three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from '/assets/vendor/three/addons/libs/meshopt_decoder.module.js';
 
-const T_END = 4.3;
 const LID_G = 15; // the lid's front edge falls like a hinged plate's (3g/2 per unit depth)
-const T_SLAM = 4.14, SLAM_G = 2.6; // after T_SLAM (the tongue all but in) the lid falls SLAM_G times as hard: it slams
+const HIT = 1; // a key arrived at falling (see track)
 // The lid, as the bin model has it (tongue space): hinged at the back of the rim, 1.0 deep, 1.02 wide; a band 0.11
 // thick (its front face 0.077, sloping back to 0.11) with a raised panel in the middle (0.18); the front corners cut.
 const HINGE_Z = -0.5, LID_D = 1.0, LID_HW = 0.51;
-const TILT = 0.55; // pushed up at a corner, the share of the lift that is roll (the far front corner rises 1 - TILT as much)
+const TILT = 0.55; // pushed up near a front corner, the share of the lift that is roll (the far front corner rises 1 - TILT as much)
 const FILL = 0.85; // how much of the groove's depth is filled (see aFill)
-const FLIP = -1; // the tongue comes out of the gap upside down (its top down): it rears up its top toward the camera
+// Which way up it is in the gap ('flip' keys it): licking the lid it comes out upside down, so laid over the lid's edge
+// and across its top it lies on its underside, its top up (LIDF: its top is the face toward the lid: no; FS: the lid
+// rail's "the way its top faces" for a tongue coming out upside down); hanging down the bin's front it comes out top
+// up, its underside on the bin, its top out to you (FACEF, FSF: the face rail's). Between the two, in the swoop at the
+// front's left end, it turns round about its length, in the gap too (see computeSlot).
+const LIDF = false, FS = 1, FACEF = false, FSF = -1;
+// The TRACK: the gap between the lid and the rim runs all round the lid's edge, and the tongue's base rides it like a
+// carriage: it comes out anywhere along it, sideways out of a side as well as out of the front. Tongue space, the lid
+// shut: from the middle of the right side (x = LID_HW, z = 0) forward along it, round the front-right corner (rounded
+// at TRK_R, about the lid's cut corner), along the front (z = 0.5), round the front-left corner and back along the left
+// side. trk: where along it, as arclength from the middle of the front (0); + toward the viewer's right: TRK_SIDE is
+// the middle of the right side, -TRK_SIDE the middle of the left (and past them, on toward the back).
+const TRK_R = 0.12, TRK_FX = LID_HW - TRK_R, TRK_SZ = 0.5 - TRK_R, TRK_ARC = 0.5 * Math.PI * TRK_R;
+const TRK_SIDE = TRK_FX + TRK_ARC + TRK_SZ, TRK_EASE = 0.06;
+// -> tk: the point on the track (x, z), its outward normal (nx, nz), its tangent toward + trk (tx, tz), and how much
+// of it faces the front (1 on the front, 0 on a side, between round a corner: how much of the lid's lift is pitch)
+function trackAt(trk, tk) {
+  const s = Math.abs(trk), g = trk < 0 ? -1 : 1;
+  let x, z, a;
+  if (s <= TRK_FX) { x = s; z = 0.5; a = 0; }
+  else if (s <= TRK_FX + TRK_ARC) { a = (s - TRK_FX) / TRK_R; x = TRK_FX + TRK_R * Math.sin(a); z = TRK_SZ + TRK_R * Math.cos(a); }
+  else { a = 0.5 * Math.PI; x = LID_HW; z = Math.max(-0.4, TRK_SZ - (s - TRK_FX - TRK_ARC)); }
+  // (the way out turns round a corner eased over a little more than the arc, TRK_EASE either side: turned exactly with
+  // the arc, it swung all at once as the base came onto it, and everything laid out from the gap jolted sideways)
+  const ae = 0.5 * Math.PI * smooth(TRK_FX - TRK_EASE, TRK_FX + TRK_ARC + TRK_EASE, s);
+  tk.x = g * x; tk.z = z; tk.nx = g * Math.sin(ae); tk.nz = Math.cos(ae); tk.tx = tk.nz; tk.tz = -tk.nx;
+  tk.front = tk.nz * tk.nz;
+  return tk;
+}
 
 // The lick, keyframed: a row per moment (seconds at speed 1), each with the numbers that have a key there (Hermite
 // between keys, flat at a key that is a peak or a valley, so every overshoot is drawn on purpose).
-//   out    how much of the tongue is out through the gap (its rest length; 0.77 is all of it but the stalk)
-//   reach  what is out, stretched (and thinned) to reach further (<= 1.2, and 1.3 for a moment, reaching down the
-//          bin's side: a reaching tongue grows long and thin; the taste buds barely stretch)
-//   push   how hard it shoves up in the gap: the height it holds the lid's front edge at, where it is (the lid rides on
-//          it: thrown up when it rises fast, it flies, falls back and bounces). The tongue is that thick in the gap.
-//   slide  where it comes out along the gap (x; + the viewer's right)
-//   aim    radians: it goes through the gap at a slant (+ toward the viewer's left)
+//   out    how much of the tongue is out through the gap (its rest length; 0.77 would be all of it but the stalk: it
+//          never puts out more than OUT_MAX, so it stays a stubby, fat tongue, not a hose; a good 0.2 of it is folded
+//          over the lid's edge when it lies on the top)
+//   reach  what is out, stretched (and thinned) to reach further (~1.1 on the top; ~1.16 reaching down to the bottom
+//          of the bin's front: a reaching tongue grows long and thin; the taste buds barely stretch)
+//   push   how hard it shoves up in the gap: the height it holds the lid's edge at, where it is (the lid rides on it:
+//          thrown up when it rises fast, it flies, falls back and bounces). The tongue is that thick in the gap.
+//   trk    where its base is on the track (see TRK_SIDE: 0 the middle of the front, + toward the viewer's right)
+//   aim    radians: it goes through the gap at a slant (+ toward - trk: at the front, the viewer's left)
 //   exit   radians: the way it leaves the gap, tipped up (+) or down
-// In the air (the free pose):
-//   bend   radians: the bend just outside the gap (- rears up, + flops down over the front)
+//   flip   0..1: which way up it is in the gap: 1 upside down (licking the lid), 0 top up (hanging down the bin's
+//          front); in between it is turned about its length, its root in the gap too (keep the rails' weights at 0
+//          meanwhile: each is laid for one way up)
+// In the air (the free pose; in the gap's frame, wherever on the track it is, keyed as it would be top up: turned
+// over by flip, its bends turn with it, so it keeps its shape):
+//   bend   radians: the bend just outside the gap, up (+: it rears up) or down (-: it flops down over the edge)
 //   dpos / dsig  where that bend is (arclength past the gap) and over how long
-//   over / opos / osig  a second bend further out (- back over the lid, + down)
-//   turn   radians: a bend to the side a little further out, where it is round again (+ to the viewer's left)
-//   arch   radians per unit length: a bend all along what is out (- up/back, + down/forward)
-//   yaw    radians per unit length: what is out sweeping to the viewer's left (+) or right (-)
-//   roll   radians: twisted about its own length, 0 at the gap growing to this at the tip
+//   over / opos / osig  a second bend further out (+ back over the lid, - down)
+//   turn   radians: a bend to the side a little further out, where it is round again (+ toward - trk)
+//   arch   radians per unit length: a bend all along what is out (+ up/back, - down/forward)
+//   yaw    radians per unit length: what is out sweeping toward - trk (+) or + trk (-)
+//   roll   radians: turned about its own length (the turn in its first ~0.3 past the gap, the rest turning as one)
 // On the bin (rails: the free pose blends into them as their weights rise; see the rails below):
-//   wl     0..1: laid over the lid's front edge (wrapped round it at aim's slant) and across its top, heading back at
-//          aim, turning toward hd (radians, + toward the viewer's left), curving kc more (radians per unit length);
-//          if it gets to the lid's side, draped over it, over the rim's edge and down the bin's side
-//   wf     0..1: laid over the rim's lip and down the bin's front to the base (and the floor), heading fd (radians from
-//          straight down, + toward the viewer's left), curving fk more
+//   wl     0..1: laid over the lid's edge where it comes out (wrapped round it at aim's slant) and in across its top,
+//          heading ta (radians from straight in from the edge there, + toward - trk; turned hd more) and curving kc more
+//          (radians per unit length), turning no tighter than it can bend sideways; if it gets to an edge of the lid,
+//          draped over it, over the rim's edge and down the bin's side. wl + wf = 1: the one rail hands over to the
+//          other (out over the lid's side and down, a swing)
+//   lift   lying on the lid's top, its front peeled up off it, level, that high (rising over ~0.25 from where the fold
+//          leaves it, its root still on the top): it hovers, rolls over (spin) and slaps back down
+//   wf     0..1: laid over the rim's lip and down the bin's face below the gap (the front, out of the front) to the
+//          base (and the floor), heading fd (radians from straight down, + toward - trk), curving fk more
 // On top of either (sprung, the tip's own life):
 //   curl   radians: the front third curling toward its top (+) or its underside (-)
-//   hook   radians: the front third bending to the viewer's left (+) or right (-)
+//   hook   radians: the front third bending toward - trk (+) or + trk (-)
 //   twist  radians: twisted about its own length, like roll, in the air or on a rail
+//   ttw    radians: the tip's own twist, spread over the front half of what is out (a corkscrew as it licks)
+//   spin   radians: turned about its own length a little past the fold over the lid's edge (in the air: just past the
+//          gap), all the rest of it turning as one: lifted off the top, its front rolls over (on a rail it is built
+//          into the rail's frames, like twist and ttw)
 //   wave   radians: a wave running from the gap to the tip (per joint); its phase runs at 'ws' cycles a second
-//   cup    radians: the tip's edges rolled up (a spoon)
+//   cup    radians: the tip's edges rolled toward its underside (+) or its top (-) (a spoon)
 //   stick  0..1: in the air, wet: drawn down onto what it is near (on a rail it lies on it already)
 //   flat   its thickness out of the gap (1: as modelled; lying on something it flattens a little and spreads)
-// It comes out of the gap upside down (its top down): reared up, its top (the groove, the taste buds) faces the
-// camera, and lying back over the lid it faces up; flopped down the front it faces the bin (it licks with it) and
-// shows its underside. (+ turn / yaw / hook / hd / fd / aim / twist go to the viewer's left; mirror swaps left and
-// right.)
-const HIDDEN = { out: 0, reach: 1, push: 0, slide: 0, exit: 0, bend: -0.2, turn: 0, dpos: 0.05, dsig: 0.035, arch: 0, curl: 0, yaw: 0, hook: 0, roll: 0, wave: 0, ws: 1.6, cup: 0.15, stick: 0, over: 0, opos: 0.24, osig: 0.06, flat: 1, wl: 0, wf: 0, hd: 0, kc: 0, fd: 0, fk: 0, twist: 0, aim: 0 };
-const SLIDE_R = 0.3; // where it comes out at first: the gap's right end
+//   slim   0..1: its root, in the gap and just out of it, drawn in narrower (folded over the lid's edge facing you, the
+//          wide root reads as a slab; round a corner it would stick out past the corner in the gap)
+//   wide   0..1: lying on the lid's top, past the fold over its edge, pressed out broad and flat, WIDE more across
+//          (narrowing again where it is peeled up off it): the owner wanted it a bit wider licking the top
+// Licking the lid it comes out of the gap upside down (flip 1): over the lid's edge and across its top it lies on its
+// underside, its top (the groove, the taste buds) up to the camera; hanging down the bin's front it comes out top up
+// (flip 0), its underside on the bin, its top out to you. Its curl and hook are toward its own top and side, so upside
+// down they bend the other way in the world: keyed here as they look (curl + on the bin's front: the tip curling out
+// toward you). (Mirror swaps left and right: trk, ta and every sideways number change sign.)
+const OUT_MAX = 0.7;
+const HIDDEN = { out: 0, reach: 1, push: 0, trk: 0, exit: 0, bend: 0, turn: 0, dpos: 0.05, dsig: 0.035, arch: 0, curl: 0, yaw: 0, hook: 0, roll: 0, wave: 0, ws: 1.6, cup: 0.15, stick: 0, over: 0, opos: 0.24, osig: 0.06, flat: 1, wl: 0, wf: 0, ta: 0, hd: 0, kc: 0, fd: 0, fk: 0, twist: 0, ttw: 0, aim: 0, lift: 0, spin: 0, slim: 0, wide: 0, flip: 1 };
+const R_MID = TRK_SIDE; // the middle of the right side
+const L_SIDE = -0.66, L_FRONT = -0.3; // on the left side, near its front; the front, near its left end
+// The beats (seconds at speed 1): T_POP the lid's right edge pops up; TA it lands on the top (the first slap); P1, P2
+// a roll-over starts (its front peels up), TB, TC it slaps back down (the big splashes); TL it peels off the top for
+// good (the left side) and rises in one arc, turning round as it goes; TR the top of that arc; TD it is swinging
+// forward and down over the lid's front-left corner, turned top up; TE its tip is down by the bin's base (the sweep
+// across the bottom); TS it rests in the middle; TP the slurp starts; TV the tip vanishes into the gap (the slurp's wet
+// smack)
+const T_POP = 0.04, TA = 0.3, P1 = 0.34, TB = 0.66, P2 = 1.02, TC = 1.34, TL = 1.42, TR = 1.7, TD = 1.93, TE = 2.12, TS = 2.3, TP = 2.45, TV = 2.82;
+const T_SLAM = TV + 0.005, SLAM_G = 2.6; // after T_SLAM (the tongue in) the lid falls SLAM_G times as hard: it slams
+const T_END = TV + 0.08; // (the lid has slammed and bounced by then; lick() resolves as it settles)
+// A ROLL-OVER on the top, from t0 to t1: it peels its front up off the top (strings of spit stretching), and as it
+// rises its front rolls over about its length in the air above the lid, w radians (its edge, then its underside comes
+// up), heading a (see ta); then it falls back onto the top like a weight let go at its highest, rolling back flat as it
+// comes down: it lands at speed, a slap, a big splash, squashed flat and broad by the blow for an instant
+const rollOver = (t0, t1, w, a) => {
+  const D = t1 - t0;
+  return [
+    [t0 + 0.3 * D, { lift: 0.11, spin: 0.4 * w, curl: -0.1, ta: a }],
+    [t0 + 0.58 * D, { lift: 0.22, spin: w, curl: -0.2 }],
+    [t0 + 0.84 * D, { spin: 0.35 * w }],
+    [t1, { lift: [0, HIT], spin: 0, curl: -0.05, ta: a, flat: 0.62, wide: 1 }],
+    [t1 + 0.03, { flat: 0.5, wide: 1.4 }],
+    [t1 + 0.12, { flat: 0.62, wide: 1 }],
+  ];
+};
 const POSES = [
-  [0, { ...HIDDEN, slide: SLIDE_R }],
-  [0.22, { push: 0, out: 0 }],                                            // the beat: the lid shut, nothing
-  // POP: shoved up from inside at the right, the lid's right front corner lifts a crack
-  [0.27, { push: 0.05, out: 0.015, bend: -0.1, dpos: 0.07, dsig: 0.04 }],
-  // SQUEEZE, slow: a flat tongue slides out over the rim at the gap's right end, feels the air, rears up in front of
-  // the lid, the lid's right side riding up on it
-  [0.52, { out: 0.14, bend: -0.4, curl: -2.0, cup: 0.35, hook: 0.25, push: 0.06, wave: 0.1 }],
-  [0.78, { out: 0.28, bend: -0.95, curl: -1.8, hook: -0.3, push: 0.072 }],
-  [0.98, { out: 0.4, dpos: 0.08, bend: -1.45, curl: -0.7, hook: 0.15, push: 0.07, reach: 1.04, wave: 0.05, over: 0, wl: 0, flat: 1, hd: 0.35, aim: 0.15 }],
-  // over the lid's front edge, flopping back onto its top (a slap)
-  [1.1, { out: 0.5, over: -0.9, opos: 0.24, osig: 0.08, curl: -0.4, hook: 0, wl: 0.45, wave: 0 }],
-  [1.18, { out: 0.58, reach: 1.1, wl: 1, curl: 0.15, hd: 0.35, aim: 0.3, flat: 0.62, cup: 0.25, push: 0.074, slide: SLIDE_R }],
-  // LICKS THE TOP: a long greedy stroke, reaching back over the raised panel and sweeping across the lid to the left,
-  // the tip curling up at the end...
-  [1.26, { push: 0.064, curl: 0 }],
-  [1.4, { hd: 0.55, out: 0.7, reach: 1.18, aim: 0.3 }],
-  [1.58, { hd: 1.25, out: 0.7, aim: 0.35, hook: 0.35, curl: -0.05 }],
-  [1.66, { curl: 0.85, hook: 0.55, wl: 1, push: 0.072 }],
-  // ...lifts and swings back to the right...
-  [1.8, { wl: 0.3, bend: -1.5, over: -1.1, hd: 0.4, aim: 0.3, curl: 0.4, hook: -0.25, out: 0.64, reach: 1.12, push: 0.064 }],
-  // ...slaps down again and drags across, longer: all of it dragged to the left along the gap
-  [1.9, { wl: 1, curl: 0, hook: 0, push: 0.076, out: 0.66, slide: SLIDE_R }],
-  [1.97, { push: 0.064 }],
-  [2.3, { slide: 0.06, hd: 1.2, aim: 0.4, out: 0.73, reach: 1.14, hook: 0.3, curl: 0.15, push: 0.07 }],
-  // on to the LEFT side: the root slides on to the gap's left end, the tip goes over the lid's left edge and licks down
-  // that side
-  [2.52, { slide: -0.28, hd: 1.15, aim: 0.55, out: 0.77, reach: 1.24, curl: -0.1, hook: 0, push: 0.066 }],
-  // (reaching, it stretches long and thin: down the side, its tip licks down the wall)
-  [2.68, { curl: 0.15, reach: 1.3 }],
-  [2.78, { curl: 0, wl: 1, slide: -0.28, out: 0.77, kc: 0, hd: 1.15, aim: 0.55, bend: -1.5, over: -1.1, twist: 0, flat: 0.62, reach: 1.28 }],
-  // ROTATES: peels off the lid and rears up at the left, its top to you...
-  [2.92, { wl: 0, bend: -1.55, dpos: 0.08, dsig: 0.05, over: -0.25, opos: 0.32, osig: 0.1, curl: -0.3, twist: 0, slide: -0.2, out: 0.66, reach: 1.08, flat: 0.85, kc: 0, aim: 0, hd: 0, push: 0.076 }],
-  // ...rolls over forward like a wave breaking, its upper half curling over toward you and down (its underside comes
-  // round to face you)...
-  [3.04, { bend: -1.3, over: 0.9, curl: 0.45, twist: -0.7, hook: -0.35, slide: -0.17 }],
-  [3.13, { bend: -0.55, over: 1.6, curl: 0.35, twist: -0.45, hook: -0.2, slide: -0.14, fd: 0.35, wf: 0, out: 0.7 }],
-  // ...and slaps down onto the bin's front: hanging down it, its top on it (licking), its underside to you
-  [3.22, { wf: 1, bend: 0.8, over: 0.6, curl: -0.2, twist: 0, hook: 0, slide: -0.11, out: 0.74, reach: 1.15, fd: 0.3, flat: 0.7, push: 0.072 }],
-  // LICKS THE BOTTOM: the tip slides down to the base and swings across it, flicking off at the end of each stroke
-  [3.33, { out: 0.77, reach: 1.2, fd: -0.3, curl: -0.25, slide: -0.08, push: 0.066 }],
-  [3.46, { fd: 0.3, curl: 0.05, slide: -0.02 }],
-  [3.58, { fd: -0.1, curl: -0.22 }],
-  // drags up to the MIDDLE of the front and stops there, a beat; the tip twitches
-  [3.7, { out: 0.5, reach: 1.1, fd: 0, curl: 0, slide: 0, cup: 0.25, hook: 0 }],
-  [3.79, { curl: -0.3, hook: 0.3 }],
-  [3.85, { curl: 0.05, hook: -0.12 }],
-  [3.93, { curl: 0, hook: 0, out: 0.5, push: 0.066, wf: 1 }],
-  // SLURPS back in, the lid bumping on it; the lid slams shut
-  [4.08, { out: 0.06, wf: 0.7, curl: 0.3, cup: 0.4, push: 0.06 }],
-  [4.14, { out: 0, push: 0.03, wf: 0 }],
-  [4.16, { push: 0 }],
-  [T_END, { ...HIDDEN }],
+  [0, { ...HIDDEN, trk: R_MID, wl: 1, ta: 0.1, flat: 0.75, slim: 0.25, cup: 0.3 }],
+  [T_POP - 0.01, { push: 0, out: 0 }],
+  // POP: shoved up from inside at the middle of the RIGHT side: the lid's whole right edge lifts
+  [T_POP + 0.05, { push: 0.06, out: 0.04 }],
+  // SLIDES OUT of the middle of the right side, flattened through the gap, up the lid's edge and over onto its top,
+  // its front held up off it, feeling the air...
+  [0.18, { out: 0.34, lift: 0.11, curl: -0.45, reach: 1.04, push: 0.062 }],
+  [0.24, { out: 0.46, lift: 0.12, curl: -0.25 }],
+  // ...and SLAPS DOWN onto the top: it lies on it, its top up, licking, spread wide and flat
+  [TA, { out: 0.56, reach: 1.1, lift: [0, HIT], curl: 0.1, cup: 0.25, flat: 0.62, wide: 1, push: 0.06, slim: 0.2, ta: 0.1 }],
+  // LICKS THE TOP, its base gliding along the track under it (from the right side round the front to the left side:
+  // see PACE), the lid riding on it. It lies ACROSS the top as it rolls over (from the camera, a roll about a length
+  // pointing away would be a fin): a stroke...
+  [P1, { ta: 0.25, out: OUT_MAX, reach: 1.14, lift: 0, spin: 0, aim: 0 }],
+  // ...at once a ROLL-OVER above the lid, lying across it to the left from the right side (its base still there: it
+  // lands on the top, in the middle of the camera's view of it)...
+  ...rollOver(P1, TB, -3.0, 0.25),
+  // ...a greedy wipe: its base glides round the front-right corner and along the front, its tip swinging across the
+  // back of the top like a windscreen wiper, its root drawn in narrow (folded over the lid's front edge, facing you,
+  // the wide root is a slab)...
+  [TB + 0.08, { ta: 0.4, curl: 0.25, slim: 0.55 }],
+  [P2 - 0.06, { ta: 0.15, curl: 0.3, out: OUT_MAX, lift: 0, spin: 0, slim: 0.55 }],
+  // ...another ROLL-OVER, lying across to the right as its base comes to the LEFT side...
+  ...rollOver(P2, TC, 3.0, 0.05),
+  // ...and as its base glides back round the front-left corner, a last stroke: it sweeps round across the top's left
+  // part (its free pose keyed meanwhile as it lies there: up the lid's edge and over the top, for the hand-over to the
+  // air)
+  [TL, { ta: 0, curl: 0.3, lift: 0, spin: 0, wl: 1, wf: 0, out: OUT_MAX, reach: 1.12, flat: 0.62, wide: 1, slim: 0.3, flip: 1, bend: 1.5, dpos: 0.05, dsig: 0.04, over: 1.1, opos: 0.22, osig: 0.07, arch: 0.5, push: 0.06, turn: 0 }],
+  // ROTATES ROUND at the front's left end, in ONE swoop: its front peels up off the top and it rises off it, up over
+  // the lid's front edge...
+  [TL + 0.04, { wl: 1 }],
+  [TL + 0.12, { flip: 1 }],
+  [TL + 0.12, { yaw: 0 }],
+  [TL + 0.24, { lift: 0.3 }],
+  [TL + 0.16, { curl: 0, bend: 1.45, dpos: 0.07, dsig: 0.07, over: 0.85, arch: 0.3, out: 0.6 }],
+  [TL + 0.32, { wl: 0, wide: 0, flat: 0.85, slim: 0.35 }],
+  // ...turning round about its own length as it goes (the root turning in the gap too, held open for it): at the top
+  // of the swoop (TR, only a little above the lid) it curls over to the left, over the lid's front-left corner...
+  [TR, { bend: 1.25, over: 0.1, arch: 0, yaw: -1.7, out: 0.55, reach: 1.05, push: 0.1 }],
+  // ...and swings on, down and round in front of the bin, turned top up, its pink top to you...
+  [TD, { bend: -0.7, over: -0.2, arch: -0.5, yaw: -1.6, out: 0.52, reach: 1.06, curl: 0, push: 0.09 }],
+  [TD + 0.04, { flip: 0 }],
+  // ...onto the bin's front: it hangs down it, its underside on it, its top out to you (the groove, the taste buds),
+  // licking it...
+  [TE - 0.14, { wf: 0 }],
+  [TE, { wf: 1, bend: -1.3, dpos: 0.05, dsig: 0.04, over: 0, opos: 0.24, arch: -0.6, yaw: 0, turn: 0, out: 0.55, reach: 1.12, flat: 0.9, push: 0.08, fd: 0.3, curl: 0.25, slim: 0.2 }],
+  // ...and LICKS THE BOTTOM: one sweep across the bottom of the bin's front as its base slides to the middle
+  [TE + 0.14, { fd: -0.15, curl: 0.2, ttw: 0.25, out: 0.55, reach: 1.12 }],
+  // it draws up and comes to rest in the MIDDLE of the front, a beat, the tip curling up and out
+  [TS, { out: 0.45, reach: 1.06, fd: -0.06, curl: 0.3, cup: 0.2, ttw: 0, push: 0.072, wf: 1 }],
+  [TS + 0.08, { curl: 1.3 }],
+  [TS + 0.13, { curl: 1.2 }],
+  // SLURPS back in through the gap: one steady pull, faster and faster, squeezed flat, the lid bumping on it; the tip
+  // vanishes at TV, at speed
+  [TP, { out: 0.45, curl: 0.5, cup: 0.2, push: 0.07, wf: 1, slim: 0.2 }],
+  [TV - 0.1, { curl: 0, push: 0.062 }],
+  [TV, { out: [0, HIT], push: 0.05, wf: 1, slim: 0.3 }],
+  [TV + 0.03, { push: 0, wf: 0 }],
+  [T_END, { ...HIDDEN, trk: 0, flip: 0 }],
 ];
+// The base's way round the track (trk): it stays at the middle of the right side through the first roll-over, then
+// glides round the front to the left side while it licks the top, then round the front-left corner onto the front and
+// along it to the middle as it swings down; each run easing in and out, slower round the corners (its way turns
+// there). [t0, t1, from, to]
+const PACE = [[0.42, P2 + 0.16, R_MID, L_SIDE], [TC + 0.02, TL + 0.16, L_SIDE, L_FRONT], [TE - 0.06, TE + 0.16, L_FRONT, 0]];
+// sounds (see the header). 'slurp' gets { in }: seconds (at the lick's speed) until the tip vanishes
 const CUES = [
-  [0.25, 'pop'], [0.3, 'squeeze'], [1.17, 'slap', { strength: 0.7 }], [1.24, 'lick', { strength: 0.8 }],
-  [1.89, 'slap', { strength: 0.6 }], [1.95, 'lick', { strength: 1 }], [2.4, 'lick', { strength: 0.7 }],
-  [2.5, 'slap', { strength: 0.4 }], [2.62, 'lick', { strength: 0.6 }], [2.99, 'roll'], [3.21, 'slap', { strength: 1 }],
-  [3.29, 'lick', { strength: 0.9 }], [3.42, 'lick', { strength: 0.8 }], [3.55, 'lick', { strength: 0.6 }],
-  [3.79, 'flick'], [3.95, 'slurp'],
+  [T_POP, 'pop'], [T_POP + 0.03, 'squeeze'],
+  [TA, 'slap', { strength: 0.6 }], [TA + 0.08, 'lick', { strength: 0.7 }],
+  [P1 + 0.04, 'goo'], [TB, 'splash', { strength: 1 }], [TB + 0.1, 'lick', { strength: 0.6 }],
+  [P2 + 0.04, 'goo'], [TC, 'splash', { strength: 1 }],
+  [TL + 0.04, 'goo'], [TR, 'flick'], [TE - 0.03, 'slap', { strength: 0.8 }], [TE + 0.04, 'lick', { strength: 0.9 }],
+  [TS + 0.05, 'flick'], [TP, 'slurp'],
 ];
-// kicks: on the big beats the tongue jolts up in the gap for an instant (time, how high it throws the lid's front
-// edge above where it holds it, how long the jolt lasts): the lid hops, flies and lands back on it (a 'rattle')
-const KICKS = [[0.255, 0.03, 0.06], [0.62, 0.012, 0.05], [0.86, 0.016, 0.05], [1.16, 0.04, 0.05], [1.4, 0.014, 0.05], [1.64, 0.025, 0.05], [1.88, 0.05, 0.05],
-  [2.48, 0.03, 0.05], [2.66, 0.02, 0.05], [2.88, 0.09, 0.07], [3.2, 0.06, 0.06], [3.44, 0.025, 0.05], [3.79, 0.012, 0.04], [3.95, 0.03, 0.05], [4.09, 0.12, 0.05]];
-// spit (time, how many, from where): squirted out of the gap beside the tongue as it squeezes, off the tip at the end
-// of a move, off the edges as it slaps down, a fat drop letting go of the tip
-const BURSTS = [[0.3, 3, 'gap'], [0.6, 1, 'drool'], [1.18, 4, 'slap'], [1.66, 3, 'tip'], [1.9, 4, 'slap'], [2.28, 3, 'tip'], [2.7, 2, 'tip'], [2.93, 2, 'tip'], [3.22, 5, 'slap'], [3.46, 3, 'tip'], [3.98, 4, 'gap'], [4.12, 3, 'gap']];
-// strings of spit across the gap, from the rim to the lid's front edge, beside the tongue (time, side): the lid pops
-// and they stretch and snap (others come by themselves where the tongue peels off the bin or the lid)
-const STRINGS = [[0.27, -1], [0.28, 1], [1.0, -1]];
+// kicks: the tongue heaves up in the gap for an instant (time, how high it throws the lid's edge above where it holds
+// it, how long the jolt lasts): the lid hops, flies and lands back on it (a 'rattle'): as it pops the lid, as it
+// heaves its front up off the top, as it rises off it for the swoop, as it is slurped in
+const KICKS = [[T_POP, 0.03, 0.06], [P1 + 0.04, 0.022, 0.05], [P2 + 0.04, 0.022, 0.05], [TL + 0.1, 0.025, 0.06], [TP + 0.18, 0.018, 0.05], [TV - 0.08, 0.05, 0.05]];
+// spit (time, how many, from where, how hard): squirted out of the gap beside the tongue as it squeezes and as it is
+// slurped in, flung off the tip as it turns round, a SPLASH as it slaps down (see splashBurst)
+const BURSTS = [[T_POP + 0.04, 3, 'gap'], [TA, 0, 'splash', 0.45], [TB, 0, 'splash', 1], [TC, 0, 'splash', 1],
+  [TR + 0.06, 2, 'tip'], [TE - 0.03, 0, 'splash', 0.6], [TP + 0.12, 2, 'gap'], [TV - 0.15, 3, 'gap'], [TV - 0.03, 3, 'gap']];
+// strings of spit across the gap, from the rim to the lid's edge, beside the tongue (time, side): the lid pops and
+// they stretch and snap
+const STRINGS = [[T_POP + 0.01, -1], [T_POP + 0.02, 1]];
+// it peels its front off the top (time, how many strings): strings of spit from its face to the lid stretch as it
+// rises, and snap
+const PEELS = [[P1 + 0.03, 3], [P2 + 0.03, 3], [TL + 0.05, 2]];
+// drool runs down over the lid's front edge, near where it licked (time, where along the track: the front is
+// |trk| < TRK_FX, a front corner beyond it)
+const RUNS = [[TA + 0.2, 0.42], [TB + 0.06, 0.3], [TC + 0.04, -0.3], [TL + 0.1, -0.15]];
 
 let TRACKS = null; // (built once the module's constants are all defined)
 
@@ -296,6 +431,10 @@ export function createTongue(THREE, opts = {}) {
     tint: 0xe8a4ac, onCue: null, fxParent: null, wait: 1.5,
   }, opts);
   const [OX, OZ] = O.open, [UX, UZ] = O.outer, FLOOR = -O.rimY, G = 9.8;
+  // how far in from (px, pz) (on the rim, outside the opening), straight in along -(nx, nz), the opening begins
+  const toOpening = (px, pz, nx, nz) => Math.max(0,
+    Math.abs(px) > OX && nx * px > 0 ? (Math.abs(px) - OX) / Math.max(0.2, Math.abs(nx)) : 0,
+    Math.abs(pz) > OZ && nz * pz > 0 ? (Math.abs(pz) - OZ) / Math.max(0.2, Math.abs(nz)) : 0);
   let seedState = O.seed | 0;
   const rng = () => { // mulberry32, its state kept here so warm() can put it back
     seedState = (seedState + 0x6d2b79f5) | 0;
@@ -309,7 +448,8 @@ export function createTongue(THREE, opts = {}) {
     if (silent) return;
     if (name === 'splat') { if (clock - lastSplat < 0.06) return; lastSplat = clock; }
     if (name === 'snap') { if (clock - lastSnap < 0.12) return; lastSnap = clock; }
-    if (name === 'rattle') { if (info.strength < 0.25 || clock - lastRattle < 0.1) return; lastRattle = clock; }
+    if (name === 'rattle') { if (info.strength < 0.3 || clock - lastRattle < 0.22) return; lastRattle = clock; }
+    if (name === 'pop') lastRattle = clock - 0.16; // (the lid's knock just after the pop would double it: none for 60 ms)
     try { O.onCue?.(name, info); } catch (e) { /* a sound hook must never stop the show */ }
   };
   const V = () => new THREE.Vector3();
@@ -327,19 +467,24 @@ export function createTongue(THREE, opts = {}) {
   const owned = [env];
 
   // ------------------------------------------------------------------------------------------ the lid
-  // A hinged plate with weight. H: how high its front edge is where the tongue holds it up (at x = lid.at, the
-  // tongue's place in the gap); the tongue's push holds it up. Pushed up near a front corner it tips toward that
-  // corner (when the intro rolls it: lick({ roll })): part of the lift is the pitch (the whole front edge), the rest a
-  // roll about the far side's edge (that side's front corner stays nearer the rim).
-  const lid = { H: 0, v: 0, push: 0, on: false, sin: 0, cos: 1, tan: 0, ze: HINGE_Z + LID_D, fn: null, rfn: null, tilt: false, at: 0, rs: 0, rc: 1, xp: -LID_HW };
+  // A hinged plate with weight. H: how high its edge is where the tongue holds it up (its place on the track); the
+  // tongue's push holds it up. When the intro rolls it (lick({ roll })), it tips toward the tongue: part of the lift is
+  // the pitch (the whole front edge), the rest a roll about the far side's edge (on a side it is all roll: that whole
+  // side lifts; near a front corner some of each).
+  const lid = { H: 0, v: 0, push: 0, on: false, sin: 0, cos: 1, tan: 0, ze: HINGE_Z + LID_D, fn: null, rfn: null, tilt: false, px: 0, pz: 0.5, front: 1, rs: 0, rc: 1, xp: -LID_HW, rsl: 0 };
+  // (px, pz: where the tongue holds its edge up, on the track; front: how much of the lift there is pitch)
   function lidAngle() {
-    const h = Math.max(0, lid.H), as = Math.abs(lid.at);
-    const base = lid.tilt ? h * (1 - TILT * smooth(0.03, 0.26, as)) : h;
-    lid.sin = Math.min(0.6, base / LID_D); lid.cos = Math.sqrt(1 - lid.sin * lid.sin);
+    const h = Math.max(0, lid.H);
+    // the lift where the tongue is: the share that is pitch (the front edge up) is all of it at the middle of the front,
+    // less toward the front's ends (TILT), none on a side (a blend round a corner); the rest is roll about the far
+    // side's edge (pushed up on the right side, the whole right edge rises, front to back)
+    const a = lid.tilt ? lid.front * (1 - TILT * smooth(0.03, 0.26, Math.abs(lid.px))) : 1;
+    lid.sin = Math.min(0.6, a * h / Math.max(0.4, lid.pz - HINGE_Z)); lid.cos = Math.sqrt(1 - lid.sin * lid.sin);
     lid.tan = lid.sin / lid.cos; lid.ze = HINGE_Z + LID_D * lid.cos;
-    lid.rs = lid.tilt ? Math.min(0.3, (h - base) / (as + LID_HW)) * (lid.at < 0 ? -1 : 1) : 0;
+    lid.rs = lid.tilt ? Math.min(0.3, (1 - a) * h / (Math.abs(lid.px) + LID_HW)) * (lid.px < 0 ? -1 : 1) : 0;
     lid.rc = Math.sqrt(1 - lid.rs * lid.rs);
     lid.xp = lid.rs < 0 ? LID_HW : -LID_HW;
+    lid.rsl = lid.rs / lid.rc / lid.cos; // (its underside's slope across, in tongue space)
   }
   const lidPitch = () => -Math.asin(lid.sin);
   const lidRoll = () => Math.asin(lid.rs);
@@ -386,11 +531,15 @@ export function createTongue(THREE, opts = {}) {
   // white page, a crisp white highlight dot and a soft bounce. The drops are milky and nearly opaque, shaded darker
   // underneath (beads of spit, not see-through bubbles).
   const liquid = (o) => { const m = liquidMaterial(THREE, o); owned.push(m); return m; };
-  const dropMat = liquid({ tint: 0xf1f5f9, edge: 0x71859f, alpha: 0.9, edgeAlpha: 0.95, defines: { DROP: '' } });
+  const dropMat = liquid({ tint: 0xdbe2ea, edge: 0x56697f, alpha: 0.97, edgeAlpha: 0.97, defines: { DROP: '' } });
   const crownMat = liquid({ tint: 0xe3eaf3, edge: 0x6a7f9a, alpha: 0.3, edgeAlpha: 0.9, defines: { FADE: '', CROWN: '' }, side: THREE.DoubleSide });
   const puddleMat = liquid({ tint: 0xb6c6da, edge: 0x6f86a3, alpha: 0.5, edgeAlpha: 0.92, defines: { FADE: '', PUDDLE: '' } });
   puddleMat.polygonOffset = true; puddleMat.polygonOffsetFactor = -2; puddleMat.polygonOffsetUnits = -2;
-  const stringMat = liquid({ tint: 0xe6edf5, edge: 0x6a809c, alpha: 0.55, edgeAlpha: 0.95 });
+  const stringMat = liquid({ tint: 0xe6edf5, edge: 0x6a809c, alpha: 0.72, edgeAlpha: 0.95 });
+  // wet spots on the black lid: a glossy sheen, not a grey puddle (see SHEEN in the shader): a touch darker, a thin
+  // bright edge, and a crisp highlight of the sun that slides over them as the camera and the lid move: they glisten
+  const spotMat = liquid({ tint: 0x010203, edge: 0x30394a, alpha: 0.28, edgeAlpha: 0.3, defines: { FADE: '', PUDDLE: '', SHEEN: '' } });
+  spotMat.polygonOffset = true; spotMat.polygonOffsetFactor = -2; spotMat.polygonOffsetUnits = -2;
 
   const M4 = new THREE.Matrix4(), Q = new THREE.Quaternion(), Q2 = new THREE.Quaternion(), V1 = V(), V2 = V(), V3 = V(), SC = V();
   const UP = new THREE.Vector3(0, 1, 0), X = new THREE.Vector3(1, 0, 0), Y = UP, Z = new THREE.Vector3(0, 0, 1);
@@ -402,9 +551,11 @@ export function createTongue(THREE, opts = {}) {
     fx.add(im); owned.push(geo);
     return im;
   };
-  const MAXD = 56, MAXC = 16, MAXP = 28, MAXS = 6;
+  const MAXD = 280, MAXC = 24, MAXP = 40, MAXWS = 72, MAXS = 12;
   const puddles = instanced(puddleGeometry(THREE, rng), puddleMat, MAXP, true);
   puddles.renderOrder = 1;
+  const spots = instanced(puddleGeometry(THREE, rng), spotMat, MAXWS, true);
+  spots.renderOrder = 1;
   const crowns = instanced(crownGeometry(THREE), crownMat, MAXC, true);
   crowns.renderOrder = 2;
   const drops = instanced(new THREE.IcosahedronGeometry(1, 2), dropMat, MAXD);
@@ -414,16 +565,34 @@ export function createTongue(THREE, opts = {}) {
   for (let k = 0; k < MAXD; k++) D.push({ on: false, p: V(), v: V(), r: 0, kind: 0, age: 0 });
   for (let k = 0; k < MAXC; k++) C.push({ on: false, p: V(), t: 0, life: 0.3, R: 0, H: 0, rot: 0 });
   for (let k = 0; k < MAXP; k++) PD.push({ on: false, p: V(), t: 0, life: 2, R: 0, rot: 0, onLid: false, l: V() });
+  const WS = []; // the wet spots on the lid (lid space: they ride on it)
+  for (let k = 0; k < MAXWS; k++) WS.push({ on: false, p: V(), t: 0, life: 1, R: 0, rot: 0, sx: 1, onLid: true, l: V() });
   const take = (pool, age) => { let best = null; for (const o of pool) { if (!o.on) return o; if (!best || age(o) > age(best)) best = o; } return best; };
   function spawnDrop(p, v, r, kind = 0) {
     const d = take(D, (o) => o.age);
-    d.on = true; d.p.copy(p); d.v.copy(v); d.r = Math.min(r * 0.8, 0.018); d.kind = kind; d.age = 0;
+    d.on = true; d.p.copy(p); d.v.copy(v); d.r = Math.min(r * 0.8, 0.034); d.kind = kind; d.age = 0;
     const sp = d.v.length(); if (sp > 5) d.v.multiplyScalar(5 / sp);
   }
   function puddle(x, y, z, R0, life, onLid = false) {
+    if (onLid) { spot(x, y, z, R0, life); return; }
     const p = take(PD, (o) => o.t);
-    p.on = true; p.p.set(x, y + 0.002, z); p.t = 0; p.life = life; p.R = R0; p.rot = rng() * 6.28; p.onLid = onLid;
-    if (onLid) toLid(p.p, p.l); // it rides on the lid
+    p.on = true; p.p.set(x, y + 0.002, z); p.t = 0; p.life = life; p.R = R0; p.rot = rng() * 6.28; p.onLid = false;
+  }
+  // a wet spot on the lid's top at (x, y, z) (tongue space; y is moved onto the top under it), R across (stretched sx
+  // along a random way): it rides on the lid, glistens and dries. Not once the lick is over (the intro moves the bin
+  // afterwards, and the spots would float)
+  function spot(x, y, z, R0, life, sx = 1) {
+    if (!Lk) return;
+    const w = take(WS, (o) => o.t / o.life);
+    toLid(V3.set(x, y, z), w.l);
+    const top = lidTopRaw(w.l.x, w.l.z);
+    if (top < 0) return; // (off the lid)
+    // (all of it on the lid, its splats too (they reach ~1.6 times out): hanging past the edge, against the white, a
+    // wet sheen is a grey smudge in the air)
+    R0 = Math.min(R0, (-oct2(Math.abs(w.l.x), Math.abs(w.l.z - 0.47), LID_HW, 0.53, 0.96) - 0.012) / (1.6 * Math.max(1, sx)));
+    if (R0 < 0.012) return;
+    w.l.y = top + 0.002;
+    w.on = true; w.t = 0; w.life = life; w.R = R0; w.rot = rng() * 6.28; w.sx = sx;
   }
   function splash(x, y, z, r, speed, onLid) {
     const big = r * (0.75 + 0.1 * Math.min(6, speed));
@@ -440,13 +609,13 @@ export function createTongue(THREE, opts = {}) {
     cue('splat', { x, y, z, size: r });
   }
 
-  // strings of spit: one indexed mesh, 6 strings of 12 x 6. Each end is on the tongue (a bone and a point in its
+  // strings of spit: one indexed mesh, MAXS strings of 16 x 6. Each end is on the tongue (a bone and a point in its
   // frame), on the lid (lid space) or fixed (on the bin).
-  const SEG = 12, SS = 6, SV = (SEG + 1) * SS;
+  const SEG = 16, SS = 6, SV = (SEG + 1) * SS;
   const sPos = new Float32Array(MAXS * SV * 3), sNrm = new Float32Array(MAXS * SV * 3), sIdx = [];
   for (let k = 0; k < MAXS; k++) for (let u = 0; u < SEG; u++) for (let j = 0; j < SS; j++) {
     const a = k * SV + u * SS + j, b = k * SV + u * SS + (j + 1) % SS;
-    sIdx.push(a, a + SS, b, b, a + SS, b + SS);
+    sIdx.push(a, b, a + SS, b, b + SS, a + SS); // (wound so the outside faces out)
   }
   const sGeo = new THREE.BufferGeometry();
   sGeo.setAttribute('position', new THREE.BufferAttribute(sPos, 3).setUsage(THREE.DynamicDrawUsage));
@@ -456,7 +625,7 @@ export function createTongue(THREE, opts = {}) {
   strings.frustumCulled = false; strings.visible = false; strings.renderOrder = 3;
   fx.add(strings); owned.push(sGeo);
   const end = () => ({ t: 'fix', k: 0, l: V() });
-  for (let k = 0; k < MAXS; k++) STR.push({ on: false, ea: end(), eb: end(), a: V(), b: V(), av: V(), t: 0, snapAt: -1, snapLen: 0.3, life: 0.45, sag: 0, bead: 0.5, ph: 0, thin: 1 });
+  for (let k = 0; k < MAXS; k++) STR.push({ on: false, ea: end(), eb: end(), a: V(), b: V(), av: V(), t: 0, snapAt: -1, snapLen: 0.3, life: 0.45, sag: 0, bead: 0.5, ph: 0, thin: 1, run: false, runT: 0.5 });
 
   // ------------------------------------------------------------------------------------------ the tongue (its model)
   // Everything below is filled in by build() when the GLB arrives.
@@ -465,11 +634,21 @@ export function createTongue(THREE, opts = {}) {
   let zT = null, zB = null, xW = null;
   let cupInfo = [], chainBones = [], cupBones = [], springF = [], curlN = [], uCrush = null, skinJoint = [];
   let pos = [], rot = [], rotInv = [], blen = null, tgtO, tgtP, tgtY, tgtR, angP, angY, angR, velP, velY, velR, kz, kw;
+  let tgtFP, tgtFY, tgtFR, angFP, angFY, angFR, velFP, velFY, velFR; // (the free pose, sprung on its own)
   let contact, wasContact, cpt, cnr, conLid, cType;
   let tipPin = null, EMIT = [], emitPrev = [], emitAcc = new Float32Array(0);
-  const par = { out: 0, reach: 1, push: 0, slide: 0, exit: 0, bend: 0, turn: 0, dpos: 0.06, dsig: 0.05, arch: 0, curl: 0, yaw: 0, hook: 0, roll: 0, wave: 0, ws: 0, cup: 0, stick: 0, over: 0, opos: 0.3, osig: 0.06, flat: 1, wl: 0, wf: 0, hd: 0, kc: 0, fd: 0, fk: 0, twist: 0, aim: 0 };
+  const par = { out: 0, reach: 1, push: 0, trk: 0, exit: 0, bend: 0, turn: 0, dpos: 0.06, dsig: 0.05, arch: 0, curl: 0, yaw: 0, hook: 0, roll: 0, wave: 0, ws: 0, cup: 0, stick: 0, over: 0, opos: 0.3, osig: 0.06, flat: 1, wl: 0, wf: 0, ta: 0, hd: 0, kc: 0, fd: 0, fk: 0, twist: 0, ttw: 0, aim: 0, lift: 0, spin: 0, slim: 0, wide: 0, flip: 1, wlag: 0 };
   let phase = 0, sx = 1, primed = false, uSlot = 0, kSlot = 0;
-  const slot = { p: V(), q: new THREE.Quaternion(), r0: new THREE.Quaternion(), along: V(), top: V(), up: V() };
+  // the gap where the tongue is: its spine's point there (p), its frame (q) and the rest frame turned to lie along it
+  // (r0); the way it goes through (along), its top and up; the track there (n: out, t: along the track toward + trk,
+  // both level), the way the hidden part runs back in (hA, hU: along and up without the slant), and how far in from
+  // the gap the opening begins (strip)
+  const slot = { p: V(), q: new THREE.Quaternion(), r0: new THREE.Quaternion(), along: V(), top: V(), up: V(), n: V(), t: V(), hA: V(), hU: V(), strip: 0.1, cth: -1, sth: 0 };
+  const TK = { x: 0, z: 0.5, nx: 0, nz: 1, tx: 1, tz: 0, front: 1 }, SL = V(), SE = V();
+  const uSlotS = { value: 0 }; // (the shader's copy of uSlot: what is behind it is in the dark)
+  // where the next joint is along the chain (past the last one: the tip's end): with only the tip out, the bone in the
+  // gap is the last one
+  const sNext = (k) => (k + 1 < NJ ? sAt[k + 1] : L);
 
   function build(gltf) {
     let m = null, rigNode = null;
@@ -585,10 +764,15 @@ export function createTongue(THREE, opts = {}) {
       geo.setAttribute('aFill', new THREE.BufferAttribute(aFill, 3));
     }
     // (bone by bone the extents are noisy, and the spine wanders a little in the sculpt: eased along the length, so
-    // whatever lies along a surface lies smoothly on it, not in waves)
-    for (const a of [zT, zB, xW]) for (let it = 0; it < 3; it++) {
-      const b = Float32Array.from(a);
-      for (let k = 2; k < NJ - 1; k++) a[k] = 0.25 * b[k - 1] + 0.5 * b[k] + 0.25 * b[k + 1];
+    // whatever lies along a surface lies smoothly on it, not in waves; but never more than a hair under the sculpt's
+    // own reach there, or its skin would dip into what it lies on)
+    for (const a of [zT, zB, xW]) {
+      const raw = Float32Array.from(a);
+      for (let it = 0; it < 3; it++) {
+        const b = Float32Array.from(a);
+        for (let k = 2; k < NJ - 1; k++) a[k] = 0.25 * b[k - 1] + 0.5 * b[k] + 0.25 * b[k + 1];
+      }
+      for (let k = 0; k < NJ; k++) a[k] = Math.max(a[k], raw[k] - 0.003);
     }
 
     // the material: the model's own maps (colour, normal, roughness) under a wet clear coat; a studio env for crisp
@@ -611,25 +795,33 @@ export function createTongue(THREE, opts = {}) {
     mat.normalScale?.multiplyScalar(1.5);
     const uLid = { value: new THREE.Vector4(0, lid.ze, 0, 0) };
     const uRoll = { value: new THREE.Vector2(0, -LID_HW) }; // the lid's roll: its underside's slope across, the pivot edge
+    const uEdge = { value: new THREE.Vector3(LID_HW, 0.93, 0) }; // its outline: its sides' x, its cut corners' |x| + z; how far open
     const uFill = { value: FILL };
     // how crushed each bone is (0: round .. 1: flat), per skin joint
     const NB_ALL = bones.length;
     uCrush = { value: new Float32Array(NB_ALL) };
     skinJoint = jointOfBone;
     mat.onBeforeCompile = (sh) => {
-      sh.uniforms.uHole = { value: new THREE.Vector3(OX, OZ, UX) };
+      sh.uniforms.uHole = { value: new THREE.Vector4(OX, OZ, UX, UZ) };
+      sh.uniforms.uEdge = uEdge;
       sh.uniforms.uStalk = { value: STALK };
+      sh.uniforms.uSlotS = uSlotS;
       sh.uniforms.uLid = uLid;
       sh.uniforms.uRoll = uRoll;
       sh.uniforms.uCrush = uCrush;
       sh.uniforms.uFill = uFill;
       sh.vertexShader = sh.vertexShader
-        .replace('#include <common>', `#include <common>\nattribute vec2 aWhere;\nattribute vec3 aFill;\nvarying vec3 vRig;\nvarying vec2 vWhere;\nvarying float vCrush;\nuniform vec4 uLid;\nuniform vec2 uRoll;\nuniform vec3 uHole;\nuniform float uFill;\nuniform float uCrush[${NB_ALL}];`)
-        // the groove's floor lifted (aFill), its walls turned up with it
+        .replace('#include <common>', `#include <common>\nattribute vec2 aWhere;\nattribute vec3 aFill;\nvarying vec3 vRig;\nvarying vec2 vWhere;\nvarying float vCrush;\nuniform vec4 uLid;\nuniform vec2 uRoll;\nuniform vec3 uEdge;\nuniform vec4 uHole;\nuniform float uFill;\nuniform float uCrush[${NB_ALL}];`)
+        // the groove's floor lifted (aFill), its walls turned up with it; where it is pressed flat (in the gap, wrapped
+        // over the lid's edge) all the way: a flat ribbon, the groove only painted on
         .replace('#include <beginnormal_vertex>', `#include <beginnormal_vertex>
-          float fillA = uFill * smoothstep(0.0, 0.008, length(aFill));
+          float cr = 0.0;
+          cr += skinWeight.x * uCrush[int(skinIndex.x)]; cr += skinWeight.y * uCrush[int(skinIndex.y)];
+          cr += skinWeight.z * uCrush[int(skinIndex.z)]; cr += skinWeight.w * uCrush[int(skinIndex.w)];
+          float fillK = mix(uFill, 1.0, smoothstep(0.1, 0.45, cr));
+          float fillA = fillK * smoothstep(0.0, 0.008, length(aFill));
           objectNormal = normalize(mix(objectNormal, normalize(aFill + vec3(1e-6)), 0.85 * fillA));`)
-        .replace('#include <begin_vertex>', '#include <begin_vertex>\ntransformed += aFill * uFill;')
+        .replace('#include <begin_vertex>', '#include <begin_vertex>\ntransformed += aFill * fillK;')
         // the bones are scaled unevenly (crushed flat in the gap): normals by the inverse transpose
         .replace('#include <skinnormal_vertex>', `#ifdef USE_SKINNING
           mat4 skinMatrix = mat4(0.0);
@@ -638,45 +830,51 @@ export function createTongue(THREE, opts = {}) {
           skinMatrix = bindMatrixInverse * skinMatrix * bindMatrix;
           objectNormal = transpose(inverse(mat3(skinMatrix))) * objectNormal;
           #endif`)
-        // in the gap it can't be thicker than the gap: under the lid, never above its underside; over the rim's front,
-        // never below its top (the bones do nearly all of it; this makes it exact)
+        // in the gap it can't be thicker than the gap: under the lid, never above its underside; over the rim, never
+        // below its top (the bones do nearly all of it; this makes it exact), wherever along the track it comes out
         .replace('#include <skinning_vertex>', `#include <skinning_vertex>
           // A ceiling (the lid's underside) and a floor (the rim's top), both faded in over a little way (from the lid's
-          // front edge, from the rim's edges) and continuous: what pokes through a little is pressed onto them; what is
-          // deeper (hidden in the lid or the rim) is eased back to where it was, so nothing tears or steps. (Just
-          // behind the lid's front edge, what is only partly pressed is hidden by the lid's front face.)
+          // edges, from the rim's edges) and continuous: what pokes through a little is pressed onto them; what is
+          // deeper (hidden in the lid or the rim) is eased back to where it was, so nothing tears or steps. (The
+          // ceiling is all there from just inside the lid's edge, faded in from just outside it: going through the
+          // gap at a slant, the tongue's flank right at the edge doesn't poke up into the lid's edge face.)
           if (uLid.z > 0.5) {
-            float zr = transformed.z - uLid.y, ax = abs(transformed.x);
-            float fade = (1.0 - smoothstep(0.5, 0.56, ax)) * smoothstep(0.0, -0.025, zr);
+            float ax = abs(transformed.x), az = abs(transformed.z);
+            // (how far in under the lid: from its sides, its front, its cut front corners)
+            float dIn = -max(max(ax - uEdge.x, transformed.z - uLid.y), (ax + transformed.z - uEdge.y) * 0.7071);
+            float fade = smoothstep(-0.006, 0.012, dIn);
             if (fade > 0.0) {
               float yTop = (transformed.z + 0.5) * uLid.x + (transformed.x - uRoll.y) * uRoll.x - 0.004;
               float o = transformed.y - yTop;
               if (o > 0.0) transformed.y -= fade * (o < 0.04 ? o : max(0.0, 0.04 - (o - 0.04)));
             }
-            float fb = (1.0 - smoothstep(0.54, 0.58, ax)) * smoothstep(0.515, 0.49, transformed.z) * smoothstep(uHole.y - 0.012, uHole.y + 0.002, transformed.z);
+            // (on the rim: inside its outline, outside the opening)
+            float rimSd = max(max(ax - uHole.z, az - uHole.w), (ax + az - 0.974) * 0.7071);
+            float fb = smoothstep(0.015, -0.01, rimSd) * smoothstep(-0.012, 0.002, max(ax - uHole.x, az - uHole.y));
             if (fb > 0.0) {
               float u = 0.004 - transformed.y;
               if (u > 0.0) transformed.y += fb * (u < 0.04 ? u : max(0.0, 0.04 - (u - 0.04)));
             }
           }
-          float cr = 0.0;
-          cr += skinWeight.x * uCrush[int(skinIndex.x)]; cr += skinWeight.y * uCrush[int(skinIndex.y)];
-          cr += skinWeight.z * uCrush[int(skinIndex.z)]; cr += skinWeight.w * uCrush[int(skinIndex.w)];
           vCrush = cr;`)
         .replace('#include <project_vertex>', 'vRig = transformed;\nvWhere = aWhere;\n#include <project_vertex>');
       sh.fragmentShader = sh.fragmentShader
-        .replace('#include <common>', '#include <common>\nvarying vec3 vRig;\nvarying vec2 vWhere;\nvarying float vCrush;\nuniform vec3 uHole;\nuniform float uStalk;\nuniform vec4 uLid;\nuniform vec2 uRoll;')
+        .replace('#include <common>', '#include <common>\nvarying vec3 vRig;\nvarying vec2 vWhere;\nvarying float vCrush;\nuniform vec4 uHole;\nuniform float uStalk;\nuniform float uSlotS;\nuniform vec4 uLid;\nuniform vec2 uRoll;\nuniform vec3 uEdge;')
         // crushed flat in the gap it is dull, not glazed (no hard wet glints on the squeezed flanges)
+        // (pressed flat it is smooth: the relief of its taste buds and its groove mostly gone)
+        .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+          normal = normalize(mix(normal, nonPerturbedNormal, 0.7 * vCrush));`)
         .replace('#include <lights_physical_fragment>', `#include <lights_physical_fragment>
           material.clearcoat *= 1.0 - 0.85 * vCrush;
           material.roughness = mix(material.roughness, max(material.roughness, 0.55), vCrush);
-          // the smooth underside: a softer sheen (its few big mirror glints read as a face when it hangs toward you)
+          // the smooth underside: a softer sheen (its few big mirror glints read as a face when it hangs toward you, and blew
+          // out white as it rolled over)
           float undr = smoothstep(-0.05, -0.65, vWhere.x);
           material.clearcoat *= 1.0 - 0.35 * undr;
-          material.clearcoatRoughness = mix(material.clearcoatRoughness, 0.22, undr);`)
+          material.clearcoatRoughness = mix(material.clearcoatRoughness, 0.2, undr);`)
         // the underside: a deeper, richer red than the pale pink baked into the map
         .replace('#include <map_fragment>', `#include <map_fragment>
-          diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * vec3(0.98, 0.8, 0.82), smoothstep(-0.05, -0.65, vWhere.x));`)
+          diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * vec3(1.0, 0.86, 0.88), smoothstep(-0.05, -0.65, vWhere.x));`)
         // the studio lights the gloss more than the flesh: a deep, wet red rather than a bright pink
         .replace('#include <lights_fragment_maps>', '#include <lights_fragment_maps>\niblIrradiance *= 0.35;')
         // inside the opening, below the rim, it sinks into the black of the bin; under the lid, into the dark of the
@@ -687,13 +885,17 @@ export function createTongue(THREE, opts = {}) {
           // (as dark as it is deep under the lid for how far the lid is open)
           // (only under it: not what lies on its top)
           float yLid = (vRig.z + 0.5) * uLid.x + (vRig.x - uRoll.y) * uRoll.x;
-          float underLid = uLid.w * (1.0 - smoothstep(0.49, 0.53, abs(vRig.x))) * smoothstep(uLid.y + 0.006, uLid.y - 0.07 - 1.5 * uLid.x, vRig.z) * smoothstep(-0.06, -0.01, vRig.y) * smoothstep(yLid + 0.06, yLid + 0.02, vRig.y);
+          float dIn = -max(max(abs(vRig.x) - uEdge.x, vRig.z - uLid.y), (abs(vRig.x) + vRig.z - uEdge.y) * 0.7071);
+          float underLid = uLid.w * smoothstep(-0.006, 0.07 + 1.5 * uEdge.z, dIn) * smoothstep(-0.06, -0.01, vRig.y) * smoothstep(yLid + 0.06, yLid + 0.02, vRig.y);
           outgoingLight *= mix(1.0, 0.025, underLid);
           outgoingLight *= mix(0.06, 1.0, smoothstep(uStalk - 0.14, uStalk + 0.06, vWhere.y));
+          // (and whatever is more than a little behind the gap, along it, is in the dark under the lid: seen through
+          // the gap where the lid is lifted beside a corner, it would show as a pink strip)
+          outgoingLight *= mix(1.0, 0.03, smoothstep(uSlotS - 0.015, uSlotS - 0.07, vWhere.y));
           #include <opaque_fragment>`);
     };
-    mat.userData.uLid = uLid; mat.userData.uRoll = uRoll; mat.userData.uFill = uFill;
-    mat.customProgramCacheKey = () => 'tongue-model-gap-5';
+    mat.userData.uLid = uLid; mat.userData.uRoll = uRoll; mat.userData.uEdge = uEdge; mat.userData.uFill = uFill;
+    mat.customProgramCacheKey = () => 'tongue-model-track-2';
     mat.needsUpdate = true;
 
     // the chain's state
@@ -701,6 +903,7 @@ export function createTongue(THREE, opts = {}) {
     rotInv = Array.from({ length: NJ }, () => new THREE.Quaternion()); blen = new Float32Array(NJ);
     const f32 = () => new Float32Array(NJ);
     tgtP = f32(); tgtY = f32(); tgtO = f32(); tgtR = f32(); angP = f32(); angY = f32(); angR = f32(); velP = f32(); velY = f32(); velR = f32();
+    tgtFP = f32(); tgtFY = f32(); tgtFR = f32(); angFP = f32(); angFY = f32(); angFR = f32(); velFP = f32(); velFY = f32(); velFR = f32();
     kz = f32().fill(1); kw = f32().fill(1);
     contact = new Uint8Array(NJ + 1); wasContact = new Uint8Array(NJ + 1); conLid = new Uint8Array(NJ + 1); cType = new Uint8Array(NJ + 1);
     cpt = Array.from({ length: NJ + 1 }, V); cnr = Array.from({ length: NJ + 1 }, V);
@@ -733,24 +936,49 @@ export function createTongue(THREE, opts = {}) {
   function evalPose(t) {
     for (const k in tracks) par[k] = tracks[k](t);
     par.push = pushAt(t);
-    par.slide *= sx; par.turn *= sx; par.yaw *= sx; par.hook *= sx; par.roll *= sx; par.twist *= sx;
-    par.hd *= sx; par.kc *= sx; par.fd *= sx; par.fk *= sx; par.aim *= sx;
-    par.out = clamp(par.out, 0, L - STALK - 0.02); par.push = Math.max(0, par.push);
-    lid.at = par.slide;
+    // (out of the gap down the bin's face it points round the corner it is coming to; folded back over the lid's edge
+    // onto the top, it heads in leaning away from it: the same turn, the other way; in between, a blend; reared up in
+    // the air, straight out: slanted there it swung out sideways as it flopped over)
+    par.aim += tracks.aimA(t) * (clamp(par.wf, 0, 1) - 0.5 * clamp(par.wl, 0, 1));
+    par.wlag = tracks.wlag(t);
+    par.trk *= sx; par.ta *= sx; par.turn *= sx; par.yaw *= sx; par.hook *= sx; par.roll *= sx; par.twist *= sx; par.ttw *= sx; par.spin *= sx;
+    par.hd *= sx; par.wlag *= sx; par.kc *= sx; par.fd *= sx; par.fk *= sx; par.aim *= sx;
+    par.out = clamp(par.out, 0, Math.min(OUT_MAX, L - STALK - 0.02)); par.push = Math.max(0, par.push);
+    trackAt(par.trk, TK); lid.px = TK.x; lid.pz = TK.z; lid.front = TK.front;
   }
 
-  // The gap: where the tongue passes the lid's front edge, its spine half way up what it holds the lid at; the frame
-  // of the bone that is in it (the rest frames turned so that the rest frame at the gap lies along it).
+  // The gap: where the tongue passes the lid's edge (its place on the track), its spine half way up what it holds the
+  // lid at; the frame of the bone that is in it (the rest frames turned so that the rest frame at the gap lies along
+  // it). Out of a side it goes sideways, out of a corner at a diagonal: everything below is laid out from this frame.
   let rcNow = 1;
   function computeSlot() {
     lidAngle();
     const push = Math.max(par.push, 2 * CL + 0.012);
-    // (aim: it goes through the gap at a slant, + toward the viewer's left)
-    const e = par.exit + 0.5 * Math.atan(lid.tan), aim = clamp(par.aim, -0.6, 0.6), sa = -Math.sin(aim), ca = Math.cos(aim);
-    slot.along.set(sa * Math.cos(e), Math.sin(e), ca * Math.cos(e)); slot.up.set(-sa * Math.sin(e), Math.cos(e), -ca * Math.sin(e));
-    slot.top.copy(slot.up).multiplyScalar(FLIP);
+    slot.n.set(TK.nx, 0, TK.nz); slot.t.set(TK.tx, 0, TK.tz);
+    // (the lid's edge there, carried by the lid as it is now: it moves in a hair as the lid tips)
+    toRig(SL.set(TK.x, 0, TK.z - HINGE_Z), SE);
+    slot.p.set(SE.x, push / 2, SE.z);
+    // (aim: it goes through the gap at a slant, + toward - trk: at the front, the viewer's left; it leaves the gap
+    // tipped up by half the lid's slope out there)
+    const e = par.exit + 0.5 * Math.atan(TK.nx * lid.rsl + TK.nz * lid.tan), aim = clamp(par.aim, -0.6, 0.6), sa = -Math.sin(aim), ca = Math.cos(aim);
+    const ce = Math.cos(e), se = Math.sin(e);
+    V2.copy(slot.t).multiplyScalar(sa).addScaledVector(slot.n, ca); // level, slanted
+    slot.along.copy(V2).multiplyScalar(ce); slot.along.y = se;
+    slot.up.copy(V2).multiplyScalar(-se); slot.up.y = ce;
+    // (the hidden part runs in between straight in and toward the bin's middle: near a front corner, straight in from a
+    // side runs along over the rim's front edge and doesn't reach the opening for a long way, under the lid, up against
+    // its underside as the lid tips down toward its far edge)
+    V3.set(-slot.p.x, 0, -slot.p.z).normalize().addScaledVector(slot.n, -1).normalize().negate();
+    slot.hA.copy(V3).multiplyScalar(ce); slot.hA.y = se;
+    slot.hU.copy(V3).multiplyScalar(-se); slot.hU.y = ce;
+    // (flip: turned about its length in the gap, 1: upside down, 0: top up; the turn is the other way when mirrored)
+    const th = Math.PI * clamp(par.flip, 0, 1);
+    slot.cth = Math.cos(th); slot.sth = -Math.sin(th) * sx;
+    slot.top.copy(slot.up).multiplyScalar(slot.cth).addScaledVector(V1.crossVectors(slot.along, slot.up), slot.sth);
     slot.q.setFromRotationMatrix(M4.makeBasis(V1.crossVectors(slot.along, slot.top), slot.along, slot.top));
-    slot.p.set(par.slide, push / 2, lid.ze);
+    // (at a corner the opening's edge runs across it at a slant: in as far as its edges, not just its middle, are in)
+    slot.strip = 0.02;
+    for (let e = -1; e <= 1; e++) slot.strip = Math.max(slot.strip, toOpening(slot.p.x + e * 0.13 * TK.tx, slot.p.z + e * 0.13 * TK.tz, V3.x, V3.z));
     uSlot = L - par.out;
     let ks = 0;
     while (ks < NJ - 1 && sAt[ks + 1] <= uSlot) ks++;
@@ -765,47 +993,66 @@ export function createTongue(THREE, opts = {}) {
 
   // The bend at every joint out of the gap (pitch: toward the top +, yaw: to the tongue's left +, roll: about its
   // length): targets from the keys, and the bends actually drawn, which chase them on springs: softer toward the tip,
-  // so the tip lags, whips and overshoots. Joints still in the gap or behind it take their targets at once.
+  // so the tip lags and follows through (damped: no flutter). Joints still in the gap or behind it take their targets
+  // at once.
   // The targets are a blend: the free pose (bend, over, turn, arch, yaw, roll: in the air) and the rails (wl: laid
-  // over the lid's front edge and across its top, draped over its side; wf: down over the rim's lip and the bin's
-  // front), plus what is added on top (curl, hook, wave, twist: the tip's own life).
-  const ZETA = 0.42, ROUND_AT = 0.24;
+  // over the lid's edge where it comes out and across its top, draped over its side; wf: down over the rim's lip and
+  // the bin's face), plus what is added on top (curl, hook, wave, twist, ttw: the tip's own life).
+  const ZETA = 0.55, ROUND_AT = 0.24;
   const fP = new Float32Array(32), fY = new Float32Array(32), fR = new Float32Array(32);
   const rP = new Float32Array(32), rY = new Float32Array(32), rR = new Float32Array(32);
-  const qP = new Float32Array(32), qY = new Float32Array(32), qR = new Float32Array(32);
+  const qP = new Float32Array(32), qY = new Float32Array(32), qR = new Float32Array(32), twK = new Float32Array(32), rlW = new Float32Array(32), spW = new Float32Array(32);
   function targets() {
     computeSlot();
-    let dw = 0, full = 0, rw = 0, tw = 0, ow = 0;
+    let dw = 0, full = 0, rw = 0, tw = 0, ow = 0, xw = 0, lw = 0, pw = 0;
+    // (spin: where it turns, just past the fold over the lid's edge when it lies on the lid, just past the gap if not)
+    const spA = 0.04 + (FOLD_D + 0.06) * clamp(par.wl, 0, 1);
+    // (ttw: in the air over the front half of what is out; lying over the lid's edge, only past the fold: over the edge
+    // it stays flat on it)
+    const outL = Math.max(0.05, L - uSlot), wlc = clamp(par.wl, 0, 1);
+    const tw0 = 0.2 * outL * (1 - wlc) + (FOLD_D + 0.03) * wlc, tw1 = Math.max(tw0 + 0.12, 0.65 * outL * (1 - wlc) + (outL - 0.1) * wlc);
     for (let k = 1; k < NJ; k++) {
-      const d = sAt[k] - uSlot, gw = Math.exp(-0.5 * ((d - par.dpos) / par.dsig) ** 2);
-      tgtY[k] = d > 0 ? gw : 0; dw += tgtY[k]; full += gw;
-      tgtO[k] = d > 0 ? Math.exp(-0.5 * ((d - par.opos) / par.osig) ** 2) : 0; ow += tgtO[k];
+      // (a joint's share of a bend fades in as it comes out of the gap: cut off at the gap, a bend keyed near it jumped
+      // onto each joint as it came out)
+      const d = sAt[k] - uSlot, gw = Math.exp(-0.5 * ((d - par.dpos) / par.dsig) ** 2), din = smooth(0, 0.03, d);
+      tgtY[k] = gw * din; dw += tgtY[k]; full += gw;
+      tgtO[k] = Math.exp(-0.5 * ((d - par.opos) / par.osig) ** 2) * din; ow += tgtO[k];
       // (rolls and turns to the side happen where it is round again, not where it is still a flat ribbon; a turn
       // over a few joints, a roll spread evenly over all the rest, so no joint twists much: no candy-wrapping)
       // (spread over ~0.25 of its length: a wide, flat tongue bent sideways too tightly folds its inner edge through)
       tgtP[k] = Math.exp(-0.5 * ((d - ROUND_AT) / 0.11) ** 2) * smooth(0.07, 0.16, d); tw += tgtP[k];
       tgtR[k] = smooth(0.05, 0.32, d) * restLen[k - 1]; rw += tgtR[k];
+      // (the tip's own twist, ttw: spread over the front half of what is out, a corkscrew, not a pinch at the tip)
+      fR[k] = smooth(tw0, tw1, d) * restLen[k - 1]; xw += fR[k];
+      // (roll, in the air: turned in the first ~0.3 past the gap, where it is still a flat ribbon, and the rest of it
+      // turns as one: the body rolls over whole, its top or its underside square to you)
+      rlW[k] = Math.max(0, smooth(0.03, 0.1, d) - smooth(0.24, 0.36, d)) * restLen[k - 1]; lw += rlW[k];
+      // (spin: turned over ~0.2 just past where it leaves the lid's edge, and all the rest turns as one: lifted off the
+      // top, its whole front rolls over, its top, its edge, its underside to you; the fold stays flat on the edge)
+      spW[k] = Math.max(0, smooth(spA - 0.02, spA + 0.06, d) - smooth(spA + 0.08, spA + 0.16, d)) * restLen[k - 1]; pw += spW[k];
     }
-    dw = Math.max(dw, 0.5 * full, 1e-6); rw = Math.max(rw, 1e-6); tw = Math.max(tw, 1e-6); ow = Math.max(ow, 1e-6);
-    const wl = clamp(par.wl, 0, 1), wf = clamp(par.wf, 0, 1 - wl), w0 = 1 - wl - wf;
+    lw = Math.max(lw, 1e-6); pw = Math.max(pw, 1e-6);
+    dw = Math.max(dw, 0.5 * full, 1e-6); rw = Math.max(rw, 1e-6); tw = Math.max(tw, 1e-6); ow = Math.max(ow, 1e-6); xw = Math.max(xw, 1e-6);
+    // (the free pose's own targets, whatever its weight: they are sprung on their own, so as it hands over from a rail
+    // to the air its free pose is already where it is keyed, not drooping in after it; and keyed as it would be top up:
+    // turned over in the gap (flip), solve() turns them the other way, so it keeps its shape as it turns about its
+    // length, a cobra turning round)
     for (let k = 1; k < NJ; k++) {
       const d = sAt[k] - uSlot, len = restLen[k - 1], out = smooth(0, 0.05, d);
-      fP[k] = w0 * (par.bend * tgtY[k] / dw + par.over * tgtO[k] / ow + par.arch * len * out);
-      fY[k] = w0 * (par.turn * tgtP[k] / tw + par.yaw * len * out);
-      fR[k] = (w0 * par.roll + par.twist) * tgtR[k] / rw;
+      fP[k] = par.bend * tgtY[k] / dw + par.over * tgtO[k] / ow + par.arch * len * out;
+      fY[k] = par.turn * tgtP[k] / tw + par.yaw * len * out;
+      // (the twists: on a rail they are built into the rail's frames, so it stays on the rail; see railAngles)
+      twK[k] = par.twist * tgtR[k] / rw + par.ttw * fR[k] / xw + par.spin * spW[k] / pw;
+      fR[k] = par.roll * rlW[k] / lw + twK[k];
     }
-    // (the rails' bends are laid on as they are, not sprung: sliding along a rail each joint's bend changes as it
-    // passes an edge, and a spring would smear the bend off the edge; the springs carry the free pose and the tip's
-    // own life on top)
-    qP.fill(0); qY.fill(0); qR.fill(0);
-    if (wl > 1e-3) { railLid(); railAngles(); for (let k = 1; k < NJ; k++) { qP[k] += wl * rP[k]; qY[k] += wl * rY[k]; qR[k] += wl * rR[k]; } }
-    if (wf > 1e-3) { railFront(); railAngles(); for (let k = 1; k < NJ; k++) { qP[k] += wf * rP[k]; qY[k] += wf * rY[k]; qR[k] += wf * rR[k]; } }
+    tgtFP.set(fP.subarray(0, NJ)); tgtFY.set(fY.subarray(0, NJ)); tgtFR.set(fR.subarray(0, NJ));
+    // (and the tip's own life, on whatever it is on)
     for (let k = 1; k < NJ; k++) {
       const d = sAt[k] - uSlot, out = smooth(0, 0.05, d), en = smooth(0, 0.25, d);
       const wv = par.wave * en * Math.sin(2 * Math.PI * (d / 0.5 - phase));
-      tgtP[k] = fP[k] + par.curl * curlN[k] * out + wv;
-      tgtY[k] = fY[k] + par.hook * curlN[k] * out + 0.45 * par.wave * en * Math.sin(2 * Math.PI * (d / 0.65 - 0.8 * phase) + 1.3) * sx;
-      tgtR[k] = fR[k];
+      tgtP[k] = par.curl * curlN[k] * out + wv;
+      tgtY[k] = par.hook * curlN[k] * out + 0.45 * par.wave * en * Math.sin(2 * Math.PI * (d / 0.65 - 0.8 * phase) + 1.3) * sx;
+      tgtR[k] = 0;
     }
   }
 
@@ -815,7 +1062,8 @@ export function createTongue(THREE, opts = {}) {
   // touches) rolled along their outline (so it wraps over an edge, never cuts it), or a path across the lid's top.
   // railAngles() turns it into bends: each joint at its own distance along the chain from the gap (so as more of the
   // tongue comes out it slides along the rail, and the rail moving drags it), the bends between the bones.
-  const RMAX = 512, STEP = 0.01, RMIN = 0.26, CLR = 0.006;
+  const RMAX = 512, STEP = 0.01, RMIN = 0.26, CLR = 0.009;
+  let clrX = 0; // (more clearance, while the face rail is walked)
   const RP = new Float32Array(RMAX * 3), RU = new Float32Array(RMAX * 3), RS = new Float32Array(RMAX);
   let RN = 0;
   function railAdd(x, y, z, ux, uy, uz) {
@@ -827,18 +1075,45 @@ export function createTongue(THREE, opts = {}) {
   }
   const railLen = () => (RN ? RS[RN - 1] : 0);
   // the tongue's half thickness toward its top (top) or its underside, d along the rail from the gap (as squashed now)
-  function thickAt(d, top) {
+  // how far it is twisted about its length (twist, ttw) d along the rail from the gap
+  // (eased in over the bone before each joint, not a step at the joint: a twist concentrated over a few joints would
+  // make the rails' thickness, and so their line, jump as it passes each one)
+  function twistAt(d) {
     const s = uSlot + d / rcNow;
+    let tw = 0;
+    for (let k = Math.max(1, kSlot + 1); k < NJ; k++) {
+      if (sAt[k] <= s) { tw += twK[k]; continue; }
+      const a = Math.max(uSlot, sAt[k - 1]);
+      if (s > a) tw += twK[k] * (s - a) / Math.max(1e-4, sAt[k] - a);
+      break;
+    }
+    return tw;
+  }
+  function thickAt(d, top, flatOnly = false) {
+    const s = uSlot + d / rcNow, tw = twistAt(d);
     let k = Math.max(0, kSlot);
     while (k < NJ - 1 && sAt[k + 1] <= s) k++;
     const f = k < NJ - 1 ? clamp((s - sAt[k]) / restLen[k], 0, 1) : 0;
-    const a = (top ? zT[k] : zB[k]) * kz[k], b = k + 1 < NJ ? (top ? zT[k + 1] : zB[k + 1]) * kz[k + 1] : a;
-    return a + (b - a) * f + CLR;
+    const face = (t) => { const a = (t ? zT[k] : zB[k]) * kz[k], b = k + 1 < NJ ? (t ? zT[k + 1] : zB[k + 1]) * kz[k + 1] : a; return a + (b - a) * f; };
+    // (the clearance kept off what it lies on fades in over its first few hundredths out of the gap: in the gap its
+    // spine is half way up the gap, as thick as the gap lets it be; a rail started a clearance higher than that put a
+    // kink at the gap, the bone in it aimed up at the rail, then down)
+    const CL0 = (CLR + clrX) * smooth(-0.01, 0.08, d);
+    // (twisted about its length it rests on the edge of its section: wider than it is thick, it stands up off the
+    // surface on it; turned right over, on its other face. Its section is fuller at the corners than an ellipse, its
+    // underside flat: see reach())
+    if (Math.abs(tw) < 0.02) return face(top) + CL0;
+    const c = Math.cos(tw);
+    // (lying flat on whichever face is down: eased from the one to the other as it turns past its edge; switched at a
+    // quarter turn, the top's and the underside's different reach made the rail, and what lay on it, jump)
+    if (flatOnly) { const w = smooth(-0.35, 0.35, c); return face(top) * w + face(!top) * (1 - w) + CL0; }
+    return reach(wideAt(d) * Math.sin(tw), face(c >= 0 ? top : !top) * c) + CL0;
   }
   // the tightest a rail may turn to the side: what the bend limits let the widest of what is out do (see limits())
   function turnMin() {
     let r = RMIN;
-    for (let k = kSlot + 1; k < NJ; k++) r = Math.max(r, 1.45 * hw[k] * kw[k]);
+    // (a joint coming out of the gap counts in as it comes out, not all at once: the path would jump)
+    for (let k = kSlot + 1; k < NJ; k++) r = Math.max(r, 1.45 * hw[k] * kw[k] * smooth(0, 0.04, sAt[k] - uSlot));
     return r;
   }
   // its half width there
@@ -886,10 +1161,19 @@ export function createTongue(THREE, opts = {}) {
   }
   const BB = new Float32Array(160), RA = V(), RB = V(), RC = V();
   const LMAX = 200, LX = new Float32Array(LMAX), LZ = new Float32Array(LMAX), LH = new Float32Array(LMAX), LY = new Float32Array(LMAX), LS = new Float32Array(LMAX);
+  const LTK = new Float32Array(LMAX), LSE = new Float32Array(LMAX), LHT = new Float32Array(LMAX), LB = new Float32Array(LMAX);
   const LID_TOP = 0.105, PANEL_TOP = 0.18;
   // the lid's top (lid space): the band, the raised panel in the middle; off the lid, far down
   const lidTopRaw = (x, z) => (Math.abs(x) > LID_HW || z > LID_D || z < -0.06 ? -1 : LID_TOP + (PANEL_TOP - LID_TOP) * smooth(0.012, -0.012, rectSd(x, z - 0.48, 0.345, 0.305)));
-  const lidTopH = (x, z, dx, dz) => Math.max(lidTopRaw(x, z), lidTopRaw(x + dx, z + dz), lidTopRaw(x - dx, z - dz));
+  // (for resting on: past its outline the top falls away steeply, not all at once: an edge of the tongue sampled just
+  // past it and just on it must rest nearly the same, or as it slides over the outline it jumps)
+  // (and the raised panel's step eased into a ramp a little way out from it: a wide flat tongue lying beside it, sampled
+  // only across its middle and its edges, would let the panel's corner poke up into it between them)
+  const lidTopC = (x, z) => {
+    const o = Math.max(Math.abs(x) - LID_HW, z - LID_D, -0.06 - z);
+    return o > 0 ? LID_TOP - 4 * o : LID_TOP + (PANEL_TOP - LID_TOP) * smooth(0.07, -0.01, rectSd(x, z - 0.48, 0.345, 0.305));
+  };
+  const lidTopH = (x, z, dx, dz) => Math.max(lidTopC(x, z), lidTopC(x + dx, z + dz), lidTopC(x - dx, z - dz));
   // Where the tongue rests on the lid's top at (x, z), heading ph (lid space): its flat underside on the highest of
   // what is under its middle and its two edges (w either side), tipped across if it rests on one edge (a step: the
   // panel's edge). -> LT.y (its underside's height at the middle), LT.s (its slope across, toward +a)
@@ -901,41 +1185,89 @@ export function createTongue(THREE, opts = {}) {
     if (hC <= mid) { LT.y = mid; LT.s = (hR - hL) / (2 * w); } // (on both edges)
     else if (hC >= hL && hC >= hR) { LT.y = hC; LT.s = 0; } // (flat on its middle)
     else { LT.y = hC; LT.s = hR > hL ? (hR - hC) / w : (hC - hL) / w; } // (on its middle and the higher edge)
-    LT.s = clamp(LT.s, -0.35, 0.35);
+    LT.s = clamp(LT.s, -0.5, 0.5);
   }
-  // The lid rail: up the lid's front face from the gap (its underside on it, so its top faces out), over the front edge
-  // and back across the top, heading turning toward hd (+: to the viewer's left; at most 1/RMIN a unit length) and
-  // curving kc more; if it gets to a side edge, over it and down that side (draped from the lid's edge over the rim's,
-  // down the rim and tucked in under its lip onto the body).
+  // The lid rail: up the lid's edge face from the gap, wherever on the track it is (its underside on it, so its top
+  // faces out), over the edge and in across the top, heading for the point (tx, tz) (tongue space; turned hd more, +:
+  // toward - trk; turning at most 1/RMIN a unit length) and curving kc more; if it gets to an edge, over it and down
+  // that side of the bin (draped from the lid's edge over the rim's, down the rim and tucked in under its lip onto the
+  // body). lift raises what lies on the top off it, more toward the tip (a lick's stroke: it peels up, swings over and
+  // slaps back down; s: how far along the top from where the fold left it).
+  // (its front, past the first few hundredths, peeled up level: lifted, it hovers over the top, its root still on it,
+  // so a roll-over rolls over above the lid, not up off its edge)
+  const liftAt = (s) => par.lift * smooth(0.06, 0.3, s);
   function railLid() {
     RN = 0;
     const dMax = (L - uSlot) * rcNow + 0.12;
+    const nx = slot.n.x, nz = slot.n.z, tx = slot.t.x, tz = slot.t.z;
     toLid(slot.p, RA);
-    const x0 = RA.x;
-    // over the front edge: half a circle from the gap, up in front of the lid's face and back onto its top (as wide as
-    // the rise: it just clears the edge; a tighter fold of so thick a tongue would split its groove open)
-    // (aim: slanted through the gap toward the viewer's left, it wraps round diagonally, like a stripe round a barber's
-    // pole: its flat side stays on the lid's face and its edge, drifting to the left all the way, and it heads back
-    // over the top at the same slant)
-    const z0 = Math.min(RA.z, LID_D), yT = LID_TOP + thickAt(0.45, false), R = Math.max(0.03, (yT - RA.y) / 2), yc = RA.y + R;
-    const aim = clamp(par.aim, -0.6, 0.6), drift = R * Math.tan(aim);
-    const nS = Math.ceil(Math.PI * R / Math.cos(aim) / STEP);
+    // (where it comes over: the lid's edge there, in lid space; past a cut corner, in onto it)
+    let x0 = clamp(RA.x, -LID_HW, LID_HW), z0 = Math.min(RA.z, LID_D);
+    const cut = (Math.abs(x0) + Math.abs(z0 - 0.47) - 0.96) / (Math.abs(nx) + Math.abs(nz));
+    if (cut > 0) { x0 -= nx * cut; z0 -= nz * cut; }
+    // over the edge, hugging it: from the gap it turns up (its underside to the lid's edge face), goes straight up the
+    // face and turns in over the edge onto the top: two quarter turns as tight as the tongue is thick there, so it
+    // stays a wet fold pressed round the edge, not a loop standing off it (it never folds tighter than its own
+    // thickness: so thick a tongue folded tighter would split its groove open)
+    // (aim: slanted through the gap, it wraps round diagonally, like a stripe round a barber's pole: its flat side stays
+    // on the lid's edge face and its edge, drifting along the track all the way, and it heads in over the top at the
+    // same slant)
+    // (to the height it lies at on the top: lying flat, however it is twisted further on)
+    const yT = LID_TOP + thickAt(0.45, LIDF, true), y0 = RA.y, r = clamp(thickAt(0.12, LIDF, true) + 0.018, 0.035, Math.max(0.035, (yT - y0) / 2));
+    const up = Math.max(0, yT - y0 - 2 * r), q1 = 0.5 * Math.PI * r, flen = 2 * q1 + up;
+    const aim = clamp(par.aim, -0.6, 0.6), ta = Math.tan(aim);
+    const nS = Math.ceil(flen / Math.cos(aim) / STEP);
+    // (round a corner of the track the way out of the gap turns smoothly, but the lid's edge faces don't: the side, its
+    // cut corner, the front. Pressed on a face at a slant, the flat tongue's one edge would dig in: the fold stands off
+    // the edge as far as the lid reaches past the line its root lies along there, ex)
+    const wr = 1.15 * Math.max(wideAt(0.1), wideAt(0.18));
+    let ex = 0;
+    for (const f of [-1, -0.5, 0.5, 1]) ex = Math.max(ex, rayOct(x0 + tx * wr * f, z0 + tz * wr * f - 0.47, nx, nz, LID_HW, 0.53, 0.96));
+    ex = Math.min(ex, 0.1);
     for (let i = 0; i <= nS && railLen() < dMax; i++) {
-      const a = Math.PI * i / nS, sa = Math.sin(a), ca = Math.cos(a);
-      toRig(PL.set(x0 - drift * a, yc - R * ca, z0 + R * sa), RB);
-      dirToRig(NL.set(0, -ca, sa), RC);
+      const s = flen * i / nS;
+      let u, y, cu, cy; // (u: out from the edge, y: up; cu, cy: the way its top faces)
+      if (s < q1) { const a = s / r; u = r * Math.sin(a); y = y0 + r - r * Math.cos(a); cu = Math.sin(a); cy = -Math.cos(a); }
+      else if (s < q1 + up) { u = r; y = y0 + r + (s - q1); cu = 1; cy = 0; }
+      else { const b = Math.min(0.5 * Math.PI, (s - q1 - up) / r); u = r * Math.cos(b); y = y0 + r + up + r * Math.sin(b); cu = Math.cos(b); cy = Math.sin(b); }
+      u += ex * smooth(0, 0.7 * q1, s);
+      toRig(PL.set(x0 + nx * u - tx * s * ta, y, z0 + nz * u - tz * s * ta), RB);
+      dirToRig(NL.set(FS * nx * cu, FS * cy, FS * nz * cu), RC);
       railAdd(RB.x, RB.y, RB.z, RC.x, RC.y, RC.z);
     }
     if (railLen() >= dMax) return;
-    // across the top (from where the fold left it): first the path in the lid's plane (heading turning toward hd, no
-    // tighter than the tongue can bend sideways, curving kc more) and what it would rest on at each step...
-    let x = x0 - drift * Math.PI - Math.sin(aim) * STEP, z = z0 - Math.cos(aim) * STEP, ph = aim, m = 0, edge = false;
-    const hd = par.hd, kc = par.kc, rmin = turnMin(), d0 = railLen();
+    // across the top (from where the fold left it): first the path in the lid's plane (heading turning toward the
+    // target, no tighter than the tongue can bend sideways, curving kc more) and what it would rest on at each step...
+    // (headings: ph is the way it goes, (-sin ph, -cos ph) in lid space: 0 straight in from the front, + toward -x)
+    const ph0 = Math.atan2(nx, nz);
+    let ph = ph0 + aim, x = x0 + nx * ex - tx * flen * ta - Math.sin(ph) * STEP, z = z0 + nz * ex - tz * flen * ta - Math.cos(ph) * STEP, m = 0, edge = false;
+    // (the heading it wants lags the track's way round a corner (wlag): lying on the top, dragged round as its base
+    // rounds a corner of the lid, it swings round after it, not at once with it: at once, its tip whipped across the top)
+    const want = ph0 + par.ta + par.hd - par.wlag, kc = par.kc, rmin = turnMin(), d0 = railLen();
     while (d0 + m * STEP < dMax && m < LMAX) {
-      if (Math.abs(x) > LID_HW - 0.04) { edge = true; break; }
-      restOn(x, z, ph, 0.85 * wideAt(d0 + m * STEP));
-      LX[m] = x; LZ[m] = z; LH[m] = ph; LY[m] = LT.y; LS[m] = LT.s; m++;
-      ph += clamp(hd - ph, -STEP / rmin, STEP / rmin) + kc * STEP;
+      // (heading out over an edge: draped over it; lifted off the top there, it just goes on, in the air)
+      if (liftAt(m * STEP) < 0.02 && oct2(Math.abs(x), Math.abs(z - 0.47), LID_HW, 0.53, 0.96) > -0.04 && -Math.sin(ph) * G2.x * Math.sign(x) - Math.cos(ph) * G2.y * Math.sign(z - 0.47) > 0.05) { edge = true; break; }
+      const dd = d0 + m * STEP, w = 1.02 * wideAt(dd), tw = twistAt(dd);
+      restOn(x, z, ph, w);
+      if (m) LT.y = Math.max(LT.y, LY[m - 1] - 0.6 * STEP); // (past an edge, lifted: it doesn't drop off it)
+      LX[m] = x; LZ[m] = z; LH[m] = ph; LY[m] = LT.y; LS[m] = LT.s;
+      // (twisted, its lower edge hangs off to one side of its middle, down by w |sin tw|: over the raised panel's step
+      // it rides up on that edge)
+      // (eased in as it twists: lying nearly flat it rests as restOn() says; switched on at a hair of twist, an edge over
+      // the panel's step lifted it a whole step at once)
+      const sw = smooth(0.03, 0.2, Math.abs(Math.sin(tw)));
+      if (sw > 0) {
+        const g = Math.sign(Math.sin(tw)) * Math.cos(tw) * w;
+        const hE = lidTopH(x + g * Math.cos(ph), z - g * Math.sin(ph), -Math.sin(ph) * 0.04, -Math.cos(ph) * 0.04);
+        LY[m] += sw * Math.max(0, hE + w * Math.abs(Math.sin(tw)) - thickAt(dd, LIDF) + 0.02 - LY[m]);
+      }
+      // (peeled up off the top it rests on nothing: it keeps the height it peeled off at, level, as far as it is lifted
+      // clear of what is under it; else what it passes over (the raised panel's step, a tilt on its edge) jerked the
+      // lifted front about in the air)
+      const la = liftAt(m * STEP), wlf = smooth(0.004, 0.03, la);
+      if (m && wlf > 0) { LY[m] = Math.max(LY[m - 1] * wlf + LY[m] * (1 - wlf), LY[m] - la); LS[m] *= 1 - wlf; }
+      m++;
+      ph += clamp(wrapPi(want - ph), -STEP / rmin, STEP / rmin) + kc * STEP;
       x -= Math.sin(ph) * STEP; z -= Math.cos(ph) * STEP;
     }
     // ...then eased: its underside's height the highest of gentle parabolas through every step (smooth, never below
@@ -947,108 +1279,191 @@ export function createTongue(THREE, opts = {}) {
         y = Math.max(y, LY[j] - ds * ds / (2 * 0.25));
         if (Math.abs(i - j) <= 6) { sl += LS[j]; ns++; }
       }
-      const t = thickAt(d0 + i * STEP, false), ax = Math.cos(LH[i]), az = -Math.sin(LH[i]);
-      NL.set(-(sl / ns) * ax, 1, -(sl / ns) * az).normalize();
-      toRig(PL.set(LX[i], y, LZ[i]).addScaledVector(NL, t), RB); dirToRig(NL, RC);
+      // (a hair more clear of the top than elsewhere: the bones are straight chords, and where the path bends up over
+      // the raised panel's step the skin between them would graze it)
+      // (lifted, it is off the top: on its edge where it is twisted only if it isn't lifted higher than that: so a
+      // lifted front rolling over rises in a straight ramp, not humped over its own twist)
+      const dd = d0 + i * STEP, tf = thickAt(dd, LIDF, true);
+      LTK[i] = Math.max(thickAt(dd, LIDF), tf + liftAt(i * STEP)) + 0.006;
+      LSE[i] = sl / ns; LB[i] = y + tf + 0.006; LHT[i] = LTK[i] - tf - 0.006;
+    }
+    // ...and how far it is raised off lying flat there (lifted, or twisted up onto its edge) eased the same way, from
+    // nothing where the fold leaves it (twisted, how high its edge holds it changes fast along it as it turns: laid on
+    // that, a rolling front zigzagged up and down, and the chain laid along it jumped about)
+    for (let i = 0; i < m; i++) {
+      let h = 0;
+      for (let j = Math.max(0, i - 24); j < Math.min(m, i + 25); j++) { const ds = (i - j) * STEP; h = Math.max(h, LHT[j] - ds * ds / (2 * 0.25)); }
+      h = LB[i] + Math.min(h, 1.6 * i * STEP);
+      const t = LTK[i], ax = Math.cos(LH[i]), az = -Math.sin(LH[i]);
+      NL.set(-LSE[i] * ax, 1, -LSE[i] * az).normalize();
+      toRig(PL.set(LX[i], h - t * NL.y, LZ[i]).addScaledVector(NL, t), RB); dirToRig(NL, RC).multiplyScalar(FS);
       railAdd(RB.x, RB.y, RB.z, RC.x, RC.y, RC.z);
     }
-    if (edge) drapeSide(x < 0 ? -1 : 1, x, z, ph, dMax);
+    if (edge) {
+      const ex = G2.x * Math.sign(x), ez = G2.y * Math.sign(z - 0.47), en = Math.hypot(ex, ez) || 1;
+      drapeEdge(ex / en, ez / en, x, z, ph, dMax);
+    }
   }
-  // over a side edge of the lid (sg: -1 the viewer's left, +1 the right), from lid x xl, depth zl, heading ph: from the
-  // lid's top over its edge, over the rim's outer edge, down the rim and tucked in under its lip onto the body. The
-  // ball rolls across the side (u = sg * x, walking outward and down, the solid on the right); as it goes outward it
-  // keeps the heading's slant along the side (down the wall it goes straight down).
-  function drapeSide(sg, xl, zl, ph, dMax) {
+  // the bin body's outline at height y (it tapers in toward the bottom): how far from (px, pz), out along (nx, nz)
+  const bodyOut = (px, pz, nx, nz, y) => { const f = clamp((y + 0.564) / 0.48, 0, 1); return rayOct(px, pz, nx, nz, 0.428 + 0.046 * f, 0.39 + 0.04 * f, 0.755 + 0.079 * f); };
+  // Over an edge of the lid (n: its outward normal, level), from lid x xl, depth zl on its top, heading ph: from the
+  // top over the edge, over the rim's outer edge, down the rim and tucked in under its lip onto the body. The ball rolls
+  // across the outline in the upright plane through there along n (u: out along n, walking outward and down, the
+  // solid on the right); as it goes outward it keeps the heading's slant along the edge (down the wall it goes straight
+  // down).
+  function drapeEdge(nx, nz, xl, zl, ph, dMax) {
     toRig(PL.set(xl, LID_TOP, zl), RA);
-    toRig(PL.set(sg * LID_HW, LID_TOP, zl), RB);
-    const z0 = RA.z, u0 = sg * RA.x, slant = -Math.cos(ph) / Math.max(0.35, Math.abs(Math.sin(ph)));
+    const ue = Math.max(0, rayOct(xl, zl - 0.47, nx, nz, LID_HW, 0.53, 0.96));
+    toRig(PL.set(xl + nx * ue, LID_TOP, zl + nz * ue), RB);
+    const tx = nz, tz = -nx, dn = -Math.sin(ph) * nx - Math.cos(ph) * nz, dt = -Math.sin(ph) * tx - Math.cos(ph) * tz;
+    const slant = dt / Math.max(0.35, dn), uR = Math.max(0, rayOct(RA.x, RA.z, nx, nz, UX, UZ, 0.974)), lip = uR - bodyOut(RA.x, RA.z, nx, nz, -0.084);
     let n = 0;
-    BB[n++] = u0; BB[n++] = RA.y; BB[n++] = sg * RB.x; BB[n++] = RB.y;
+    BB[n++] = 0; BB[n++] = RA.y; BB[n++] = (RB.x - RA.x) * nx + (RB.z - RA.z) * nz; BB[n++] = RB.y;
     // (the rim's outer edge sticks out past the lid's side: the tongue spans from one edge to the other)
-    BB[n++] = UX; BB[n++] = 0; BB[n++] = UX; BB[n++] = -0.084;
-    for (let y = -0.1; y > -0.56; y -= 0.03) { BB[n++] = bodyHalf(y, true) + (UX - bodyHalf(-0.084, true)) * (1 - smooth(-0.084, -0.3, y)); BB[n++] = y; }
-    walk(BB, n / 2, 1, false, railLen(), dMax);
-    let um = u0;
+    BB[n++] = uR; BB[n++] = 0; BB[n++] = uR; BB[n++] = -0.084;
+    for (let y = -0.1; y > -0.56; y -= 0.03) { BB[n++] = bodyOut(RA.x, RA.z, nx, nz, y) + lip * (1 - smooth(-0.084, -0.3, y)); BB[n++] = y; }
+    walk(BB, n / 2, 1, LIDF, railLen(), dMax);
+    let um = 0;
     for (let i = 0; i < WN; i++) {
       const w = i * 4;
       um = Math.max(um, W2[w]);
-      railAdd(sg * W2[w], W2[w + 1], z0 + (um - u0) * slant, sg * W2[w + 2], W2[w + 3], 0);
+      const lat = um * slant;
+      railAdd(RA.x + nx * W2[w] + tx * lat, W2[w + 1], RA.z + nz * W2[w] + tz * lat, FS * nx * W2[w + 2], FS * W2[w + 3], FS * nz * W2[w + 2]);
     }
   }
-  // the bin body's half width (x) or half depth (z) at height y (tongue space): it tapers in toward the bottom
-  const bodyHalf = (y, x) => { const f = clamp((y + 0.564) / 0.48, 0, 1); return x ? 0.428 + 0.046 * f : 0.39 + 0.04 * f; };
-  // The front rail: forward over the rim's top from the gap, its top on it (it comes out top down), round the rim's
-  // front edge and down its face, tucked in under the lip onto the body, down the body (it tapers in) and the base;
-  // on the front it heads fd (+: toward the viewer's left) and curves fk more.
+  // The face rail: out over the rim's top from the gap, its top on it (it comes out top down), round the rim's outer
+  // edge and down its face, tucked in under the lip onto the body, down the body (it tapers in) and the base, in the
+  // upright plane through the gap along the track's outward normal (out of the front: down the bin's front); on the face
+  // it heads fd (+: toward - trk, at the front the viewer's left) and curves fk more.
   function railFront() {
     RN = 0;
     const dMax = (L - uSlot) * rcNow + 0.12;
+    const px = slot.p.x, pz = slot.p.z, nx = slot.n.x, nz = slot.n.z;
+    // (u: out along n from the gap)
+    const uRim = Math.max(0, rayOct(px, pz, nx, nz, UX, UZ, 0.974)), uBase = rayOct(px, pz - 0.02, nx, nz, 0.472, 0.38, 0.8);
+    const lip = uRim - bodyOut(px, pz, nx, nz, -0.084);
     let n = 0;
-    BB[n++] = Math.min(slot.p.z, UZ) - 0.05; BB[n++] = 0; BB[n++] = UZ; BB[n++] = 0; BB[n++] = UZ; BB[n++] = -0.084;
-    for (let y = -0.1; y > -0.75; y -= 0.03) { BB[n++] = Math.max(y < -0.55 ? 0.4 : 0, bodyHalf(y, false)) + (UZ - bodyHalf(-0.084, false)) * (1 - smooth(-0.084, -0.32, y)); BB[n++] = y; }
+    BB[n++] = -0.05; BB[n++] = 0; BB[n++] = uRim; BB[n++] = 0; BB[n++] = uRim; BB[n++] = -0.084;
+    // (down the body to the base's top edge, round it and down its face)
+    for (let y = -0.1; y > -0.554; y -= 0.03) { BB[n++] = bodyOut(px, pz, nx, nz, y) + lip * (1 - smooth(-0.084, -0.32, y)); BB[n++] = y; }
+    BB[n++] = bodyOut(px, pz, nx, nz, -0.554); BB[n++] = -0.554; BB[n++] = Math.max(uBase, bodyOut(px, pz, nx, nz, -0.554)); BB[n++] = -0.554;
+    for (let y = -0.58; y > -0.75; y -= 0.03) { BB[n++] = Math.max(uBase, bodyOut(px, pz, nx, nz, y)); BB[n++] = y; }
     // (and, if it gets that far, out along the floor)
-    BB[n++] = 0.4; BB[n++] = FLOOR; BB[n++] = 1.2; BB[n++] = FLOOR;
-    walk(BB, n / 2, 1, true, -0.05, dMax);
-    let x = slot.p.x, th = 0, pu = slot.p.z, pv = slot.p.y;
+    BB[n++] = uBase; BB[n++] = FLOOR; BB[n++] = uBase + 0.8; BB[n++] = FLOOR;
+    clrX = 0.007; walk(BB, n / 2, 1, FACEF, -0.05, dMax); clrX = 0; // (a hair more off the bin: its underside, on it, bulges a little past its modelled reach)
+    let lat = 0, th = 0, pu = 0, pv = slot.p.y;
     const rmin = turnMin();
     const fd = clamp(par.fd, -1.1, 1.1), fk = par.fk;
+    // (from the gap itself, where its spine is: the bone in the gap is aimed along the rail from there, and a rail that
+    // started a hair under it would aim that bone straight down for a moment)
+    railAdd(slot.p.x, slot.p.y, slot.p.z, 0, -FSF, 0);
     for (let i = 0; i < WN; i++) {
       const w = i * 4, u = W2[w], v = W2[w + 1];
-      if (u < slot.p.z - 1e-4 && W2[w + 3] > 0.99) continue; // (behind the gap)
+      if (u < 0.008 && W2[w + 3] > 0.99) continue; // (behind the gap, or right at it)
       const step = Math.hypot(u - pu, v - pv);
       pu = u; pv = v;
-      if (W2[w + 2] > 0.7) { // on the front (past the lip): steered across it
+      if (W2[w + 2] > 0.7) { // on the face (past the lip): steered across it
         th = clamp(th + clamp(fd - th, -step / rmin, step / rmin) + fk * step, -1.2, 1.2);
-        x -= Math.tan(th) * step;
+        lat -= Math.tan(th) * step;
       }
-      railAdd(x, v, u, 0, -W2[w + 3], -W2[w + 2]);
+      railAdd(px + nx * u + slot.t.x * lat, v, pz + nz * u + slot.t.z * lat, -FSF * W2[w + 2] * nx, -FSF * W2[w + 3], -FSF * W2[w + 2] * nz);
     }
   }
-  // Lay the chain along the rail: joint ks+1 where the gap puts it, then each joint aims its bone at the point of the
+  // Lay the chain along the rail: the bone in the gap aimed from the gap at the point of the rail as far from the gap
+  // as its part out of the gap is long (a chord), joint ks+1 there; then each joint aims its bone at the point of the
   // rail a bone's length (a chord) from it, within the bend limits solve() keeps (what one joint can't bend, the next
   // ones make up: it rounds a tight corner instead of cutting it); each bone's top as the rail's there; the bends
-  // between them -> rP, rY, rR.
+  // between them -> rP, rY, rR. (So the chain is the same whichever bone is in the gap: as a joint comes out of the gap,
+  // or goes in, the bone it ends lies on the very chord the bone before it was given. Joint ks+1 laid straight out of
+  // the gap instead, off the rail's turn over the edge, the whole chain jumped along the rail each time a joint passed
+  // the gap and crept between: a ratchet.) RW[r], RWQ[r]: the way the bone in the gap is aimed for rail r (0: the
+  // lid's, 1: the face's) and its frame (its top as the rail's there); solve() blends them with the free pose's.
   const JP = Array.from({ length: 24 }, V), QP = new THREE.Quaternion();
   const TY = V(), TZ = V(), TX = V(), RQ = new THREE.Quaternion(), RF = new THREE.Quaternion();
+  const RW = [V(), V()], RWQ = [new THREE.Quaternion(), new THREE.Quaternion()], CH_MIN = 0.006;
   // the bend limits at joint k (radians): toward the underside, toward the top, to the side
   const LIM = { u: 0, t: 0, s: 0 };
+  let limTurn = 0; // (see solve: how far the free pose's sideways limit is eased toward its up/down one)
   function limits(k, rc) {
-    const lp = (k - 1 === kSlot ? Math.max(0.025, sAt[k] - uSlot) : restLen[k - 1]) * rc; // (the bone in the gap is only partly out)
+    // (the bone before it: the whole of it, even the one in the gap, partly out: limited by the part that is out, the
+    // first joint out could not follow the rail's turn over the edge just as it came out, or just before it went in,
+    // and the chain beyond it jumped back onto the rail as it passed the gap)
+    const lp = restLen[k - 1] * rc;
     LIM.s = lp / (1.15 * hw[k] * kw[k]); LIM.u = lp / (1.05 * zB[k] * kz[k]); LIM.t = lp / (1.05 * zT[k] * kz[k]);
+    // (turning round in the air (flip), the bend it holds in the world becomes a bend to its own side, which the flat
+    // tongue's width limits far more: clamped there, half way round it straightened and bent back up as it turned on
+    // (its squeezed width in the gap changes twice over a turn), a lurch. A cartoon tongue keeps its curve as it turns)
+    if (limTurn > 0) LIM.s += Math.max(0, Math.min(LIM.u, LIM.t) - LIM.s) * limTurn;
   }
-  function railAngles() {
+  // the point of the rail a chord c from P (searching from index i0) -> out; returns the index the segment ends at
+  // (RN: the rail ends nearer than that: straight on past its end)
+  // (and CH_T: where that point is along the rail, as a fractional index)
+  let CH_T = 0;
+  function chordOn(P, c, i0, out) {
+    const dist = (m) => Math.hypot(RP[m * 3] - P.x, RP[m * 3 + 1] - P.y, RP[m * 3 + 2] - P.z);
+    let j = i0;
+    while (j < RN && dist(j) < c) j++;
+    if (j >= RN || RN < 2) {
+      const e = Math.max(1, RN - 1);
+      TY.set(RP[e * 3] - RP[e * 3 - 3], RP[e * 3 + 1] - RP[e * 3 - 2], RP[e * 3 + 2] - RP[e * 3 - 1]).normalize();
+      out.copy(P).addScaledVector(TY, c);
+      CH_T = Math.max(0, RN - 1);
+      return RN;
+    }
+    if (j === 0) { // (the rail starts further off than that: toward its start)
+      out.set(RP[0] - P.x, RP[1] - P.y, RP[2] - P.z).normalize().multiplyScalar(c).add(P);
+      CH_T = 0;
+      return 0;
+    }
+    const m = j - 1; // on the segment m -> j: |A + (B - A) s - P| = c
+    RA.set(RP[m * 3] - P.x, RP[m * 3 + 1] - P.y, RP[m * 3 + 2] - P.z);
+    RB.set(RP[j * 3] - RP[m * 3], RP[j * 3 + 1] - RP[m * 3 + 1], RP[j * 3 + 2] - RP[m * 3 + 2]);
+    const a = RB.lengthSq() || 1e-9, b = 2 * RA.dot(RB), cc = RA.lengthSq() - c * c, disc = Math.max(0, b * b - 4 * a * cc);
+    const s = clamp((-b + Math.sqrt(disc)) / (2 * a), 0, 1);
+    out.set(RP[m * 3] + RB.x * s, RP[m * 3 + 1] + RB.y * s, RP[m * 3 + 2] + RB.z * s);
+    CH_T = m + s;
+    return j;
+  }
+  // a bone's frame lying along the rail: its length along dir, its top as the rail's at mid (a fractional index: eased
+  // between the rail's points; taken at the nearest point, a bone's top jumped a step's turn whenever its middle
+  // passed a point, a lot over the fold round the lid's edge) (turned about its length by tw: twisted as twist and ttw
+  // say, so far along, the frame turns about the rail, the path stays) -> out
+  function railFrame(dir, mid, tw, out) {
+    TY.copy(dir);
+    const m0 = clamp(Math.floor(mid), 0, RN - 1), m1 = Math.min(RN - 1, m0 + 1), f = clamp(mid - m0, 0, 1);
+    TZ.set(RU[m0 * 3] * (1 - f) + RU[m1 * 3] * f, RU[m0 * 3 + 1] * (1 - f) + RU[m1 * 3 + 1] * f, RU[m0 * 3 + 2] * (1 - f) + RU[m1 * 3 + 2] * f);
+    TZ.addScaledVector(TY, -TZ.dot(TY));
+    if (TZ.lengthSq() < 1e-8) TZ.set(0, 0, 1).applyQuaternion(QP);
+    TZ.normalize();
+    if (tw !== 0) { TX.crossVectors(TY, TZ); TZ.multiplyScalar(Math.cos(tw)).addScaledVector(TX, Math.sin(tw)); }
+    TX.crossVectors(TY, TZ);
+    return out.setFromRotationMatrix(M4.makeBasis(TX, TY, TZ));
+  }
+  function railAngles(r) {
     const ks = kSlot, rc = rcNow;
     for (let k = 0; k <= ks; k++) rP[k] = rY[k] = rR[k] = 0;
-    const a1 = Math.max(0, sAt[ks + 1] - uSlot) * rc;
-    QP.copy(slot.r0);
-    JP[ks + 1].copy(Y).applyQuaternion(QP).multiplyScalar(a1).add(slot.p);
-    let i = 1;
-    while (i < RN - 1 && RS[i] < a1) i++;
+    const a1 = Math.max(0, sNext(ks) - uSlot) * rc;
+    // (the bone in the gap: aimed at the rail a chord a1 from the gap (for a hair out, at the rail a chord CH_MIN from
+    // it, so its way is defined and eases from the rail's own way out of the gap), its top as the rail's there, like
+    // every bone after it: tipped up the lid's edge, through the gap at a slant, with its top level its one edge would
+    // dig into the edge's face)
+    let i = Math.max(1, Math.min(chordOn(slot.p, CH_MIN, 0, JP[ks + 1]), RN - 1));
+    chordOn(slot.p, Math.max(a1, CH_MIN), 0, JP[ks + 1]);
+    RW[r].subVectors(JP[ks + 1], slot.p).normalize();
+    railFrame(RW[r], CH_T / 2, 0, QP);
+    RWQ[r].copy(QP);
+    JP[ks + 1].copy(RW[r]).multiplyScalar(a1).add(slot.p);
+    let pS = CH_T * Math.min(1, a1 / CH_MIN); // (where joint ks+1 is along the rail)
+    let tws = 0;
+    for (let k = 1; k <= ks; k++) tws += twK[k];
     for (let k = ks + 1; k < NJ; k++) {
       const Lk = restLen[k] * rc, J = JP[k], N = JP[k + 1];
-      const dist = (m) => Math.hypot(RP[m * 3] - J.x, RP[m * 3 + 1] - J.y, RP[m * 3 + 2] - J.z);
-      let j = i;
-      while (j < RN && dist(j) < Lk) j++;
-      if (j >= RN || RN < 2) { // past the rail's end: straight on
-        const e = Math.max(1, RN - 1);
-        TY.set(RP[e * 3] - RP[e * 3 - 3], RP[e * 3 + 1] - RP[e * 3 - 2], RP[e * 3 + 2] - RP[e * 3 - 1]).normalize();
-        N.copy(J).addScaledVector(TY, Lk);
-        j = RN - 1;
-      } else { // on the segment j-1 -> j: |A + (B - A) s - J| = Lk
-        const m = Math.max(0, j - 1);
-        RA.set(RP[m * 3] - J.x, RP[m * 3 + 1] - J.y, RP[m * 3 + 2] - J.z);
-        RB.set(RP[j * 3] - RP[m * 3], RP[j * 3 + 1] - RP[m * 3 + 1], RP[j * 3 + 2] - RP[m * 3 + 2]);
-        const a = RB.lengthSq() || 1e-9, b = 2 * RA.dot(RB), c = RA.lengthSq() - Lk * Lk, disc = Math.max(0, b * b - 4 * a * c);
-        const s = clamp((-b + Math.sqrt(disc)) / (2 * a), 0, 1);
-        N.set(RP[m * 3] + RB.x * s, RP[m * 3 + 1] + RB.y * s, RP[m * 3 + 2] + RB.z * s);
-      }
+      // (past the rail's end: straight on)
+      const j = Math.min(RN - 1, chordOn(J, Lk, i, N));
       // the bone's frame: toward that point, its top as the rail's at the bone's middle
-      const mid = Math.min(RN - 1, Math.max(0, Math.round((i + j) / 2)));
-      TY.subVectors(N, J).normalize();
-      TZ.set(RU[mid * 3], RU[mid * 3 + 1], RU[mid * 3 + 2]).addScaledVector(TY, -TZ.set(RU[mid * 3], RU[mid * 3 + 1], RU[mid * 3 + 2]).dot(TY));
-      if (TZ.lengthSq() < 1e-8) TZ.set(0, 0, 1).applyQuaternion(QP);
-      TZ.normalize(); TX.crossVectors(TY, TZ);
-      RF.setFromRotationMatrix(M4.makeBasis(TX, TY, TZ));
+      tws += twK[k];
+      railFrame(V2.subVectors(N, J).normalize(), (pS + CH_T) / 2, tws, RF);
+      pS = CH_T;
       RQ.copy(QP).multiply(relQ[k]).invert().multiply(RF);
       eul.setFromQuaternion(RQ, 'XZY');
       limits(k, rc);
@@ -1056,38 +1471,51 @@ export function createTongue(THREE, opts = {}) {
       // where the bone really goes (if a limit held it back), and the next joint at its end
       QP.multiply(relQ[k]).multiply(RQ.setFromEuler(eul.set(rP[k], rR[k], rY[k], 'XZY')));
       N.copy(Y).applyQuaternion(QP).multiplyScalar(Lk).add(J);
-      i = Math.max(i, j - 1);
+      i = Math.max(i, j); // (the next chord starts ahead of this one's end: a bone held back off the rail by a limit must not find a
+      // point behind it, back on the fold, a bone's length away)
     }
   }
   function springs(dt) {
     const n = Math.max(1, Math.ceil(dt / (1 / 240))), h = dt / n;
     // (lying on something it is dragged, stuck to it, not whipped: stiffer and calmer on a rail)
-    const onRail = clamp(par.wl + par.wf, 0, 1), fs = 1 + 0.8 * onRail, zeta = ZETA + 0.3 * onRail;
+    // (and turning round about its length (flip) calmer too: a bent tip turning on its springs swung to and fro)
+    const turning = clamp(Math.abs(tracks.flip(subT0 + 0.02) - tracks.flip(subT0 - 0.02)) / 0.04 / 1.5, 0, 1);
+    const onRail = clamp(par.wl + par.wf, 0, 1), fs = 1 + 0.8 * onRail, zeta = ZETA + 0.3 * Math.max(onRail, turning);
     for (let i = 0; i < n; i++) {
       for (let k = 1; k < NJ; k++) {
-        if (sAt[k] <= uSlot) { angP[k] = tgtP[k]; angY[k] = tgtY[k]; angR[k] = tgtR[k]; velP[k] = velY[k] = velR[k] = 0; continue; }
+        if (sAt[k] <= uSlot) {
+          angP[k] = tgtP[k]; angY[k] = tgtY[k]; angR[k] = tgtR[k]; velP[k] = velY[k] = velR[k] = 0;
+          angFP[k] = tgtFP[k]; angFY[k] = tgtFY[k]; angFR[k] = tgtFR[k]; velFP[k] = velFY[k] = velFR[k] = 0;
+          continue;
+        }
         const w = 2 * Math.PI * springF[k] * fs, w2 = w * w, c = 2 * zeta * w;
         velP[k] += (w2 * (tgtP[k] - angP[k]) - c * velP[k]) * h; angP[k] += velP[k] * h;
         velY[k] += (w2 * (tgtY[k] - angY[k]) - c * velY[k]) * h; angY[k] += velY[k] * h;
         velR[k] += (w2 * (tgtR[k] - angR[k]) - c * velR[k]) * h; angR[k] += velR[k] * h;
+        velFP[k] += (w2 * (tgtFP[k] - angFP[k]) - c * velFP[k]) * h; angFP[k] += velFP[k] * h;
+        velFY[k] += (w2 * (tgtFY[k] - angFY[k]) - c * velFY[k]) * h; angFY[k] += velFY[k] * h;
+        velFR[k] += (w2 * (tgtFR[k] - angFR[k]) - c * velFR[k]) * h; angFR[k] += velFR[k] * h;
       }
       lidStep(h, pushAt(subT0 + (i + 1) * h), subT0 + (i + 1) * h); // (the lid too, at the same substeps of the lick's time)
     }
   }
-  const settle = () => { angP.set(tgtP); angY.set(tgtY); angR.set(tgtR); velP.fill(0); velY.fill(0); velR.fill(0); };
+  const settle = () => {
+    angP.set(tgtP); angY.set(tgtY); angR.set(tgtR); velP.fill(0); velY.fill(0); velR.fill(0);
+    angFP.set(tgtFP); angFY.set(tgtFY); angFR.set(tgtFR); velFP.fill(0); velFY.fill(0); velFR.fill(0);
+  };
   let subT0 = 0; // the lick's time at the start of this step
 
-  // The part in the bin: from the gap back along under the lid, over the inner lip, down the inside of the front wall
-  // and back along the bottom, in the dark. q: distance behind the gap.
-  // (it turns down well behind the inner lip and runs down well clear of the front wall: the bin tapers, and the
-  // stalk is wide)
+  // The part in the bin: from the gap straight in under the lid, over the inner lip, down the inside of the wall it
+  // came out by and back along the bottom, in the dark. q: distance behind the gap.
+  // (it turns down well behind the inner lip and runs down well clear of the wall: the bin tapers, and the stalk is
+  // wide)
   const ARC = 0.12, DOWN = 0.24, BACK = 0.4;
-  const XL = new THREE.Vector3(1, 0, 0), QI = new THREE.Quaternion(), HA = V(), HU = V();
+  const XL = new THREE.Vector3(1, 0, 0), QI = new THREE.Quaternion();
   function inside(q, outP, outQ) { // (outQ must not be QI)
-    const q1 = Math.max(0.02, lid.ze - OZ + 0.06), qa = q1 + ARC * Math.PI / 2, qb = qa + DOWN, qc = qb + ARC * Math.PI / 2;
-    // (straight back from the gap, however slanted it goes through it: a slant would carry the hidden part into the
-    // rim's inner wall at the gap's ends)
-    const A = HA.set(0, slot.along.y, slot.along.z).normalize(), T = HU.set(0, slot.up.y, slot.up.z).normalize();
+    const q1 = slot.strip + 0.06, qa = q1 + ARC * Math.PI / 2, qb = qa + DOWN, qc = qb + ARC * Math.PI / 2;
+    // (straight in from the gap, however slanted it goes through it: a slant would carry the hidden part into the
+    // rim's inner wall at the track's corners)
+    const A = slot.hA, T = slot.hU;
     let ang = 0;
     outP.copy(slot.p).addScaledVector(A, -Math.min(q, q1));
     if (q > q1) { // over the inner lip, turning down
@@ -1100,43 +1528,87 @@ export function createTongue(THREE, opts = {}) {
       outP.addScaledVector(A, ARC * (Math.cos(c) - 1)).addScaledVector(T, -ARC * Math.sin(c)); ang = Math.PI / 2 - c;
     }
     if (q > qc) outP.addScaledVector(A, -BACK * Math.tanh((q - qc) / BACK)); // back along the bottom (bunched up there)
-    // (it comes round from the middle of the bin to where it is in the gap only down in the dark, below the rim: a
+    // (it comes round from the bin's middle line to where it is in the gap only down in the dark, below the rim: a
     // wide tongue swept sideways right under the lid would tilt up into it)
-    outP.x = slot.p.x * (1 - smooth(0.03, qb + 0.1, q));
-    outQ.copy(slot.q).multiply(QI.setFromAxisAngle(XL, FLIP * ang));
+    const lat = (slot.p.x * slot.t.x + slot.p.z * slot.t.z) * smooth(0.03, qb + 0.1, q);
+    outP.x -= slot.t.x * lat; outP.z -= slot.t.z * lat;
+    outQ.copy(slot.q).multiply(QI.setFromAxisAngle(XL, slot.cth * ang));
   }
 
-  const eul = new THREE.Euler(), dbg = { collide: true, tilt: true };
+  const eul = new THREE.Euler(), dbg = { collide: true, tilt: true }, QFL = new THREE.Quaternion(), QFLi = new THREE.Quaternion();
   const CL = 0.004; // clearance in the gap
   function solve() {
     computeSlot();
+    // (the rails' bends are laid on as they are, not sprung: sliding along a rail each joint's bend changes as it
+    // passes an edge, and a spring would smear the bend off the edge; the springs carry the free pose and the tip's
+    // own life on top. Laid here, on the lid as it is now: it moves under the tongue between targets() and here)
+    const wl = clamp(par.wl, 0, 1), wf = clamp(par.wf, 0, 1 - wl);
+    qP.fill(0); qY.fill(0); qR.fill(0);
+    if (wl > 1e-3) { railLid(); railAngles(0); for (let k = 1; k < NJ; k++) { qP[k] += wl * rP[k]; qY[k] += wl * rY[k]; qR[k] += wl * rR[k]; } }
+    if (wf > 1e-3) { railFront(); railAngles(1); for (let k = 1; k < NJ; k++) { qP[k] += wf * rP[k]; qY[k] += wf * rY[k]; qR[k] += wf * rR[k]; } }
+    // (and the free pose, in the air, as far as it isn't on a rail: its bends turned with the flip, see targets)
+    const w0 = 1 - wl - wf;
+    // (turned over by flip, each joint's free bend is the keyed one turned about the bone's length the same way:
+    // conjugated by that turn, so the bend keeps its way in the world as the tongue turns round. Mixing the pitch and
+    // the yaw by the turn's sine and cosine instead is only right for small bends: half way round, a big bend drew a
+    // different curve, and the tip swung about as the tongue turned)
+    const turned = slot.sth * slot.sth > 1e-8 || slot.cth < 0;
+    if (turned) { const fa = Math.atan2(slot.sth, slot.cth); QFL.setFromAxisAngle(Y, fa); QFLi.setFromAxisAngle(Y, -fa); }
+    limTurn = w0 * slot.sth * slot.sth; // (see limits: from here to the end of solve)
+    // (and the tip's own life on top. What the springs add, lagging their targets, fades out toward the gap: a joint's
+    // lag there would vanish all at once as it went into the gap, and the chain past it jump)
+    for (let k = 1; k < NJ; k++) {
+      const f = smooth(0, 0.12, sAt[k] - uSlot);
+      if (w0 > 1e-4) {
+        const p = tgtFP[k] + (angFP[k] - tgtFP[k]) * f, y = tgtFY[k] + (angFY[k] - tgtFY[k]) * f, r = tgtFR[k] + (angFR[k] - tgtFR[k]) * f;
+        if (turned) {
+          Q.setFromEuler(eul.set(p, r, y, 'XZY')).premultiply(QFLi).multiply(QFL);
+          eul.setFromQuaternion(Q, 'XZY');
+          qP[k] += w0 * eul.x; qY[k] += w0 * eul.z; qR[k] += w0 * eul.y;
+        } else { qP[k] += w0 * p; qY[k] += w0 * y; qR[k] += w0 * r; }
+      }
+      qP[k] += tgtP[k] + (angP[k] - tgtP[k]) * f; qY[k] += tgtY[k] + (angY[k] - tgtY[k]) * f; qR[k] += tgtR[k] + (angR[k] - tgtR[k]) * f;
+    }
     const ks = kSlot;
-    // what is out, from the gap: the rest frames turned so that the rest frame at the gap lies along it
+    // what is out, from the gap: the rest frames turned so that the rest frame at the gap lies along it; on a rail the
+    // bone in the gap aimed at it (see railAngles), in the air straight out (blended by the rails' weights)
     rot[ks].copy(slot.r0);
+    if (wl > 1e-3) rot[ks].slerp(RWQ[0], wl / Math.max(1e-6, 1 - wf));
+    if (wf > 1e-3) rot[ks].slerp(RWQ[1], wf);
     const rc = rcNow;
-    pos[ks + 1].copy(Y).applyQuaternion(rot[ks]).multiplyScalar(Math.max(0, sAt[ks + 1] - uSlot) * rc).add(slot.p);
+    pos[ks + 1].copy(Y).applyQuaternion(rot[ks]).multiplyScalar(Math.max(0, sNext(ks) - uSlot) * rc).add(slot.p);
     for (let k = ks + 1; k < NJ; k++) {
       // (a wide, flat tongue bent too tightly sideways folds its inner edge through itself: each joint turns at most
       // so far that the bend's radius stays wider than the tongue's half width there; likewise through its thickness:
       // bent toward its underside, the underside is on the inside of the bend; toward its top, the top)
       limits(k, rc);
-      rot[k].copy(rot[k - 1]).multiply(relQ[k]).multiply(Q.setFromEuler(eul.set(clamp(angP[k] + qP[k], -LIM.u, LIM.t), angR[k] + qR[k], clamp(angY[k] + qY[k], -LIM.s, LIM.s), 'XZY')));
+      rot[k].copy(rot[k - 1]).multiply(relQ[k]).multiply(Q.setFromEuler(eul.set(clamp(qP[k], -LIM.u, LIM.t), qR[k], clamp(qY[k], -LIM.s, LIM.s), 'XZY')));
       pos[k + 1].copy(Y).applyQuaternion(rot[k]).multiplyScalar(restLen[k] * rc).add(pos[k]);
     }
     // folded tightly it is pressed flatter at the fold (a thick tongue doubled over keeps its top from splitting open
     // into two lobes along its groove)
     for (let k = ks + 1; k < NJ; k++) {
       limits(k, rc);
-      const a = clamp(angP[k] + qP[k], -LIM.u, LIM.t), h = (a < 0 ? zT[k] : zB[k]) * kz[k];
-      const f = 1 - 0.3 * smooth(0.25, 0.75, (Math.abs(a) / Math.max(1e-3, (k - 1 === ks ? Math.max(0.025, sAt[k] - uSlot) : restLen[k - 1]) * rc)) * h);
+      const a = clamp(qP[k], -LIM.u, LIM.t), h = (a < 0 ? zT[k] : zB[k]) * kz[k];
+      const f = 1 - 0.3 * smooth(0.25, 0.75, (Math.abs(a) / Math.max(1e-3, restLen[k - 1] * rc)) * h);
       if (f < 1) { kz[k] *= Math.sqrt(f); kz[k - 1] *= Math.sqrt(f); }
     }
-    // what is in: along the hidden path
+    // what is in: along the hidden path, kept under the lid's underside as the lid is now (tipped toward the tongue, it
+    // comes down toward its far edge or its hinge: the hidden part, running in level from the gap, would push up into it)
     for (let k = ks; k >= 0; k--) {
       const q = uSlot - sAt[k];
       inside(q, pos[k], Q2);
       if (k < ks) rot[k].copy(Q2);
+      const P = pos[k];
+      if (q > 0.02 && Math.abs(P.x) < LID_HW && P.z < lid.ze) {
+        // (its section is not quite level down there: running in toward the bin's middle at a slant from the way it went
+        // through the gap, it is turned a little about its length, and the edge on the high side reaches up toward the lid;
+        // only past the inner lip: nearer the gap, held down, it would dig into the rim)
+        const yU = (P.z + 0.5) * lid.tan + (P.x - lid.xp) * lid.rsl, ext = Math.max(zT[k], zB[k]) * kz[k] * Math.abs(slot.cth) + xW[k] * kw[k] * (Math.abs(slot.sth) + 0.35 * Math.abs(slot.cth) * smooth(slot.strip + 0.06, slot.strip + 0.2, q)) + 0.025;
+        P.y = Math.min(P.y, yU - ext * smooth(0.02, 0.1, q));
+      }
     }
+    limTurn = 0;
     if (dbg.collide) collide(ks);
     // write the bones: each one along its (possibly pushed) chord, scaled (and crushed in the gap)
     for (let k = 0; k < NJ; k++) {
@@ -1158,7 +1630,10 @@ export function createTongue(THREE, opts = {}) {
       cupBones[c].matrixWorldNeedsUpdate = true;
     }
     mat?.userData.uLid?.value.set(lid.tan, lid.ze, 1, 1);
-    mat?.userData.uRoll?.value.set(lid.rs / lid.rc / lid.cos, lid.xp);
+    mat?.userData.uRoll?.value.set(lid.rsl, lid.xp);
+    // (the lid's outline as it is now: its sides, its cut front corners (|x| + z), how far open it is where the tongue is)
+    mat?.userData.uEdge?.value.set(LID_HW - 2 * LID_HW * (1 - lid.rc), 0.93 - (HINGE_Z + LID_D - lid.ze), Math.max(0, lid.H));
+    uSlotS.value = uSlot;
     if (uCrush) for (let b = 0; b < skinJoint.length; b++) uCrush.value[b] = smooth(0.62, 0.25, kz[skinJoint[b]]);
     for (let k = kSlot; k < NJ; k++) { rotInv[k].copy(rot[k]).invert(); blen[k] = pos[k].distanceTo(pos[k + 1]); }
   }
@@ -1174,27 +1649,52 @@ export function createTongue(THREE, opts = {}) {
   }
 
   // Crushed in the gap: in the gap it is as thick as the push lets it be (its spine half way up); outside it rounds
-  // out gradually (a wedge that swells over SWELL_LEN, not a bulge at the lid's face), and what is out is a touch
+  // out gradually (a wedge that swells over SWELL_LEN, from SWELL_AT past the gap: not a bulge at the lid's face, and
+  // going through the gap at a slant, what is still under the lid's edge is still thin), and what is out is a touch
   // flatter near the gap than at rest (a stretched tongue), full toward the tip; behind the gap, along under the lid,
   // it stays crushed (a touch thinner where the lid comes down toward the hinge) until it has dropped over the inner
   // lip, then fills out in the dark. Crushed, it spreads sideways a little (MAXW: at most ~0.43 across, ~1.2 times
-  // its own width: squeezed flesh, not foil wings).
-  const KMIN = 0.12, SWELL_LEN = 0.24, MAXW = 0.215;
+  // its own width: squeezed flesh, not foil wings). (FOLD_D: about how much of it the fold over the lid's edge takes,
+  // from the gap up the edge face and over onto the top: where spin turns it, see targets.)
+  const NECK = 0.25; // twisted onto its edge (by twist, ttw, spin) it is wrung narrower: its width drawn in that much
+  const KMIN = 0.12, SWELL_AT = 0.025, SWELL_LEN = 0.18, MAXW = 0.215, FOLD_D = 0.2;
+  const WIDE = 0.25; // lying on the lid's top it spreads this much wider (times 'wide'), and flatter
   function squash(push) {
     const hs = Math.max(0.005, push / 2 - CL);
-    const strip = Math.max(0.02, lid.ze - OZ);
+    let tws = 0;
+    const strip = slot.strip;
     for (let k = 0; k < NJ; k++) {
       const d = 0.5 * (sAt[k] + (k + 1 < NJ ? sAt[k + 1] : L)) - uSlot; // its middle, past the gap
       // stretched, it thins; deep in the bin it is slim (it fits in there, out of sight)
       const thin = d > 0 ? 1 / Math.sqrt(Math.max(0.5, par.reach)) : 1 - 0.5 * smooth(strip + 0.04, strip + 0.25, -d);
       const full = hh[k] * thin * (0.78 + 0.22 * smooth(0.1, 0.5, d));
-      const half = d >= 0 ? hs + (Math.max(hs, full) - hs) * smooth(0, SWELL_LEN, d) : -d < strip ? hs * (1 - 0.12 * (-d / strip)) : hs * 0.88 + 0.5 * Math.max(0, -d - strip - 0.07);
+      const sw = smooth(SWELL_AT, SWELL_AT + SWELL_LEN, d);
+      const half = d >= 0 ? hs + (Math.max(hs, full) - hs) * sw : -d < strip ? hs * (1 - 0.12 * (-d / strip)) : hs * 0.88 + 0.5 * Math.max(0, -d - strip - 0.07);
       kz[k] = clamp(half / hh[k], KMIN, thin);
       kw[k] = Math.max(thin, Math.min(Math.pow(1 / kz[k], 0.5), MAXW / hw[k]));
       // (down in the bin, past the inner lip, it narrows: it fits in the opening wherever it is along the gap)
       if (d < 0) kw[k] = Math.min(kw[k], (MAXW + (0.12 - MAXW) * smooth(0.02, strip, -d)) / hw[k]);
       // (lying on something it flattens and spreads a little under its own weight: 'flat')
       else if (par.flat < 1) { const f = 1 - (1 - par.flat) * smooth(0.02, 0.16, d); kz[k] = Math.max(KMIN, kz[k] * f); kw[k] *= Math.min(1.08, 1 / Math.sqrt(f)); }
+      // (slim: its root, in the gap and out of it, drawn in narrower: pulled taut over an edge it is a tongue, not a
+      // slab, and going round a corner of the lid it doesn't stick out past the corner in the gap)
+      if (par.slim > 0) kw[k] *= 1 - par.slim * smooth(-0.3, -0.1, d) * (1 - smooth(0.12, 0.42, d));
+      if (d > 0 && k > kSlot) { tws += twK[k]; kw[k] *= 1 - NECK * Math.abs(Math.sin(tws)); }
+      // (wide: lying on the lid's top, past the fold over its edge, it is pressed out broad and flat, like a real tongue
+      // pressed on a surface; where it is peeled up off it, it rounds back up, narrower again)
+      if (par.wide > 0 && d > 0) {
+        const dr = d * rcNow, sp = 1 + WIDE * par.wide * clamp(par.wl, 0, 1) * smooth(FOLD_D - 0.06, FOLD_D + 0.06, dr) * (1 - smooth(0.01, 0.06, liftAt(Math.max(0, dr - FOLD_D))));
+        kw[k] *= sp; kz[k] = Math.max(KMIN, kz[k] / Math.sqrt(sp));
+      }
+      // (turning over in the gap (flip), on its edge it would be as tall there as it is wide: squeezed narrow as far as
+      // the gap is low, in the gap and under the lid, filling out again as it swells past it)
+      const as = Math.abs(slot.sth);
+      if (as > 1e-3) {
+        // (behind the gap, in the dark, all the way: turned with it there, a wide stalk would stand up into the lid)
+        const wq = d >= 0 ? 1 - sw : 1, room = d >= 0 ? half : Math.min(half, hs);
+        const kwT = Math.max(0.08, (room - hh[k] * kz[k] * Math.abs(slot.cth)) / (hw[k] * as));
+        if (kwT < kw[k]) kw[k] += (kwT - kw[k]) * wq;
+      }
     }
   }
 
@@ -1253,21 +1753,28 @@ export function createTongue(THREE, opts = {}) {
   }
   const US = [0.25, 0.5, 0.75, 1], STICK_R = 0.13, STICK_FROM = 0.12;
   const SP = V(), PU = V(), NN = V(), BX = V(), BZ = V();
-  // how far the skin reaches from the spine toward -n, u along bone k (its top and its underside half ellipses, the
-  // thicknesses eased from joint k to the next)
-  function radius(k, n, u = 0) {
+  // how far the skin reaches from the spine toward -n, u along bone k (its top and its underside half superellipses,
+  // the thicknesses eased from joint k to the next)
+  // (sp, sdf: the point on the spine and the distance field of what it is near, to check the width against: n is the
+  // way out of the face nearest the spine, and taken as a whole plane, a flat tongue tipped toward it would dig its edge
+  // into it; but near a corner that edge can be past the corner, in the air: its width counts only as far as the edge
+  // toward it is really at (or near) it)
+  const RE = V(), NE = V();
+  function radius(k, n, u = 0, sp = null, sdf = null) {
     BX.set(1, 0, 0).applyQuaternion(rot[k]); BZ.set(0, 0, 1).applyQuaternion(rot[k]);
-    const k2 = Math.min(NJ - 1, k + 1), bz = n.dot(BZ);
+    const k2 = Math.min(NJ - 1, k + 1), bz = n.dot(BZ), bx = n.dot(BX);
     const w = (xW[k] * kw[k]) * (1 - u) + (xW[k2] * kw[k2]) * u;
     const h = bz < 0 ? zT[k] * kz[k] * (1 - u) + zT[k2] * kz[k2] * u : zB[k] * kz[k] * (1 - u) + zB[k2] * kz[k2] * u;
-    const a = w * n.dot(BX), b = h * bz;
-    return Math.sqrt(a * a + b * b);
+    const full = reach(w * bx, h * bz), thin = Math.abs(h * bz);
+    if (!sp || full - thin < 0.004) return full;
+    RE.copy(sp).addScaledVector(BX, -Math.sign(bx) * 0.95 * w);
+    return thin + (full - thin) * smooth(0.04, 0, sdf(RE, NE));
   }
   function collide(ks) {
     wasContact.set(contact); contact.fill(0); conLid.fill(0);
     // on a rail it already lies on the bin and the lid: only a real dip in is pushed out (and only locally: the rest
     // of it keeps its way, shifted); in the air the whole rest of it turns out of the way
-    const onRail = clamp(par.wl + par.wf, 0, 1), tol = 0.01 * onRail, stick = par.stick * (1 - onRail);
+    const onRail = clamp(par.wl + par.wf, 0, 1), tol = 0.0025 * onRail, stick = par.stick * (1 - onRail);
     for (let pass = 0; pass < 6; pass++) {
       let any = false;
       for (let k = ks; k < NJ; k++) {
@@ -1275,16 +1782,16 @@ export function createTongue(THREE, opts = {}) {
           const u = US[i];
           const A = k === ks ? slot.p : pos[k];
           SP.lerpVectors(A, pos[k + 1], u);
-          const s = (k === ks ? uSlot : sAt[k]) + u * (k === ks ? Math.max(0, sAt[k + 1] - uSlot) : restLen[k]) - uSlot;
+          const s = (k === ks ? uSlot : sAt[k]) + u * (k === ks ? Math.max(0, sNext(k) - uSlot) : restLen[k]) - uSlot;
           if (s < 0.045) continue; // (in the gap: the squash keeps it out of the lid and the rim)
           const j = Math.min(NJ - 1, k + (u > 0.5 ? 1 : 0));
           // (a hair of clearance, a little less than the rails keep: what lies on a rail is left alone)
-          let d = binSdf(SP, NN), r = radius(k, NN, u) + 0.003, hit = 1;
+          let d = binSdf(SP, NN), r = radius(k, NN, u, SP, binSdf) + 0.003, hit = 1;
           let gap = d - r;
-          const dl = lidSdf(SP, V3), rl = radius(k, V3, u) + 0.004, gl = dl - rl;
+          const dl = lidSdf(SP, V3), rl = radius(k, V3, u, SP, lidSdf) + 0.004, gl = dl - rl;
           if (gl < gap) { gap = gl; hit = 2; d = dl; NN.copy(V3); }
           PU.set(0, 0, 0);
-          if (gap < -tol) PU.copy(NN).multiplyScalar(-gap);
+          if (gap < -tol) PU.copy(NN).multiplyScalar(-gap - tol); // (from nothing at the tolerance on: no step)
           // wet, it sticks: near a surface (and far enough out of the gap) it is drawn down onto it
           else if (stick > 0 && s > STICK_FROM && gap < STICK_R) PU.copy(NN).multiplyScalar(-gap * stick * (1 - smooth(0.4 * STICK_R, STICK_R, gap)) * smooth(STICK_FROM, STICK_FROM + 0.1, s));
           if (SP.y + PU.y < FLOOR + hh[j] * kz[j]) PU.y = FLOOR + hh[j] * kz[j] - SP.y;
@@ -1300,20 +1807,25 @@ export function createTongue(THREE, opts = {}) {
   // Turn what is beyond the point out of (or onto) the surface: about a joint a little way back toward the gap (never
   // behind it), the turn shared by two joints. The chain keeps its lengths: it slides and bends over what it touches,
   // it never stretches (no smeared texture). local: the bones past the point keep their way (shifted with it).
-  const PV = V(), TA = V(), TB = V(), PK = V();
+  // (the turn is shared by the first joint at least PIV_R back (j) and the one before it, as far between them as that
+  // distance falls between j and the joint after it: so as the chain slides and another joint becomes the first one
+  // that far back, the turn moves over to it gradually. Shared half and half, it jumped from one pair to the next)
+  const PV = V(), VA = V(), VB = V(), PK = V(), PIV_R = 0.07;
   function turnOut(ks, k, u, sp, push, local) {
     const piv = (j) => (j <= ks ? slot.p : pos[j]);
     let j = k;
-    while (j > ks && sp.distanceTo(piv(j)) < 0.07) j--;
-    TB.copy(sp).add(push);
+    while (j > ks && sp.distanceTo(piv(j)) < PIV_R) j--;
+    const dj = sp.distanceTo(piv(j)), dn = j < k ? sp.distanceTo(piv(j + 1)) : 0;
+    const share = clamp((PIV_R - dn) / Math.max(1e-6, dj - dn), 0, 1);
+    VB.copy(sp).add(push);
     const keep = Math.min(NJ, k + 1);
     for (let h = 0; h < 2; h++) {
       const jj = h === 0 ? Math.max(ks, j - 1) : j;
       PV.copy(piv(jj));
-      TA.subVectors(sp, PV); V3.subVectors(TB, PV);
-      if (TA.lengthSq() < 1e-8 || V3.lengthSq() < 1e-8) continue;
-      Q.setFromUnitVectors(TA.normalize(), V3.normalize());
-      if (h === 0 && jj < j) Q.slerp(QI.identity(), 0.5); // (half here, the rest at the next joint)
+      VA.subVectors(sp, PV); V3.subVectors(VB, PV);
+      if (VA.lengthSq() < 1e-8 || V3.lengthSq() < 1e-8) continue;
+      Q.setFromUnitVectors(VA.normalize(), V3.normalize());
+      if (h === 0 && jj < j) Q.slerp(QI.identity(), 1 - share); // (its share here, the rest at the next joint)
       if (local) {
         PK.copy(pos[keep]);
         const last = Math.min(keep, NJ);
@@ -1347,7 +1859,7 @@ export function createTongue(THREE, opts = {}) {
     if (failed || disposed) { resolve(); return promise; }
     lid.fn = typeof fn === 'function' ? fn : null;
     lid.rfn = typeof rfn === 'function' ? rfn : null; lid.tilt = !!lid.rfn;
-    Lk = { t: 0, speed: Math.max(0.2, +speed || 1), sx: mirror ? -1 : 1, resolve, promise, cue: 0, burst: 0, str: 0, waiting: true, waitT: 0 };
+    Lk = { t: 0, speed: Math.max(0.2, +speed || 1), sx: mirror ? -1 : 1, resolve, promise, cue: 0, burst: 0, str: 0, peel: 0, run: 0, trail: 0, waiting: true, waitT: 0 };
     if (mesh) start(Lk);
     return promise;
   }
@@ -1365,6 +1877,8 @@ export function createTongue(THREE, opts = {}) {
     Lk = null;
     if (mesh) mesh.visible = false;
     for (const s of STR) if (s.on && s.snapAt < 0 && (s.ea.t === 'pin' || s.eb.t === 'pin')) snapString(s);
+    // (the wet spots dry up quickly now: the intro moves the bin soon after, and they would float off it)
+    for (const w of WS) if (w.on) w.life = Math.min(w.life, w.t + 0.45);
     lid.H = 0; lid.v = 0; lid.push = 0; lidAngle();
     tellLid();
     lid.fn = lid.rfn = null; lid.tilt = false;
@@ -1393,9 +1907,17 @@ export function createTongue(THREE, opts = {}) {
       peelString(s, Math.min(k, NJ - 1), cpt[k], cnr[k], cType[k]);
     }
     for (let k = 0; k <= NJ; k++) if (conLid[k]) contact[k] = 1;
-    while (l.cue < CUES.length && CUES[l.cue][0] <= t) { cue(CUES[l.cue][1], CUES[l.cue][2]); l.cue++; }
-    while (l.burst < BURSTS.length && BURSTS[l.burst][0] <= t) { burst(BURSTS[l.burst][1], BURSTS[l.burst][2]); l.burst++; }
+    while (l.cue < CUES.length && CUES[l.cue][0] <= t) { const [, n, info] = CUES[l.cue]; cue(n, n === 'slurp' ? { in: (TV - t) / l.speed } : info); l.cue++; }
+    while (l.burst < BURSTS.length && BURSTS[l.burst][0] <= t) { const [, n, from, s] = BURSTS[l.burst]; burst(n, from, s); l.burst++; }
     while (l.str < STRINGS.length && STRINGS[l.str][0] <= t) { gapString(STRINGS[l.str][1]); l.str++; }
+    while (l.peel < PEELS.length && PEELS[l.peel][0] <= t) { peelStrings(PEELS[l.peel][1]); l.peel++; }
+    while (l.run < RUNS.length && RUNS[l.run][0] <= t) { runDrool(RUNS[l.run][1]); l.run++; }
+    // where it lies on the top licking, it leaves the lid wet: a spot under its front every few hundredths of a second
+    if (par.wl > 0.9 && par.lift < 0.03 && t >= l.trail && mesh.visible) {
+      l.trail = t + 0.07;
+      const k = NJ - 1 - Math.floor(rng() * 7);
+      if (k > kSlot + 2) spot(pos[k].x, pos[k].y, pos[k].z, hw[k] * kw[k] * rnd(0.4, 0.65), rnd(0.8, 1.2), rnd(1, 1.6));
+    }
     tellLid();
     // done when the lid has clapped shut and stopped bouncing
     if (l.t >= T_END && ((lid.H <= 0 && lid.v === 0) || l.t > T_END + 0.6)) finish();
@@ -1409,7 +1931,7 @@ export function createTongue(THREE, opts = {}) {
       if (primed && dt > 0 && mesh.visible) {
         V2.subVectors(V1, emitPrev[e]).divideScalar(dt);
         const sp = V2.length();
-        if (sp > 2.4 && (V1.z > lid.ze + 0.03 || V1.y > 0.15)) { // (out of the gap: in front of the lid or over it)
+        if (sp > 2.4 && (V1.z > lid.ze + 0.03 || Math.abs(V1.x) > LID_HW + 0.03 || V1.y > 0.15)) { // (out of the gap: beside the lid or over it)
           emitAcc[e] += wgt * 0.9 * (sp - 2.4) * dt;
           while (emitAcc[e] >= 1) {
             emitAcc[e] -= 1;
@@ -1423,16 +1945,17 @@ export function createTongue(THREE, opts = {}) {
     primed = mesh.visible;
   }
   const tipVel = V(), tipPrev = V();
-  function burst(n, from) {
+  function burst(n, from, strength = 1) {
+    if (from === 'splash') { splashBurst(strength); return; }
     where(tipPin, V1);
     for (let k = 0; k < n; k++) {
       if (from === 'drool') { // a fat drop lets go of the hanging tip
         where(tipPin, V1);
         spawnDrop(V1, V2.set(rnd(-0.05, 0.05), -0.3, 0.15), 0.022);
       } else if (from === 'gap') { // squirted out of the gap beside the tongue as it squeezes through
-        const s = k % 2 ? -1 : 1, w = hw[kSlot] * kw[kSlot];
-        V1.set(slot.p.x + s * (w * rnd(0.7, 1.05)), Math.max(0.01, slot.p.y * rnd(0.6, 1.2)), lid.ze + 0.015);
-        spawnDrop(V1, V2.set(s * rnd(0.2, 0.8), rnd(-0.1, 0.7), rnd(0.5, 1.3)), 0.009 + rng() * 0.01);
+        const s = k % 2 ? -1 : 1, w = s * hw[kSlot] * kw[kSlot] * rnd(0.7, 1.05), a = s * rnd(0.2, 0.8), b = rnd(0.5, 1.3);
+        V1.copy(slot.p).addScaledVector(slot.t, w).addScaledVector(slot.n, 0.015); V1.y = Math.max(0.01, slot.p.y * rnd(0.6, 1.2));
+        spawnDrop(V1, V2.set(slot.t.x * a + slot.n.x * b, rnd(-0.1, 0.7), slot.t.z * a + slot.n.z * b), 0.009 + rng() * 0.01);
       } else if (from === 'slap') { // squeezed out from under its edges as it hits: out to the sides and forward
         const j = NJ - 2 - Math.floor(rng() * 6), s = k % 2 ? -1 : 1;
         where(pin(j, V3.set(s * hw[j] * 1.05, 0, hh[j] * 0.3)), V1);
@@ -1444,16 +1967,77 @@ export function createTongue(THREE, opts = {}) {
       }
     }
   }
-  function newString(s) {
-    s.on = true; s.t = 0; s.snapAt = -1; s.sag = 0; s.bead = 0.3 + rng() * 0.4; s.ph = rng() * 6.28; s.av.set(0, 0, 0); s.thin = 1;
+  // A SPLASH as it slaps down: the spit squeezed out from under its edges and its tip flies up and out, many milky
+  // drops of mixed sizes (most small, a few fat) that fall back onto the lid and the floor; a fast fan of fine spray
+  // thrown flat and wide from its edges, well past its outline, streaking as it flies; and where it landed the lid is
+  // left wet (spots along it: under it for now, seen as it moves on). A BIG one (a roll-over slapping back down, s 1)
+  // throws over twice as much, more of it fat, and higher: it rises well above the lid and rains back down on it over
+  // a good half second, each drop leaving a wet spot where it lands.
+  const PSP = V(), PL2 = V(), NN2 = V(), TKR = { x: 0, z: 0.5, nx: 0, nz: 1, tx: 1, tz: 0, front: 1 };
+  function splashBurst(s) {
+    const big = smooth(0.7, 1, s), k0 = Math.max(kSlot + 2, NJ - 8), n = Math.round(10 + 18 * s + 30 * big), across = (k) => { BX.set(1, 0, 0).applyQuaternion(rot[k]); BZ.set(0, 1, 0).applyQuaternion(rot[k]); };
+    for (let i = 0; i < n; i++) {
+      const k = k0 + Math.floor(rng() * (NJ - k0)), side = i % 2 ? -1 : 1;
+      if (k >= NJ - 1 && rng() < 0.5) where(tipPin, V1);
+      // (from all over its face, most from near its edges: from its edges alone, the burst's first frame was a row of
+      // white teeth along it)
+      else where(pin(k, PSP.set(side * hw[k] * (1.05 - 0.7 * rng() * rng()), rng() * restLen[k], hh[k] * rnd(0, 0.6))), V1);
+      across(k); // (across it, along it)
+      // (a big one's drops go more up than out, and back, away from you: they rain back down onto the lid, not off its
+      // front in a long shower down the bin's front in front of everything)
+      V2.copy(BX).multiplyScalar(side * s * rnd(0.6, 1.7) * (1 - 0.45 * big)).addScaledVector(BZ, s * rnd(-0.2, 0.7));
+      V2.x += rnd(-0.25, 0.25); V2.y += s * rnd(0.8, 1.9) + big * rnd(0.2, 0.7); V2.z += rnd(-0.25, 0.25) - big * rnd(0.15, 0.6);
+      const q = rng(), r = q < 0.6 - 0.2 * big ? rnd(0.006, 0.011) : q < 0.88 - 0.08 * big ? rnd(0.012, 0.018) : rnd(0.02, 0.026 + 0.009 * big);
+      spawnDrop(V1, V2, r / 0.8);
+    }
+    for (let i = 0, m = Math.round(8 + 12 * s + 18 * big); i < m; i++) { // (the fine spray: specks where they land)
+      const k = k0 + Math.floor(rng() * (NJ - k0)), side = i % 2 ? -1 : 1;
+      where(pin(k, PSP.set(side * hw[k] * 1.02, rng() * restLen[k], 0)), V1);
+      across(k);
+      V2.copy(BX).multiplyScalar(side * s * rnd(2.0, 3.4)).addScaledVector(BZ, s * rnd(-0.6, 1.4));
+      V2.y += s * rnd(0.3, 1.1);
+      spawnDrop(V1, V2, rnd(0.004, 0.0075) / 0.8, 1);
+    }
+    if (par.wl > 0.5) for (let k = Math.max(kSlot + 3, NJ - 9); k < NJ; k += 3) spot(pos[k].x, pos[k].y, pos[k].z, hw[k] * kw[k] * rnd(0.6, 0.8), rnd(1.1, 1.5), rnd(1, 1.4));
   }
-  function gapString(side) { // across the gap beside the tongue: from the rim to the lid's front edge
+  // it peels its front up off the top: strings of spit from its face to the lid stretch as it rises, and snap
+  function peelStrings(n) {
+    if (par.wl < 0.5 || !mesh.visible) return;
+    for (let i = 0; i < n; i++) {
+      const s = STR.find((o) => !o.on), k = NJ - 2 - 2 * i - Math.floor(rng() * 2);
+      if (!s || k <= kSlot + 2) return;
+      toLid(pos[k], PL2);
+      const top = lidTopRaw(PL2.x, PL2.z);
+      if (top < 0) continue;
+      PL2.y = top; toRig(PL2, V2); dirToRig(NN2.set(0, 1, 0), V3);
+      peelString(s, k, V2, V3, 2);
+      s.snapLen = 0.12 + rng() * 0.12; s.life = 0.5;
+    }
+  }
+  // drool runs down over the lid's edge where it licked (trk: where along the track): a fat bead with a thinning trail
+  // behind it, sliding down the edge's face faster and faster, and it drips off
+  function runDrool(trk) {
+    const s = STR.find((o) => !o.on);
+    if (!s) return;
+    trackAt(trk * sx, TKR);
+    const x = clamp(TKR.x, -LID_HW + 0.04, LID_HW - 0.04) + rnd(-0.03, 0.03), z = TKR.z - HINGE_Z;
+    newString(s);
+    s.run = true; s.thin = 1; s.runT = rnd(0.4, 0.55); s.life = s.runT + 0.6; s.snapLen = 9;
+    s.ea.t = 'lid'; s.ea.l.set(x + TKR.nx * 0.007, 0.088, z + TKR.nz * 0.007); // (lid space: just off its edge's face)
+    s.eb.t = 'lid'; s.eb.l.copy(s.ea.l);
+    endAt(s.ea, s.a); endAt(s.eb, s.b);
+  }
+  function newString(s) {
+    s.on = true; s.t = 0; s.snapAt = -1; s.sag = 0; s.bead = 0.3 + rng() * 0.4; s.ph = rng() * 6.28; s.av.set(0, 0, 0); s.thin = 1; s.run = false;
+  }
+  function gapString(side) { // across the gap beside the tongue: from the rim to the lid's edge
     const s = STR.find((o) => !o.on);
     if (!s) return;
     newString(s);
-    const x = clamp(slot.p.x + sx * side * (hw[kSlot] * kw[kSlot] + rnd(0.03, 0.08)), -0.4, 0.4);
-    s.ea.t = 'lid'; s.ea.l.set(x, -0.003, LID_D - rnd(0.02, 0.04));
-    s.eb.t = 'fix'; s.eb.l.set(x + rnd(-0.02, 0.02), 0.002, lid.ze - rnd(0.02, 0.05));
+    const o = sx * side * (hw[kSlot] * kw[kSlot] + rnd(0.03, 0.08)), d = rnd(0.02, 0.04), e = rnd(0.02, 0.05), j = rnd(-0.02, 0.02);
+    const x = clamp(slot.p.x + slot.t.x * o, -0.49, 0.49), z = clamp(slot.p.z + slot.t.z * o, -0.4, 0.48);
+    s.ea.t = 'lid'; s.ea.l.set(x - slot.n.x * d, -0.003, z - slot.n.z * d - HINGE_Z); // (lid space, as it is shut)
+    s.eb.t = 'fix'; s.eb.l.set(x - slot.n.x * e + slot.t.x * j, 0.002, z - slot.n.z * e + slot.t.z * j);
     s.snapLen = 0.06 + rng() * 0.04; s.life = 0.55; s.thin = 0.7;
     endAt(s.ea, s.a); endAt(s.eb, s.b);
   }
@@ -1486,33 +2070,41 @@ export function createTongue(THREE, opts = {}) {
       const s = STR[k], base = k * SV * 3;
       if (!s.on) continue;
       s.t += dt;
-      if (s.snapAt < 0) { // its ends follow the tongue and the lid
+      if (s.snapAt < 0 || s.run) { // its ends follow the tongue and the lid (a run's streak stays on the lid's face)
         if (s.ea.t !== 'pin' || (Lk && !Lk.waiting && mesh?.visible)) {
           endAt(s.ea, V1);
           if (dt > 0) s.av.copy(V1).sub(s.a).divideScalar(dt);
           s.a.copy(V1);
         }
+        // (a run of drool: its bead slides down the edge's face, faster and faster, and drips off at the bottom)
+        if (s.run) { const u = Math.min(1, s.t / s.runT); s.eb.l.y = s.ea.l.y - (s.ea.l.y + 0.012) * u * u; }
         endAt(s.eb, s.b);
+        if (s.run && s.snapAt < 0 && s.t >= s.runT) { s.snapAt = s.t; spawnDrop(s.b, V2.set(rnd(-0.05, 0.05), -0.45, 0.08), 0.017); }
       }
       const len = s.a.distanceTo(s.b);
       if (s.snapAt < 0 && (len > s.snapLen || s.t > s.life || (s.ea.t === 'pin' && !(Lk && mesh?.visible)))) snapString(s);
-      // after the snap, each half whips back to its own end within 0.1 s and is gone (a wet spot)
-      const broke = s.snapAt >= 0 ? Math.min(1, (s.t - s.snapAt) / 0.1) : 0;
+      // after the snap, each half whips back to its own end within 0.1 s and is gone (a wet spot); a run's bead has
+      // dripped off, and the wet streak it left down the edge's face thins away where it is over ~0.25 s
+      const broke = s.snapAt >= 0 ? Math.min(1, (s.t - s.snapAt) / (s.run ? 0.25 : 0.1)) : 0;
       if (broke >= 1) {
         s.on = false; sPos.fill(0, base, base + SV * 3);
-        if (s.eb.t === 'fix' && s.eb.l.y < -0.05) {} // (on the bin's face: nothing to see)
+        if (s.run || (s.eb.t === 'fix' && s.eb.l.y < -0.05)) {} // (a run, or on the bin's face: nothing to see)
         else if (s.eb.t === 'lid') puddle(s.b.x, s.b.y, s.b.z, 0.018 + rng() * 0.01, 0.7, true);
         continue;
       }
       any = true;
       // it sags with its span across (a string hanging straight down hardly bows), never more than a third of its length
       const across = Math.hypot(s.b.x - s.a.x, s.b.z - s.a.z);
-      const sagT = Math.min(0.08, 0.3 * across + 0.08 * len, 0.33 * len) * (1 - broke);
+      const sagT = s.run ? 0 : Math.min(0.08, 0.3 * across + 0.08 * len, 0.33 * len) * (1 - broke);
       s.sag += (sagT - s.sag) * Math.min(1, dt * 12);
-      const wob = 0.14 * len * Math.sin(s.t * 27 + s.ph) * (1 - broke); // it sways, sideways
+      const wob = s.run ? 0 : 0.14 * len * Math.sin(s.t * 27 + s.ph) * (1 - broke); // it sways, sideways
       // thins as it stretches (same volume), webbed thick where it meets its ends, a bead of spit on it
       const rMid = clamp(0.0008 / Math.max(0.05, len), 0.0032, 0.007) * s.thin, rEnd = Math.min(0.012, 0.004 + 0.12 * len) * s.thin;
-      const ease = 1 - (1 - broke) * (1 - broke);
+      const ease = s.run ? 0 : 1 - (1 - broke) * (1 - broke);
+      // (a run: its bead, round, a little longer as it speeds up, its share of the length)
+      // (once its bead has dripped off, what is left is a thin wet streak at once, not a fat white spike)
+      const runLeft = s.snapAt < 0 ? 1 : 0.3 + 0.7 * Math.max(0, 1 - (s.t - s.snapAt) / 0.06);
+      const ru = Math.min(1, s.t / s.runT), RB = 0.013 * (s.snapAt < 0 ? 1 : 0), LB = Math.min(0.85, (2 * 0.013 * (1 + 0.7 * ru * ru)) / Math.max(1e-3, len));
       for (let u = 0; u <= SEG; u++) {
         const f = u / SEG;
         const g = broke > 0 ? (f < 0.5 ? f * (1 - ease) : 1 - (1 - f) * (1 - ease)) : f; // each half to its own end
@@ -1520,7 +2112,12 @@ export function createTongue(THREE, opts = {}) {
         const cx = s.a.x + (s.b.x - s.a.x) * g + wob * bow, cy = s.a.y + (s.b.y - s.a.y) * g - s.sag * bow, cz = s.a.z + (s.b.z - s.a.z) * g + s.sag * 0.5 * bow;
         // (its ends narrow into what they stick to, and once it snaps the broken ends taper to points and the halves
         // thin away: no open stubs)
-        const r = (rMid + (rEnd - rMid) * Math.pow(Math.abs(2 * f - 1), 4) + 0.007 * s.thin * Math.exp(-Math.pow((f - s.bead) / 0.08, 2)))
+        // (a run: a trail down from the edge, thick where it pours over it and tapering, the fat round bead at its foot
+        // closing it off; once the bead has dripped, the trail alone, thinning away)
+        const fb = (f - (1 - 0.5 * LB)) / (0.5 * LB);
+        const r = s.run ? Math.max((0.0035 + 0.0095 * Math.pow(1 - f, 1.3)) * Math.min(1, 0.45 + 12 * f) * (1 - smooth(1 - 0.6 * LB, 1 - 0.3 * LB, f) * (RB > 0 ? 1 : 0)) * (1 - broke) * runLeft,
+          fb > -1 ? RB * Math.sqrt(Math.max(0, 1 - fb * fb)) : 0)
+          : (rMid + (rEnd - rMid) * Math.pow(Math.abs(2 * f - 1), 4) + 0.007 * s.thin * Math.exp(-Math.pow((f - s.bead) / 0.08, 2)))
           * Math.min(1, 0.35 + 5 * Math.min(f, 1 - f)) * (broke > 0 ? smooth(0, 0.2, Math.abs(f - 0.5)) * (1 - broke) : 1);
         V2.set(s.b.x - s.a.x + wob * (4 - 8 * g), (s.b.y - s.a.y) - s.sag * (4 - 8 * g), s.b.z - s.a.z + s.sag * 0.5 * (4 - 8 * g)).normalize();
         // the ring's frame, carried along from the last ring (so the tube never twists and pinches)
@@ -1571,7 +2168,7 @@ export function createTongue(THREE, opts = {}) {
       // round when slow; fast, it stretches into a teardrop, its tail trailing (the shader keeps the head round)
       if (sp > 1e-4) V1.copy(d.v).multiplyScalar(-1 / sp); else V1.copy(UP);
       Q.setFromUnitVectors(UP, V1);
-      const st = 1 + Math.min(0.55, Math.max(0, sp - 1.6) * 0.12);
+      const st = 1 + Math.min(0.55, Math.max(0, sp - 1.5) * 0.2);
       SC.set(d.r / Math.sqrt(st), d.r * st, d.r / Math.sqrt(st));
       M4.compose(d.p, Q, SC);
       drops.setMatrixAt(n++, M4);
@@ -1614,6 +2211,23 @@ export function createTongue(THREE, opts = {}) {
     }
     puddles.count = n;
     puddles.instanceMatrix.needsUpdate = true; fadeP.needsUpdate = true;
+    // the wet spots ride on the lid as it is now, spread out as they land and dry from the edge in
+    const fadeW = spots.geometry.attributes.aFade;
+    n = 0;
+    for (const w of WS) {
+      if (!w.on) continue;
+      w.t += dt;
+      const u = w.t / w.life;
+      if (u >= 1) { w.on = false; continue; }
+      const s = w.R * (w.t < 0.1 ? backOut(w.t / 0.1) : 1) * (1 - 0.3 * smooth(0.4, 1, u));
+      toRig(w.l, w.p);
+      Q.setFromAxisAngle(UP, w.rot).premultiply(Q2.setFromAxisAngle(Z, lidRoll())).premultiply(Q2.setFromAxisAngle(X, -Math.asin(lid.sin)));
+      M4.compose(w.p, Q, SC.set(s * w.sx, s * 0.7, s)); // (a domed bead of a film: its slopes catch the sun)
+      spots.setMatrixAt(n, M4);
+      fadeW.array[n++] = 1 - smooth(0.35, 1, u);
+    }
+    spots.count = n;
+    spots.instanceMatrix.needsUpdate = true; fadeW.needsUpdate = true;
   }
 
   function update(dt) {
@@ -1641,7 +2255,7 @@ export function createTongue(THREE, opts = {}) {
     pendingWarm = null;
     let root = object3d; while (root.parent) root = root.parent;
     let fxRoot = fx; while (fxRoot.parent) fxRoot = fxRoot.parent;
-    const inst = [drops, crowns, puddles], counts = inst.map((m) => m.count);
+    const inst = [drops, crowns, puddles, spots], counts = inst.map((m) => m.count);
     const was = [mesh.visible, strings.visible];
     mesh.visible = true; strings.visible = true; rig.scale.setScalar(1e-6);
     M4.makeScale(1e-6, 1e-6, 1e-6);
@@ -1666,8 +2280,8 @@ export function createTongue(THREE, opts = {}) {
   }
 
   function clearFx() {
-    for (const pool of [D, C, PD, STR]) for (const o of pool) o.on = false;
-    drops.count = crowns.count = puddles.count = 0;
+    for (const pool of [D, C, PD, WS, STR]) for (const o of pool) o.on = false;
+    drops.count = crowns.count = puddles.count = spots.count = 0;
     sPos.fill(0);
     strings.visible = false;
   }
@@ -1698,6 +2312,7 @@ export function createTongue(THREE, opts = {}) {
       get mesh() { return mesh; }, get pos() { return pos; }, get rot() { return rot; }, get NJ() { return NJ; },
       get hw() { return hw; }, get hh() { return hh; }, get kz() { return kz; }, get kw() { return kw; },
       get zT() { return zT; }, get zB() { return zB; }, get xW() { return xW; },
+      get sAt() { return sAt; }, get L() { return L; }, get STALK() { return STALK; }, get uSlot() { return uSlot; },
       sdf(x, y, z) { const p = V().set(x, y, z), n1 = V(), n2 = V(), pl = V(); toLid(p, pl); return { bin: binSdf(p, n1), nb: n1.toArray(), lid: lidSdf(p, n2), nl: n2.toArray(), pl: pl.toArray() }; },
       rail() { return { r0: slot.r0.toArray(), n: RN, p: Array.from(RP.subarray(0, RN * 3)), u: Array.from(RU.subarray(0, RN * 3)), jp: JP.slice(kSlot + 1, NJ + 1).map((v) => v.toArray()), ks: kSlot, rP: Array.from(rP), rY: Array.from(rY), rR: Array.from(rR), tgtP: Array.from(tgtP), angP: Array.from(angP) }; },
       get bones() { return chainBones; }, par, flags: dbg, lid,
@@ -1707,7 +2322,8 @@ export function createTongue(THREE, opts = {}) {
         if (!mesh) return;
         evalPose(t);
         for (const k in set) par[k] = set[k];
-        lid.tilt = dbg.tilt; lid.at = par.slide; lid.H = Math.max(0, par.push); lidAngle();
+        trackAt(par.trk, TK); lid.px = TK.x; lid.pz = TK.z; lid.front = TK.front;
+        lid.tilt = dbg.tilt; lid.H = Math.max(0, par.push); lidAngle();
         targets(); settle(); solve();
         mesh.visible = par.out > 0.004;
       },
@@ -1728,6 +2344,20 @@ const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a
 // signed distance from (x, z) to the rectangle |x| <= a, |z| <= b
 const rectSd = (x, z, a, b) => { const dx = Math.abs(x) - a, dz = Math.abs(z) - b; return Math.hypot(Math.max(dx, 0), Math.max(dz, 0)) + Math.min(Math.max(dx, dz), 0); };
 const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+// How far a section a (across) by b (through) reaches along a direction whose parts along its axes are a and b (a, b:
+// the half width and half thickness, each already times its part): the tongue's section is a superellipse, between an
+// ellipse (p = 2, which misses its full corners, most of all where its flat underside meets its edges) and a box
+const reach = (a, b) => Math.pow(Math.pow(Math.abs(a), 1.4) + Math.pow(Math.abs(b), 1.4), 1 / 1.4);
+const wrapPi = (a) => a - 2 * Math.PI * Math.round(a / (2 * Math.PI));
+// how far from (px, pz), out along (nx, nz) (level), to where it leaves the octagon |x| <= a, |z| <= b, |x| + |z| <= c
+// (a box with its corners cut; negative: that face is behind it)
+function rayOct(px, pz, nx, nz, a, b, c) {
+  const gx = nx < 0 ? -1 : 1, gz = nz < 0 ? -1 : 1, ax = Math.abs(nx), az = Math.abs(nz);
+  let t = (c - gx * px - gz * pz) / Math.max(1e-6, ax + az);
+  if (ax > 1e-6) t = Math.min(t, (a - gx * px) / ax);
+  if (az > 1e-6) t = Math.min(t, (b - gz * pz) / az);
+  return t;
+}
 const backOut = (t) => 1 + 2.7 * Math.pow(t - 1, 3) + 1.7 * Math.pow(t - 1, 2);
 
 // The tongue's push in the gap: the keyed one and the kicks' jolts (a quick half sine, a little thicker in the gap;
@@ -1741,19 +2371,78 @@ function pushAt(t) {
   return Math.max(0, p);
 }
 
-// One track per number from the rows that key it.
+// One track per number from the rows that key it (and trk from PACE), sampled at TRACK_HZ and smoothed: a gaussian
+// SMOOTH[k] seconds wide (GAUSS by default), so nothing has a corner at a key: every move eases in and out, a slap
+// only lands hard (lift's is a frame or two). Then aim gets AUTO_AIM added.
+const TRACK_HZ = 240, GAUSS = 0.03;
+const SMOOTH = { lift: 0.005, push: 0.008, out: 0.015, trk: 0.04, wl: 0.02, wf: 0.02 };
 function buildTracks(rows) {
-  const tracks = {};
-  for (const k of Object.keys(rows[0][1])) tracks[k] = track(rows.filter(([, p]) => k in p).map(([t, p]) => [t, p[k]]));
+  const n = Math.ceil((T_END + 0.6) * TRACK_HZ) + 1, tracks = {}, tables = {};
+  const keyed = (k) => rows.filter(([, p]) => k in p).map(([t, p]) => (Array.isArray(p[k]) ? [t, p[k][0], p[k][1]] : [t, p[k], 0])).sort((a, b) => a[0] - b[0]);
+  for (const k of Object.keys(rows[0][1])) {
+    const f = k === 'trk' ? paceTrack() : track(keyed(k)), raw = new Float32Array(n);
+    for (let i = 0; i < n; i++) raw[i] = f(i / TRACK_HZ);
+    tables[k] = gauss(raw, (SMOOTH[k] ?? GAUSS) * TRACK_HZ);
+  }
+  // AUTO_AIM: round a corner of the track the way out of the gap turns a quarter turn; the tongue's way through it
+  // turns the same, but spread over AIM_SIG either side (it slants into the corner before it gets there and out of it
+  // after): aim += the way out there - that way, smoothed (at most 0.5)
+  const way = new Float32Array(n), tk = { x: 0, z: 0, nx: 0, nz: 1, tx: 1, tz: 0, front: 1 };
+  for (let i = 0; i < n; i++) { trackAt(tables.trk[i], tk); way[i] = Math.atan2(tk.nx, tk.nz); }
+  const ws = gauss(way, AIM_SIG * TRACK_HZ);
+  tables.aimA = new Float32Array(n);
+  for (let i = 0; i < n; i++) tables.aimA[i] = clamp(way[i] - ws[i], -0.5, 0.5);
+  // WLAG: how far the way out of the gap has turned ahead of where it was, eased over WLAG_SIG (see railLid)
+  const wl = gauss(way, WLAG_SIG * TRACK_HZ);
+  tables.wlag = new Float32Array(n);
+  for (let i = 0; i < n; i++) tables.wlag[i] = way[i] - wl[i];
+  for (const k in tables) {
+    const a = tables[k];
+    tracks[k] = (t) => { const x = clamp(t * TRACK_HZ, 0, n - 1), i = Math.min(n - 2, Math.floor(x)), f = x - i; return a[i] + (a[i + 1] - a[i]) * f; };
+  }
   return tracks;
 }
+const AIM_SIG = 0.12, WLAG_SIG = 0.1;
+// trk (the rows' keys for it are not used): from PACE, between its times driven round the track steadily (held between
+// runs), at a speed that eases in and out over EASE_T (at most 0.4 of the run) and drops to CORNER_V of it round a
+// corner (where the way out of the gap turns), scaled so it gets to the end on time
+const EASE_T = 0.45, CORNER_V = 0.45;
+function paceTrack() {
+  const corner = (k) => { const s = Math.abs(k); return smooth(TRK_FX - 0.1, TRK_FX + 0.02, s) * (1 - smooth(TRK_FX + TRK_ARC - 0.02, TRK_FX + TRK_ARC + 0.1, s)); };
+  const runs = PACE.map(([t0, t1, k0, k1]) => {
+    const h = 1 / TRACK_HZ, N = Math.ceil((t1 - t0) / h), dir = Math.sign(k1 - k0), et = Math.min(EASE_T, 0.4 * (t1 - t0));
+    const run = (v0) => { const out = new Float32Array(N + 1); let k = k0; out[0] = k; for (let i = 1; i <= N; i++) { const t = t0 + i * h, e = smooth(t0, t0 + et, t) * (1 - smooth(t1 - et, t1, t)); k += dir * v0 * e * (1 - (1 - CORNER_V) * corner(k)) * h; out[i] = k; } return out; };
+    let lo = 0, hi = 20;
+    for (let it = 0; it < 40; it++) { const mid = (lo + hi) / 2; if ((run(mid)[N] - k1) * dir < 0) lo = mid; else hi = mid; }
+    return { t0, t1, N, h, out: run((lo + hi) / 2) };
+  });
+  return (t) => {
+    let v = runs[0].out[0];
+    for (const r of runs) {
+      if (t >= r.t1) v = r.out[r.N];
+      else if (t > r.t0) { const x = (t - r.t0) / r.h, i = Math.min(r.N - 1, Math.floor(x)), f = x - i; return r.out[i] + (r.out[i + 1] - r.out[i]) * f; }
+    }
+    return v;
+  };
+}
+// a gaussian blur of a sampled track, sigma in samples (the ends held)
+function gauss(a, sig) {
+  if (sig < 0.5) return Float32Array.from(a);
+  const r = Math.ceil(3 * sig), w = [];
+  let ws = 0;
+  for (let j = -r; j <= r; j++) { const x = Math.exp(-0.5 * (j / sig) ** 2); w.push(x); ws += x; }
+  const n = a.length, out = new Float32Array(n);
+  for (let i = 0; i < n; i++) { let s = 0; for (let j = -r; j <= r; j++) s += w[j + r] * a[Math.min(n - 1, Math.max(0, i + j))]; out[i] = s / ws; }
+  return out;
+}
 
-// Hermite through the keys; flat at a key that is a peak or a valley.
+// Hermite through the keys ([t, v, how]); flat at a key that is a peak or a valley. A key whose how is HIT is arrived
+// at falling, like a weight let go at the key before (a peak): from rest, faster and faster, and it stops dead there.
 function track(keys) {
   const n = keys.length, m = new Float32Array(n);
   for (let k = 1; k < n - 1; k++) {
     const a = keys[k - 1][1], b = keys[k][1], c = keys[k + 1][1];
-    m[k] = (b - a) * (c - b) <= 0 ? 0 : (c - a) / (keys[k + 1][0] - keys[k - 1][0]);
+    m[k] = keys[k][2] === HIT || (b - a) * (c - b) <= 0 ? 0 : (c - a) / (keys[k + 1][0] - keys[k - 1][0]);
   }
   return (t) => {
     if (t <= keys[0][0]) return keys[0][1];
@@ -1761,6 +2450,7 @@ function track(keys) {
     let k = 0;
     while (t > keys[k + 1][0]) k++;
     const [t0, v0] = keys[k], [t1, v1] = keys[k + 1], h = t1 - t0, u = (t - t0) / h, u2 = u * u, u3 = u2 * u;
+    if (keys[k + 1][2] === HIT) return v0 + (v1 - v0) * u2;
     return (2 * u3 - 3 * u2 + 1) * v0 + (u3 - 2 * u2 + u) * h * m[k] + (-2 * u3 + 3 * u2) * v1 + (u3 - u2) * h * m[k + 1];
   };
 }
@@ -1781,16 +2471,23 @@ function crownGeometry(THREE) {
 }
 
 // A puddle: an irregular flat blob (unit radius) and a few satellite splats; aEdge runs 0 at the centre to 1 at the
-// edge (the shader draws the outline and the highlight from it).
+// edge (the shader draws the outline and the highlight from it). Its normals are a smooth dome's (each blob's, from its
+// own centre), not its few flat facets': a highlight on it is a soft glint that slides over it, not lit white chips.
 function puddleGeometry(THREE, rng) {
-  const pos = [], edge = [];
+  const pos = [], edge = [], nrm = [];
+  const dome = (cx, cz, r, h, x, z) => {
+    const dx = x - cx, dz = z - cz, d = Math.hypot(dx, dz), sl = (2 * h * Math.min(1, d / r)) / r;
+    const ux = d > 1e-6 ? dx / d : 0, uz = d > 1e-6 ? dz / d : 0, l = Math.hypot(sl, 1);
+    nrm.push((sl * ux) / l, 1 / l, (sl * uz) / l);
+  };
   const blob = (cx, cz, r, n, h) => {
     const rim = [];
     for (let k = 0; k < n; k++) { const a = (k / n) * Math.PI * 2 + rng() * 0.2, rr = r * (0.88 + rng() * 0.2 + 0.08 * Math.sin(a * 3)); rim.push([cx + Math.cos(a) * rr, 0, cz + Math.sin(a) * rr]); }
     const mid = rim.map(([x, , z]) => [cx + (x - cx) * 0.62, h * 0.8, cz + (z - cz) * 0.62]);
     for (let k = 0; k < n; k++) {
       const a = rim[k], b = rim[(k + 1) % n], c = mid[(k + 1) % n], d = mid[k];
-      pos.push(...a, ...c, ...b, ...a, ...d, ...c, ...d, cx, h, cz, ...c);
+      const tri = [a, c, b, a, d, c, d, [cx, h, cz], c];
+      for (const v of tri) { pos.push(...v); dome(cx, cz, r, h, v[0], v[2]); }
       edge.push(1, 0.62, 1, 1, 0.62, 0.62, 0.62, 0, 0.62);
     }
   };
@@ -1799,12 +2496,15 @@ function puddleGeometry(THREE, rng) {
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
   g.setAttribute('aEdge', new THREE.Float32BufferAttribute(edge, 1));
-  g.computeVertexNormals();
+  g.setAttribute('normal', new THREE.Float32BufferAttribute(nrm, 3));
   return g;
 }
 
 // The cartoon liquid. DROP: the trailing half stretches into a tail as the instance is stretched (round when slow).
 // FADE: a per-instance fade. CROWN: whiter, thicker points. PUDDLE: flat; outline and a highlight crescent from aEdge.
+// SHEEN (with PUDDLE): a wet film on the black lid: the sun's highlight off its shallow, smooth dome, a small soft glint
+// (it slides over it as the camera and the lid move: it glistens) and a sheen toward grazing angles, instead of the
+// painted crescent.
 const LIQ_VS = `
 #include <common>
 varying vec3 vN;
@@ -1818,6 +2518,9 @@ varying float vFade;
 attribute float aEdge;
 varying float vEdge;
 varying vec2 vRel;
+#endif
+#ifdef SHEEN
+varying vec3 vLt;
 #endif
 void main() {
   vec3 p = position;
@@ -1843,6 +2546,9 @@ void main() {
   vec4 mv = viewMatrix * wp;
   vN = normalize(mat3(viewMatrix) * n);
   vV = -mv.xyz;
+  #ifdef SHEEN
+  vLt = normalize(mat3(viewMatrix) * normalize(vec3(-2.2, 5.0, 3.2)));
+  #endif
   gl_Position = projectionMatrix * mv;
 }`;
 const LIQ_FS = `
@@ -1860,6 +2566,9 @@ varying float vFade;
 varying float vEdge;
 varying vec2 vRel;
 #endif
+#ifdef SHEEN
+varying vec3 vLt;
+#endif
 void main() {
   vec3 col = uTint;
   float a = uAlpha;
@@ -1869,16 +2578,27 @@ void main() {
     float hl = band * smoothstep(0.1, 0.7, side);
     float ol = smoothstep(0.78, 0.95, vEdge);
     col = mix(col, uEdge, ol); a = mix(a, uEdgeAlpha, ol);
-    col = mix(col, vec3(1.0), hl); a = max(a, hl * 0.95);
+    #ifdef SHEEN
+      vec3 v = normalize(vV), n = normalize(vN);
+      // (a small soft glint where its smooth dome faces the sun's reflection, kept in from its outline)
+      float sp = pow(max(dot(n, normalize(vLt + v)), 0.0), 48.0);
+      float fr = pow(1.0 - max(dot(n, v), 0.0), 3.0);
+      float g = 0.9 * smoothstep(0.3, 0.85, sp) * (1.0 - smoothstep(0.78, 0.95, vEdge)) + 0.1 * hl + 0.12 * fr * (1.0 - ol);
+      col = mix(col, vec3(1.0), clamp(g, 0.0, 1.0)); a = max(a, min(0.95, g));
+    #else
+      col = mix(col, vec3(1.0), hl); a = max(a, hl * 0.95);
+    #endif
   #else
     vec3 v = normalize(vV);
     vec3 n = normalize(vN);
     if (!gl_FrontFacing) n = -n;
     float rim = 1.0 - abs(dot(n, v));
     #ifdef DROP
-      // a bead: milky, darker and bluer underneath, a thin edge
-      col = mix(col, vec3(0.70, 0.77, 0.86), smoothstep(0.3, -0.8, n.y) * 0.8);
-      float ed = smoothstep(0.62, 0.9, rim);
+      // a bead of spit: milky (a soft blue-grey, darker underneath, lit white on top: solid, not a clear bubble), a thin
+      // darker edge
+      col = mix(col, vec3(0.6, 0.67, 0.77), smoothstep(0.35, -0.85, n.y) * 0.85);
+      col = mix(col, vec3(1.0), smoothstep(0.35, 0.95, n.y) * 0.45);
+      float ed = smoothstep(0.7, 0.93, rim);
     #else
       float ed = smoothstep(0.45, 0.8, rim);
     #endif
@@ -1891,6 +2611,9 @@ void main() {
     float spec = max(dot(n, normalize(normalize(vec3(-0.5, 0.75, 0.6)) + v)), 0.0);
     float dotH = smoothstep(0.93, 0.96, spec);
     float bounce = smoothstep(0.75, 0.9, max(dot(n, normalize(vec3(0.55, -0.6, 0.6))), 0.0)) * 0.45 * (1.0 - ed);
+    #ifdef DROP
+      bounce *= 0.25; // (a bright crescent underneath, inside a dark rim: a glass marble)
+    #endif
     col = mix(col, vec3(1.0), max(dotH, bounce));
     a = max(a, max(dotH, bounce * 0.8));
   #endif

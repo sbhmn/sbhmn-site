@@ -7,13 +7,18 @@
 <link rel="icon" href="data:,">
 <!-- Test bench for assets/intro/tongue-model.js (the owner's tongue model, rigged; not linked from the site): the
      intro's bin with the lid SHUT (as after the slam, the black monster block under it), the tongue squeezing out
-     through the gap under the lid's front edge, the lid riding on it (the module's lid(pitch) and roll(r) drive the lid
-     here, nested as in intro.js: a pitch group at the hinge, a roll group on the lid's side edge inside it).
-     /dev/lab-tongue-model.html            live: licks every 5.2 s; click or space to lick now, M mirrors the next one
-     ?view=throw,phone,front (default) | throw | phone | front | side | left | top | close | low | tclose | fclose
-                                          | pclose | cam | any list: which camera(s), side by side. throw = the throw
-                                          camera (landscape), phone = the throw camera on a portrait phone (aspect 0.46:
-                                          it backs off so the bin fits), front = the intro's front camera (reference),
+     through the gap under the lid's edge (anywhere round it: its base rides the gap like a track), the lid riding on it
+     (the module's lid(pitch) and roll(r) drive the lid here, nested as in intro.js: a pitch group at the hinge, a roll
+     group on the lid's side edge inside it).
+     /dev/lab-tongue-model.html            live: licks every 4 s; click or space to lick now, M mirrors the next one
+     ?view=lick,lickp,front (default) | throw | phone | front | lick | lickp | side | left | top | close | low
+                                          | tclose | fclose | pclose | cam | any list: which camera(s), side by side.
+                                          throw = the throw camera (landscape; the lick starts in front of it),
+                                          phone = the throw camera on a portrait phone (aspect 0.46: it backs off so
+                                          the bin fits), lick / lickp = the camera the intro cranes up to for the lick
+                                          (intro.js's view.lick: 32 degrees down, framing everything the tongue does;
+                                          &el, &az: other angles), landscape / on a portrait phone, front = the
+                                          intro's front camera (reference),
                                           side = from the right, left = from the left, top = from above, close =
                                           nearer, low = low and near, tclose / fclose / pclose
                                           = the throw / front / phone camera zoomed in on the gap; cam = your own:
@@ -25,8 +30,8 @@
      &pose=0.5                            freeze the tongue in the lick's pose at that time (no drips, the lid at the
                                           push), for look-dev
      &set=bend:-1,out:0.5                 ... with some of the pose's numbers overridden
-     &notilt                              lick() without roll: the lid is not tipped (its whole front lifts as one), as
-                                          an intro that only maps lid(pitch) would show it
+     &notilt                              lick() without roll: the lid is not tipped (the whole lid hinges up where the
+                                          tongue comes out), as an intro that only maps lid(pitch) would show it
      &tm=clearcoat:0,roughness:0.5        override tongue material numbers
      &fxscene                             the drips live in the scene (opts.fxParent = scene)
      &glb=/path/to.glb                    another build of the model
@@ -53,7 +58,7 @@
   import { GLTFLoader } from '/assets/vendor/three/addons/loaders/GLTFLoader.js';
   import { createTongue } from '/assets/intro/tongue-model.js';
   const q = new URLSearchParams(location.search);
-  const views = (q.get('view') ?? 'throw,phone,front').split(',');
+  const views = (q.get('view') ?? 'lick,lickp,front').split(',');
   const shot = q.has('shot'), lickAt = +(q.get('at') ?? 0.1);
   const canvas = document.querySelector('canvas');
   const hud = document.querySelector('.hud');
@@ -175,9 +180,30 @@
     return base * Math.max(1, fit);
   };
   const dir = new THREE.Vector3(0, 1.25, 3.7).normalize();
+  // (as intro.js's view.lick: how far back a camera at elevation el, azimuth az looking at T must be to frame every
+  // point of box, margin of the frame kept clear, never further back than the throw camera; LICK_BOX, LICK_T, 32
+  // degrees, a 0.04 margin: intro.js's own)
+  const LICK_BOX = [-0.8, 0.74, 0.2, 1.42, -0.45, 0.8];
+  function fitOrbit(el, az, T, fov, aspect, box, margin) {
+    const f = new THREE.Vector3(-Math.sin(az) * Math.cos(el), -Math.sin(el), -Math.cos(az) * Math.cos(el));
+    const r = new THREE.Vector3().crossVectors(f, new THREE.Vector3(0, 1, 0)).normalize(), u = new THREE.Vector3().crossVectors(r, f);
+    const ty = (1 - margin) * Math.tan(THREE.MathUtils.degToRad(fov / 2)), tx = ty * aspect, P = new THREE.Vector3();
+    let d = 0;
+    for (let i = 0; i < 8; i++) {
+      P.set(box[i & 1], box[2 + ((i >> 1) & 1)], box[4 + ((i >> 2) & 1)]).sub(T);
+      d = Math.max(d, Math.max(Math.abs(P.dot(r)) / tx, Math.abs(P.dot(u)) / ty) - P.dot(f));
+    }
+    return d;
+  }
   function place(name, aspect) {
     camera.aspect = aspect;
-    if (name === 'throw' || name === 'phone') {
+    if (name === 'lick' || name === 'lickp') { // intro.js's camera during the lick, craned up over the bin (&el, &az: degrees)
+      const T = new THREE.Vector3(0, 0.8, 0.16), el = THREE.MathUtils.degToRad(+(q.get('el') ?? 32)), az = THREE.MathUtils.degToRad(+(q.get('az') ?? 0));
+      const d = Math.min(throwAt(aspect), fitOrbit(el, az, T, 40, aspect, LICK_BOX, 0.04));
+      camera.fov = 40;
+      camera.position.set(Math.sin(az) * Math.cos(el), Math.sin(el), Math.cos(az) * Math.cos(el)).multiplyScalar(d).add(T);
+      camera.lookAt(T);
+    } else if (name === 'throw' || name === 'phone') {
       camera.position.set(0, 0.5, 0).addScaledVector(dir, throwAt(aspect));
       camera.fov = 40; camera.lookAt(0, 0.5, 0);
     } else if (name === 'side') {
@@ -209,11 +235,12 @@
   }
   // each view its own width: phone views are portrait (aspect 0.46), the rest share what is left
   function layout(w, h) {
-    const nPhone = views.filter((v) => v === 'phone' || v === 'pclose').length;
+    const portrait = (v) => v === 'phone' || v === 'pclose' || v === 'lickp';
+    const nPhone = views.filter(portrait).length;
     const pw = Math.round(h * PHONE), rest = views.length - nPhone;
     const ow = rest ? Math.floor((w - nPhone * pw) / rest) : 0;
     let x = 0;
-    return views.map((v) => { const vw = v === 'phone' || v === 'pclose' ? pw : ow; const r = { v, x, w: vw }; x += vw; return r; });
+    return views.map((v) => { const vw = portrait(v) ? pw : ow; const r = { v, x, w: vw }; x += vw; return r; });
   }
   function render() {
     drawChain();
@@ -260,15 +287,18 @@
     lidMesh.updateWorldMatrix(true, false);
     const toLidM = new THREE.Matrix4().copy(lidMesh.matrixWorld).invert().multiply(tongue.object3d.matrixWorld), lv = new THREE.Vector3();
     const rr = rollG.rotation.z, rx = rollG.position.x, rslope = Math.tan(rr) / c;
+    const edge = tmesh.material.userData.uEdge ?? { value: { x: 0.51, y: 0.93 } };
     const out = { rim: 0, wall: 0, lid: 0, edge: 0, under: 0, base: 0, below: 0, raw: 0, maxY: -9, minY: 9, maxZ: -9, maxX: 0, n: p.count, at: {} };
     const solid = (v) => {
       const ax = Math.abs(v.x), az = Math.abs(v.z);
       const y = v.y;
       lv.copy(v).applyMatrix4(toLidM); // lid space (its mesh's own: x across, y up from its underside, z from the hinge)
       const xl = lv.x, yl = lv.y, zl = lv.z;
-      // (edge: in the lid's front edge, where the clamp fades out; under: pressing up into its underside a little, well
-      // behind the front edge: in the dark, unseen; lid: into it anywhere else)
-      if (Math.abs(xl) < 0.5 && zl > -0.05 && zl < 0.99 && yl > 0.004 && (yl < 0.1 || (yl < 0.172 && Math.abs(xl) < 0.34 && zl > 0.19 && zl < 0.77))) return zl > 0.975 ? 'edge' : yl < 0.035 && zl < 0.92 ? 'under' : 'lid';
+      // (how far in from the lid's outline: its sides, front and back, its cut corners)
+      const din = -Math.max(Math.abs(xl) - 0.51, Math.abs(zl - 0.47) - 0.53, (Math.abs(xl) + Math.abs(zl - 0.47) - 0.96) * Math.SQRT1_2);
+      // (edge: in the lid's edge, wherever the tongue comes out under it, where the clamp fades out; under: pressing up
+      // into its underside a little, well in from the edge: in the dark, unseen; lid: into it anywhere else)
+      if (din > 0.01 && yl > 0.004 && (yl < 0.1 || (yl < 0.172 && Math.abs(xl) < 0.34 && zl > 0.19 && zl < 0.77))) return din < 0.035 ? 'edge' : yl < 0.035 && din > 0.08 ? 'under' : 'lid';
       if (y < -0.004 && y > -0.084 && ax < UX - 0.004 && az < UZ - 0.004 && !(ax < OX && az < OZ) && ax + az < 0.97) return 'rim';
       const f = Math.min(1, Math.max(0, (y + 0.564) / 0.48)), bx = 0.428 + 0.046 * f - 0.006, bz = 0.39 + 0.04 * f - 0.006;
       if (y <= -0.084 && y > -0.564 && ax < bx && az < bz && !(ax < OX + 0.008 && az < OZ + 0.008) && ax + az < 0.755 + 0.079 * f) return 'wall'; // (into the wall, not grazing its inside)
@@ -279,15 +309,17 @@
     for (let i = 0; i < p.count; i++) {
       tmesh.getVertexPosition(i, v); v.applyMatrix4(tmesh.matrixWorld).applyMatrix4(inv);
       if (solid(v)) out.raw++;
-      { // the shader's clamp (as in tongue-model.js)
+      { // the shader's clamp (as in tongue-model.js: under the lid, in from its outline as it is now; on the rim)
         const ss = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
-        const zr = v.z - ze, ax = Math.abs(v.x);
-        const fade = (1 - ss(0.5, 0.56, ax)) * ss(0, -0.025, zr);
+        const ax = Math.abs(v.x), az = Math.abs(v.z), ed = edge.value;
+        const dIn = -Math.max(ax - ed.x, v.z - ze, (ax + v.z - ed.y) * Math.SQRT1_2);
+        const fade = ss(-0.006, 0.012, dIn);
         if (fade > 0) {
           const yTop = (v.z + 0.5) * tn + (v.x - rx) * rslope - 0.004, o = v.y - yTop;
           if (o > 0) v.y -= fade * (o < 0.04 ? o : Math.max(0, 0.04 - (o - 0.04)));
         }
-        const fb = (1 - ss(0.54, 0.58, ax)) * ss(0.515, 0.49, v.z) * ss(OZ - 0.012, OZ + 0.002, v.z);
+        const rimSd = Math.max(ax - UX, az - UZ, (ax + az - 0.974) * Math.SQRT1_2);
+        const fb = ss(0.015, -0.01, rimSd) * ss(-0.012, 0.002, Math.max(ax - OX, az - OZ));
         if (fb > 0) { const u = 0.004 - v.y; if (u > 0) v.y += fb * (u < 0.04 ? u : Math.max(0, 0.04 - (u - 0.04))); }
       }
       const hit = solid(v);
@@ -308,7 +340,7 @@
     const ze = -0.5 + Math.cos(-pitch.rotation.x), out = {};
     for (let i = 0; i < p.count; i += 2) {
       tmesh.getVertexPosition(i, v); v.applyMatrix4(tmesh.matrixWorld).applyMatrix4(inv);
-      if (v.z < ze + 0.02 && v.y < 0.12 && v.y > -0.1 && Math.abs(v.x) < 0.5) continue; // (in the gap)
+      if (v.z < ze + 0.02 && v.y < 0.12 && v.y > -0.1 && Math.abs(v.x) < 0.53) continue; // (in the gap, wherever on the track)
       if (v.y < 0.02 && Math.abs(v.x) < OX + 0.02 && Math.abs(v.z) < OZ + 0.02) continue; // (down in the bin: hidden)
       const s = dbg.sdf(v.x, v.y, v.z);
       let d, face;
@@ -368,7 +400,7 @@
       requestAnimationFrame(loop);
       const dt = Math.min(0.05, (now - last) / 1000); last = now;
       tick(dt);
-      if (!frozen && clock >= next) { next = clock + 5.2; go(); }
+      if (!frozen && clock >= next) { next = clock + 4; go(); }
       render();
       hud.textContent = `t=${clock.toFixed(2)} ${tongue.busy ? 'licking' : ''}  lid ${(-pitch.rotation.x).toFixed(3)} roll ${rollG.rotation.z.toFixed(3)}`;
     })(last);

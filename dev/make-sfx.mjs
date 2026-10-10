@@ -2,13 +2,20 @@
 // mono clips, peak-levelled, MP3. The cuts are found from the waveform (onsets, peaks, the busiest window), so the
 // script can be re-run on the same previews.
 //   node dev/make-sfx.mjs <folder with the downloaded previews, named <id>-<cue>.mp3> assets/audio
+// The big wet ones (slurp, splash1-3, goo1-2) are layered by dev/make-sfx-wet.mjs, which runs on its own sources;
+// each script keeps the other's entries in sfx.json.
+// splat1 was re-levelled by hand afterwards: the levelling here reads the peak at 22 kHz, which missed a few
+// single-sample spikes in its transient, and the MP3 decoded to +3.5 dBFS with samples past full scale. The shipped
+// file is that one through a limiter (ceiling 0.8) and a fresh MP3 encode (mono, 44.1 kHz, 96 kbps): peak ~0.85
+// (-1.4 dBFS), its body about as loud as splat2 (a plain volume cut left it ~5 dB quieter). Its source previews aren't on disk any more, so this script can't be re-run end to end;
+// if it ever is, check splat1's decoded peak again.
 // Sources (freesound.org/s/<id>, all "Creative Commons 0"):
 //   352719 woosh · 334198 paper bin toss · 482207 plastic garbage container lid slams · 271666 tomato squish ·
-//   469933/469934/469932 tongue licks · 560597 short slurp · 387904 water drops · 104661 plastic garbage can kicks ·
+//   469933/469934/469932 tongue licks · 387904 water drops · 104661 plastic garbage can kicks ·
 //   464576 bin knocked over · 676482 beast growl · 275160 thud · 449955 wooden thud · 155901 spit ·
 //   237387 spitting · 719129/515619/515620 splats · 572104 crumpled sheet of paper
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const [raw, out] = process.argv.slice(2);
@@ -70,7 +77,6 @@ whole('352719', 'throw');
 whole('334198', 'paper-in');
 whole('271666', 'squeeze');
 whole('469933', 'lick1'); whole('469934', 'lick2'); whole('469932', 'lick3');
-whole('560597', 'slurp');
 whole('676482', 'growl', { fadeOut: 0.25 });
 whole('275160', 'thud1'); whole('449955', 'thud2');
 whole('155901', 'spit1'); whole('237387', 'spit2');
@@ -99,5 +105,8 @@ whole('464576', 'bang', { fadeOut: 0.2 });
   const e = envelope(pcm('572104')), h = hits(e, 0.15, 0.15).slice(0, 8).sort((a, b) => a.t - b.t);
   h.forEach((k, i) => cut('572104', `crinkle${i + 1}`, Math.max(0, k.t - 0.01), 0.14, { fadeOut: 0.05 }));
 }
-writeFileSync(join(out, 'sfx.json'), JSON.stringify({ license: 'CC0 1.0 (freesound.org)', clips: made }, null, 1));
+// sfx.json: our entries, plus the ones dev/make-sfx-wet.mjs made (kept as they are)
+const json = join(out, 'sfx.json'), mine = new Set(made.map((m) => m.name));
+const others = existsSync(json) ? JSON.parse(readFileSync(json, 'utf8')).clips.filter((c) => !mine.has(c.name) && c.layers) : [];
+writeFileSync(json, JSON.stringify({ license: 'CC0 1.0 (freesound.org)', clips: [...made, ...others] }, null, 1));
 console.log(made.map((m) => `${m.name.padEnd(10)} ${m.id} @${m.t0}s ${m.dur}s`).join('\n'));
