@@ -91,7 +91,7 @@ if (VIEW === 'model') {
     paper.update(dt);
     hud.textContent = `wipe  t ${clock.toFixed(2)}s  ${wiper.active ? 'wiping' : 'clean'}`;
   };
-  draw = () => { renderer.render(scene, camera); wiper.render(renderer); };
+  draw = () => { renderer.render(scene, camera); }; // (the hand draws itself, on its own canvas)
 }
 
 function tick(dt) { clock += dt; update(dt); }

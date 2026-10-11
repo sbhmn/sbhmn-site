@@ -8,19 +8,20 @@
 // glass with goo) and the goo come off, and the live page is there under it. The edge of what is wiped is always under
 // the blade, so the seam between the print and the page doesn't show as a moving line.
 //
+// It draws itself on a canvas of its own, over everything, the goo too (assets/intro/drips.js, zIndex 60: the goo is on
+// this side of the hand and the blade, as the owner wants it): position fixed at the top left, the viewport's size,
+// pointer-events none, zIndex 61.
+//
 //   const w = await createWiper({ viewport: () => [cssW, cssH] });
 //   w.mask                 { canvas, version, w, h }: white where wiped (the viewport's top-left w x h CSS px, scaled
 //                          down; version bumps on each change). The paper (paper.setWipe) and the goo (drips.setWipe)
 //                          cut themselves out there.
-//   w.prepare(renderer)    compiles its shaders on that renderer now (so the wipe starts without a hitch); optional
+//   w.prepare()            makes its canvas and compiles its shaders now (so the wipe starts without a hitch); optional
 //   const done = w.wipe({ onStroke });  plans the strokes for the screen now and starts them; resolves when the screen
 //                          is clean. onStroke(i) as stroke i (0, 1) starts (for its sound)
-//   w.update(dt)           steps it (seconds; call every frame, before the page's scene is drawn: it poses the hand and
-//                          paints the mask, which the paper and the goo then leave out)
-//   w.render(renderer)     draws the hand over whatever the renderer has drawn (its own scene and camera; the depth
-//                          is cleared first: the hand is always in front of the paper; the goo, an overlay of its own,
-//                          stays on top: it is on the glass, the hand behind it)
-//   w.dispose()
+//   w.update(dt)           steps it and draws it (seconds; call every frame, before the paper and the goo are drawn:
+//                          it paints the mask, which they then leave out)
+//   w.dispose()            the model, its canvas and its GL context
 //
 // The hand (Y up, the rubber edge's middle at the origin facing +Z, the blade along X, 1 long, the hand behind it, -Z):
 // bones blade > hand > arm, fingers, thumb. Turning 'hand' about the blade's length leans the handle over to one side
@@ -36,7 +37,11 @@ const BLADE = 0.6;        // the blade's length on screen, in short sides: two s
 const FOV = 30;           // the hand's own camera
 const GRIP = 0.12;        // radians at grip 1: the fingers and the thumb toward each other, round the handle
 
-export async function createWiper({ url = '/assets/3d/wiper-hand.glb', viewport = () => [innerWidth, innerHeight] } = {}) {
+export async function createWiper(opts = {}) {
+  const {
+    url = '/assets/3d/wiper-hand.glb', viewport = () => [innerWidth, innerHeight], parent = document.body, zIndex = 61,
+    maxDpr = window.matchMedia?.('(pointer: coarse)').matches ? 1.5 : 2,
+  } = opts;
   const gltf = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(v(url));
   let rigNode = null, skinned = null;
   gltf.scene.traverse((o) => {
@@ -65,6 +70,39 @@ export async function createWiper({ url = '/assets/3d/wiper-hand.glb', viewport 
   root.visible = false;
   scene.add(root);
   const D = 6; // the glass's distance from the hand's camera (world units; only proportions matter)
+
+  // --- its canvas
+  let renderer = null, cw = 0, ch = 0;
+  function prepare() {
+    if (renderer) return;
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDpr));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.setClearColor(0x000000, 0);
+    const c = renderer.domElement;
+    c.className = 'wiper';
+    c.setAttribute('aria-hidden', 'true');
+    Object.assign(c.style, { position: 'fixed', left: '0', top: '0', zIndex: String(zIndex), pointerEvents: 'none', display: 'block', visibility: 'hidden' });
+    parent.appendChild(c);
+    resize();
+    if (!plan) plan = makePlan();
+    apply(0); root.visible = true;
+    try { renderer.compile(scene, camera); } catch (e) { /* an optimisation */ }
+    root.visible = !!show;
+  }
+  // (the viewport's box, like the mask: the intro's stage stops short of a classic scrollbar)
+  function resize() {
+    const [w, h] = viewport();
+    if (w === cw && h === ch) return;
+    cw = w; ch = h;
+    renderer.setSize(w, h);
+    camera.aspect = w / h; camera.updateProjectionMatrix();
+  }
+  function draw() {
+    if (!renderer) return;
+    resize();
+    renderer.render(scene, camera);
+  }
 
   // --- the mask: white where wiped, viewport CSS px * MASK_SCALE, y down
   const mc = document.createElement('canvas');
@@ -215,19 +253,18 @@ export async function createWiper({ url = '/assets/3d/wiper-hand.glb', viewport 
   const wiper = {
     scene, camera, mask, info, bones, pose, root,
     get active() { return !!show; },
-    prepare(renderer) {
-      if (!plan) plan = makePlan();
-      apply(0); root.visible = true;
-      try { renderer.compile(scene, camera); } catch (e) { /* an optimisation */ }
-      root.visible = !!show;
-    },
+    prepare,
+    get canvas() { return renderer?.domElement ?? null; },
     wipe({ onStroke = null } = {}) {
+      prepare();
       plan = makePlan();
       sizeMask(plan.w, plan.h);
       let resolve;
       const done = new Promise((r) => { resolve = r; });
       show = { t: 0, prev: ends(apply(0)), resolve, onStroke, stroke: 0 };
       root.visible = true;
+      renderer.domElement.style.visibility = 'visible';
+      draw();
       try { onStroke?.(0); } catch (e) { console.warn(e); }
       return done;
     },
@@ -248,27 +285,31 @@ export async function createWiper({ url = '/assets/3d/wiper-hand.glb', viewport 
         // clean: whatever the strokes may have missed at the very corners goes too
         mx.fillStyle = '#fff'; mx.fillRect(0, 0, mc.width, mc.height); mask.version++;
         root.visible = false;
+        renderer.domElement.style.visibility = 'hidden';
         const r = show.resolve; show = null; r();
+        return;
       }
+      draw();
     },
     // for the lab: the hand at time t of the strokes, nothing painted
-    at(t) { if (!plan) { plan = makePlan(); sizeMask(plan.w, plan.h); } root.visible = true; return apply(t); },
-    get plan() { return plan; },
-    render(renderer) {
-      if (!root.visible) return;
-      const [w, h] = viewport();
-      camera.aspect = w / h; camera.updateProjectionMatrix();
-      const ac = renderer.autoClear;
-      renderer.autoClear = false;
-      renderer.clearDepth();
-      renderer.render(scene, camera);
-      renderer.autoClear = ac;
+    at(t) {
+      prepare();
+      if (!plan) { plan = makePlan(); sizeMask(plan.w, plan.h); }
+      root.visible = true; renderer.domElement.style.visibility = 'visible';
+      const q = apply(t); draw(); return q;
     },
+    get plan() { return plan; },
     dispose() {
       show = null;
       skinned.geometry.dispose();
       skinned.material.map?.dispose();
       skinned.material.dispose();
+      if (renderer) {
+        renderer.dispose();
+        renderer.forceContextLoss?.();
+        renderer.domElement.remove();
+        renderer = null;
+      }
     },
   };
   return wiper;
