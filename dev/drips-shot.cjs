@@ -2,7 +2,8 @@
 //   node dev/drips-shot.cjs <out prefix> <t1,t2,...> [--bg white|home|live|image|intro] [--seed 7] [--n 10] [--src 0]
 //        [--at 9.42]   (bg intro) the intro's time when the spray starts;  [--from x,y]  where the spit comes from
 //        [--fade 2.5] [--fadems 1400]   start drips.fadeOut at 2.5 s;  [--float 0]  the 8-bit fallback;  [--rm 1]
-//        [--one 100]  a single head-on splat of that size;  [--gpu 1]  timings include the GPU (readPixels sync)
+//        [--one 100]  a single head-on splat of that size;  [--goo 200]  a gob of goo of that size instead;
+//        [--gpu 1]  timings include the GPU (readPixels sync)
 //        [--size 1280x800] [--dpr 1] [--port 8787] [--clip x,y,w,h] [--sheet]
 // Times are seconds after the spray. --clip crops every shot (CSS px); --sheet also writes <prefix>-sheet.png, all the
 // shots side by side with their times. Needs the local server (python -m http.server 8787 --directory <site>).
@@ -15,7 +16,7 @@ const opt = (k, d) => { const i = args.indexOf(k); return i > 0 ? args[i + 1] : 
   const [w, h] = opt('--size', '1280x800').split('x').map(Number);
   const dpr = +opt('--dpr', '1');
   const q = new URLSearchParams({ bg: opt('--bg', 'white'), seed: opt('--seed', '7'), n: opt('--n', '10') });
-  for (const k of ['src', 'fade', 'fadems', 'float', 'at', 'from', 'rm', 'one', 'gpu']) if (opt('--' + k)) q.set(k, opt('--' + k));
+  for (const k of ['src', 'fade', 'fadems', 'float', 'at', 'from', 'rm', 'one', 'goo', 'gpu']) if (opt('--' + k)) q.set(k, opt('--' + k));
   const url = `http://localhost:${opt('--port', '8787')}/dev/lab-drips.html?${q}&shot`;
   const b = await chromium.launch({ channel: 'msedge', headless: true, args: ['--use-angle=d3d11', '--enable-unsafe-swiftshader'] });
   const p = await (await b.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: dpr })).newPage();

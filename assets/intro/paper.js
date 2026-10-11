@@ -54,8 +54,9 @@
 //   object3d               the paper (a Group). spit() places it (position, quaternion); scale = radius / ballRadius.
 //   spit({ camera, from, sequence = 'short', spin = 1, onFrame }) -> Promise   from: a THREE.Vector3 (world).
 //                          spin: how much it tumbles out of the mouth (0 = none). onFrame({ step, pose, name, landed,
-//                          slap }) on every stop-motion frame; slap is true on the frame it hits the glass (a thud, a
-//                          camera shake); landed: on the glass from then on. Calling spit() again restarts it.
+//                          slap, at }) on every stop-motion frame; slap is true on the frame it hits the glass (a thud,
+//                          a camera shake), with at = { x, y, size }: where it hits on the screen (viewport CSS px)
+//                          and the ball's diameter there (px); landed: on the glass from then on. Calling spit() again restarts it.
 //   update(dt)             steps the show; while landed, keeps the sheet on the screen. Call every frame, always.
 //   land(camera)           show the flat sheet on the screen at once (e.g. on skip, or to check the registration)
 //   setPose(k, { wet })    a pose by hand: 0 = the ball ... T-1 = 'settle'; -1 = the flat sheet (base mesh).
@@ -554,7 +555,15 @@ export async function createPaper(opts = {}) {
         jig.rotation.set(0, 0, (rand() - 0.5) * 0.012 * j);
       }
       s.step = step;
-      s.onFrame?.({ step, pose: k, name: k < 0 ? 'flat' : names[k], landed, slap: landed && frame === s.landFrame });
+      const slap = landed && frame === s.landFrame;
+      let at = null;
+      if (slap) {
+        // where it hits, on the screen (viewport CSS px), and how big the ball is there (its diameter, px)
+        const [vw, vh] = viewport(), c = tmpV.copy(hit).multiplyScalar(scale).add(s.posCam);
+        const t = Math.tan(THREE.MathUtils.degToRad(s.camera.fov / 2)), z = -c.z;
+        at = { x: vw / 2 + (c.x / (z * t * s.camera.aspect)) * (vw / 2), y: vh / 2 - (c.y / (z * t)) * (vh / 2), size: (2 * info.ballRadius * scale * vh) / (2 * z * t) };
+      }
+      s.onFrame?.({ step, pose: k, name: k < 0 ? 'flat' : names[k], landed, slap, at });
       if (step === s.seq.length - 1 && k < 0) {
         landedCam = s.camera; paper.landed = true;
         const r = s.resolve; show = null; r();

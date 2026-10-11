@@ -20,6 +20,7 @@
      &float=0                            force the 8-bit water map (the fallback)
      &rm=1                               reduced motion
      &one=100                            (with &shot) one head-on splat of that size in the middle instead of a spray
+     &goo=200                            (with &shot) a gob of goo of that size a little above the middle instead
      &gpu=1                              (with &shot) __perf() includes the GPU: readPixels after every update
      &shot                               don't run: dev/drips-shot.cjs steps it with await __stage.advance(s) -->
 <style>
@@ -83,6 +84,7 @@
     if (shot) {
       // &one=100: a single splat of that size in the middle, hit head-on (to measure the size); else a spray
       if (q.has('one')) drips.splat(W / 2, H / 2, +q.get('one'), { dir: [0, 0] });
+      else if (q.has('goo')) drips.goo(W / 2, H * 0.42, +q.get('goo'), { dir: [0, 0] });
       else drips.spray(n, undefined, { from });
       // &gpu=1: wait for the GPU after every update (readPixels), so __perf times the GPU work too
       const sync = q.get('gpu') === '1' && drips.canvas ? drips.canvas.getContext('webgl2') : null;

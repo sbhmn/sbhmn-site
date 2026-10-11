@@ -1,7 +1,8 @@
-// Spit on the screen. When the thing in the bin spits the paper back at you, a mouthful of spit hits the glass: thick
-// milky gobs with trapped bubbles, splash wedges that pull back in, flung droplets, a fine mist, and strings of spit
-// between the gobs that break up into beads. Then the big gobs slide down in stick-slip (hold, let go, run, catch,
-// hold), leaving faint wet trails that break up and dry, while the small drops stay put and dry out.
+// Spit on the screen. A mouthful of spit hitting the glass (spray): thick milky gobs with trapped bubbles, splash wedges
+// that pull back in, flung droplets, a fine mist, and strings of spit between the gobs that break up into beads; the
+// big gobs slide down in stick-slip (hold, let go, run, catch, hold), leaving faint wet trails that break up and dry,
+// while the small drops stay put and dry out. Or a gob of goo (goo: what the intro uses, where the spat paper smashes
+// into the glass): thick, cloudy saliva, lumpy, ropy and frothy, with strings that sag and slow drips that hang.
 //
 // An overlay on top of everything: its own WebGL2 canvas (position fixed, inset 0, z-index 60, pointer-events none,
 // aria-hidden, DPR-aware, follows the window). Every drop is a few smooth bumps summed into a map of the water on the
@@ -52,6 +53,12 @@
 //   float       false forces the 8-bit water map (testing the fallback for GPUs without float render targets)
 //
 // methods
+//   goo(x, y, size = 160, { delay = 0, dir, from })  a gob of goo (thick, cloudy saliva) at viewport CSS px: a heavy
+//                        lumpy blob with ropy arms and froth, clumps round it joined by thick sagging strings that
+//                        slowly bead up (2.5-7 s), and 3-5 drips creeping down from its lower edge, stretching into
+//                        long necks with a fat drop at the end and hanging there (slower and slower: ~1.5-3 s to
+//                        most of their length, 0.4-2.4 x the blob's radius). size = the blob's diameter. None of it
+//                        slides off or dries: it stays until fadeOut (or maxLife).
 //   splat(x, y, size = 64, { delay = 0, dir, from })  one splat at viewport CSS px. size = the diameter the blob
 //                        settles to (~0.5 s; lumps +-10%; at impact it spreads ~15% past it, and droplets and mist land
 //                        out to ~2-3 sizes away). dir = [dx, dy] the spit's travel on screen: the blob
@@ -229,6 +236,7 @@ export function createDrips(opts = {}) {
   const drops = [];    // blobs, satellites, mist, beads
   const trail = [];    // the film a sliding drop leaves behind: points that thin out and break up as they dry
   const strands = [];  // strings of spit between gobs: they bead up and break
+  const gdrips = [];   // goo's drips: necks stretching down from a gob, a fat drop at the end
   let nb = 0, nbub = 0, bx0 = 0, by0 = 0, bx1 = 0, by1 = 0;
   let fade = null;     // { t, dur, resolve, promise }
   let opacity = 1, disposed = false, raf = 0, last = 0, simT = 0, lastLand = -1, splats = 0;
@@ -292,62 +300,69 @@ export function createDrips(opts = {}) {
     // R: the splat's reach at impact; the blob settles to ~0.7 R, so the resting diameter is `size`
     const R = Math.max(1.5, size / 1.4);
     const { da, bias } = dirOf(x, y, o);
+    const goo = !!o.goo;
     splats++;
 
     // the blob: lobes make its outline a splat, not a circle; an oblique hit smears it out the way it was going
-    const blob = makeDrop(x, y, R * 0.7, 'blob', { delay, sound: size, milk: U(0.75, 1) });
+    // (goo: thicker, milkier, it sticks: it doesn't slide and doesn't dry)
+    const blob = makeDrop(x, y, R * 0.7, 'blob', { delay, sound: o.silent ? 0 : size, milk: goo ? U(1.35, 1.7) : U(0.75, 1), goo, ...(goo ? { slide: false } : {}) });
     // one too small to slide stays put and dries out
-    if (!blob.slide && blob.dryAt === Infinity) { blob.dryAt = U(2.2, 4.5) + R * 0.05; blob.dryDur = U(1.0, 2.0); }
+    if (!goo && !blob.slide && blob.dryAt === Infinity) { blob.dryAt = U(2.2, 4.5) + R * 0.05; blob.dryDur = U(1.0, 2.0); }
+    if (goo) blob.a = 0.46;
     if (R >= 6) {
-      const nl = 3 + Math.floor(rnd() * 3), lobes = [];
+      const nl = goo ? 5 + Math.floor(rnd() * 3) : 3 + Math.floor(rnd() * 3), lobes = [];
       for (let i = 0; i < nl; i++) {
-        lobes.push({ ang: da + (i / nl) * TAU + U(-0.5, 0.5), d: U(0.42, 0.66), rr: U(0.36, 0.52), aa: U(0.6, 0.9) });
+        lobes.push(goo
+          ? { ang: da + (i / nl) * TAU + U(-0.4, 0.4), d: U(0.45, 0.95), rr: U(0.26, 0.5), aa: U(0.7, 1.05) }
+          : { ang: da + (i / nl) * TAU + U(-0.5, 0.5), d: U(0.42, 0.66), rr: U(0.36, 0.52), aa: U(0.6, 0.9) });
       }
       for (let i = 0; i < 2; i++) {
         lobes.push({ ang: da + U(-0.25, 0.25), d: 0.5 + 0.4 * bias * (i + 1) * 0.6, rr: U(0.4, 0.52) * (1 - 0.25 * i), aa: U(0.6, 0.8) });
       }
       blob.lobes = lobes;
-      blob.a = 0.24;
+      blob.a = goo ? 0.34 : 0.24;
     }
     // splash wedges: tapered sheets shot out of the rim, the way the spit was going; the tip breaks off as a bead,
     // the rest pulls back in
     if (R >= 7 && !reducedMotion) {
       // thin irregular jets, crowding the way it was going, of very different lengths
-      const nf = 4 + Math.floor(rnd() * 4 + R / 35), fingers = [];
+      // (goo: fewer, thicker, and they stay out: ropy arms, not jets that break up)
+      const nf = goo ? 4 + Math.floor(rnd() * 3) : 4 + Math.floor(rnd() * 4 + R / 35), fingers = [];
       for (let i = 0; i < nf; i++) {
-        const fa = da + U(-1, 1) * U(0.3, 1) * Math.PI * (1 - 0.45 * bias);
+        const fa = goo ? da + (i / nf) * TAU + U(-0.4, 0.4) : da + U(-1, 1) * U(0.3, 1) * Math.PI * (1 - 0.45 * bias);
         const along = Math.max(0, Math.cos(fa - da));
-        const len = R * U(0.3, 0.75) * (1 + 1.2 * bias * along * along) * (rnd() < 0.3 ? 0.5 : 1);
-        fingers.push({ fa, len, wid: R * U(0.065, 0.11), tipped: false });
+        const len = R * (goo ? U(0.35, 0.95) : U(0.3, 0.75)) * (1 + 1.2 * bias * along * along) * (rnd() < 0.3 ? 0.5 : 1);
+        fingers.push({ fa, len: goo ? len * 0.8 : len, wid: R * (goo ? U(0.13, 0.2) : U(0.065, 0.11)), tipped: false });
       }
       blob.fingers = fingers;
     }
     // froth: micro-bubbles trapped in the gob, most of them in one patch
     if (R >= 9) {
-      const nbb = Math.min(14, Math.round(U(0.6, 1.1) * R / 4.5)), bubbles = [];
+      const nbb = goo ? Math.min(30, Math.round(U(0.9, 1.3) * R / 3.5)) : Math.min(14, Math.round(U(0.6, 1.1) * R / 4.5)), bubbles = [];
       const ca = U(0, TAU), cd = U(0.1, 0.35);
       for (let i = 0; i < nbb; i++) {
         let ox, oy;
         if (rnd() < 0.65) { const a = U(0, TAU), dd = Math.sqrt(rnd()) * 0.28; ox = Math.cos(ca) * cd + Math.cos(a) * dd; oy = Math.sin(ca) * cd + Math.sin(a) * dd; }
         else { const a = U(0, TAU), dd = Math.sqrt(rnd()) * 0.62; ox = Math.cos(a) * dd; oy = Math.sin(a) * dd; }
         const rr = Math.min(0.11, U(0.022, 0.07) * (rnd() < 0.15 ? 1.7 : 1));
-        bubbles.push({ ox, oy, rr, pop: U(1.5, 6) });
+        bubbles.push({ ox, oy, rr, pop: goo ? U(4, 30) : U(1.5, 6) });
       }
       blob.bubbles = bubbles;
     }
     // satellites: droplets flung out of the hit, mostly the way the spit was going
-    const ns = Math.min(12, 3 + Math.floor(R / 5 + rnd() * 3));
+    const ns = goo ? Math.min(8, 2 + Math.floor(R / 14 + rnd() * 2)) : Math.min(12, 3 + Math.floor(R / 5 + rnd() * 3));
     for (let i = 0; i < ns; i++) {
       const fa = da + U(-1, 1) * Math.PI * (1 - bias * 0.65);
-      const dist = R * U(1.1, 2.6) * (1 + 0.5 * bias * Math.max(0, Math.cos(fa - da)));
-      const rr = Math.max(1.2, R * U(0.05, 0.2) * (1.3 - (dist / R - 1.1) * 0.3));
+      const dist = R * (goo ? U(1.1, 1.9) : U(1.1, 2.6)) * (1 + 0.5 * bias * Math.max(0, Math.cos(fa - da)));
+      const rr = Math.max(1.2, R * (goo ? U(0.06, 0.16) : U(0.05, 0.2)) * (1.3 - (dist / R - 1.1) * 0.3));
       makeDrop(x + Math.cos(fa) * dist, y + Math.sin(fa) * dist, rr, 'sat', {
         delay, fly: { x0: x + Math.cos(fa) * R * 0.45, y0: y + Math.sin(fa) * R * 0.45, t0: U(0, 0.025), dur: U(0.05, 0.11) },
-        a: 0.4, milk: U(0.3, 0.6), dryAt: rr < SLIDE_R ? U(1.4, 3.6) : Infinity, dryDur: U(1.0, 2.2), hold: U(0.9, 1.8),
+        a: goo ? 0.46 : 0.4, milk: goo ? U(1.0, 1.4) : U(0.3, 0.6), dryAt: goo ? Infinity : rr < SLIDE_R ? U(1.4, 3.6) : Infinity,
+        dryDur: U(1.0, 2.2), hold: U(0.9, 1.8), ...(goo ? { slide: false } : {}),
       });
     }
-    // the mist: a puff of tiny flecks further out
-    const nm = Math.round(Math.min(30, 6 + R * 0.45) * U(0.7, 1.1));
+    // the mist: a puff of tiny flecks further out (goo: a few)
+    const nm = Math.round(Math.min(goo ? 8 : 30, 6 + R * 0.45) * U(0.7, 1.1));
     for (let i = 0; i < nm; i++) {
       const fa = da + U(-1, 1) * Math.PI * (1 - bias * 0.45);
       const dist = R * U(1.3, 3.8);
@@ -407,16 +422,56 @@ export function createDrips(opts = {}) {
     }
   }
 
+  // A gob of goo: what the paper leaves where it smashes into the glass. A heavy, lumpy blob of thick, cloudy saliva
+  // with ropy arms and froth, clumps flung round it, joined to it by thick strings that sag and slowly bead up, and drips
+  // that creep down from its lower edge: each stretches into a long neck with a fat drop at its end, slower and
+  // slower, and hangs there. Nothing of it slides off or dries: it stays till it is wiped (or fadeOut).
+  function goo(x, y, size = 160, o = {}) {
+    if (disposed) return;
+    const R = size / 1.4, delay = Math.max(0, o.delay || 0);
+    const m = (2 * Math.min(cssW, cssH) + Math.max(cssW, cssH)) / 3 * 0.85;
+    splat(x, y, size, { ...o, goo: true });
+    const placed = [];
+    const nc = 4 + Math.floor(rnd() * 3);
+    for (let i = 0; i < nc; i++) {
+      const fa = (i / nc) * TAU + U(-0.45, 0.45), dist = R * U(1.05, 1.75), cs = size * U(0.16, 0.32);
+      const cx = x + Math.cos(fa) * dist, cy = y + Math.sin(fa) * dist;
+      splat(cx, cy, cs, { delay: delay + U(0.01, 0.05), dir: [cx - x, cy - y], goo: true, silent: true });
+      placed.push([cx, cy, cs / 1.4, delay + 0.05, 0]);
+    }
+    if (!reducedMotion) {
+      const me = [x, y, R, delay, 0];
+      for (const c of placed) if (rnd() < 0.7) makeStrand(me, c, m, delay + U(0.03, 0.08), true);
+      for (let i = 0; i < placed.length; i++) {
+        const a = placed[i], b = placed[(i + 1) % placed.length];
+        if (rnd() < 0.35) makeStrand(a, b, m, delay + U(0.05, 0.1), true);
+      }
+    }
+    // the drips: from the blob's lower edge, a few long ones, a few short
+    const nd = reducedMotion ? 0 : 3 + Math.floor(rnd() * 3);
+    for (let i = 0; i < nd; i++) {
+      const fa = Math.PI / 2 + U(-0.95, 0.95) * (i / Math.max(1, nd - 1) - 0.5) * 2 + U(-0.12, 0.12);
+      const long = i % 2 === 0;
+      gdrips.push({
+        x: x + Math.cos(fa) * R * 0.62, y: y + Math.sin(fa) * R * 0.6, w0: R * U(0.1, 0.16), rb: R * U(0.1, 0.17),
+        L: R * (long ? U(1.2, 2.4) : U(0.4, 0.9)), tau: U(1.4, 3.2), t0: delay + U(0.25, 0.9), age: 0, sway: U(-0.08, 0.08),
+        milk: U(1.2, 1.5),
+      });
+    }
+    kick();
+  }
+
   // A string of spit lying across the glass from gob a to gob b: a thin thread on a slight curve, which beads up
   // (Plateau-Rayleigh) and breaks into a row of droplets.
-  function makeStrand(a, b, m, delay) {
+  function makeStrand(a, b, m, delay, goo = false) {
     const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L;
     const p0 = [a[0] + ux * a[2] * 0.75, a[1] + uy * a[2] * 0.75], p2 = [b[0] - ux * b[2] * 0.75, b[1] - uy * b[2] * 0.75];
     const len = Math.hypot(p2[0] - p0[0], p2[1] - p0[1]);
     if (len < 8) return;
     const bend = U(-0.16, 0.16) * len;
-    const p1 = [(p0[0] + p2[0]) / 2 - uy * bend, (p0[1] + p2[1]) / 2 + ux * bend];
-    const w = Math.max(1.1, m * U(0.0016, 0.0026));
+    // (goo: it sags, a rope hanging between the two)
+    const p1 = [(p0[0] + p2[0]) / 2 - uy * bend, (p0[1] + p2[1]) / 2 + ux * bend + (goo ? len * U(0.12, 0.3) : 0)];
+    const w = Math.max(1.1, m * (goo ? U(0.0045, 0.0075) : U(0.0016, 0.0026)));
     const step = w * 0.7, N = Math.max(4, Math.ceil(len * 1.05 / step));
     const pts = [];
     let s = 0, px = p0[0], py = p0[1];
@@ -427,7 +482,7 @@ export function createDrips(opts = {}) {
       // the thread is thicker near the gobs it hangs from
       pts.push({ x, y, s, k: 0.75 + 0.5 * Math.pow(Math.abs(t - 0.5) * 2, 2) });
     }
-    strands.push({ pts, len: s, w, step, delay, age: 0, tb: U(0.22, 0.5), lambda: w * U(7, 10), phase: U(0, TAU), phase2: U(0, TAU), dead: false });
+    strands.push({ pts, len: s, w, step, delay, age: 0, tb: goo ? U(2.5, 7) : U(0.22, 0.5), lambda: w * U(7, 10), phase: U(0, TAU), phase2: U(0, TAU), dead: false, milk: goo ? 1.3 : 0.6, goo });
     kick();
   }
 
@@ -526,7 +581,7 @@ export function createDrips(opts = {}) {
         d.w += d.wv * dt;
       }
       if (d.slide && d.age > 0.3) slideStep(d, dt);
-      if (d.fingers && d.age >= 0.045) {
+      if (d.fingers && d.age >= 0.045 && !d.goo) {
         // each wedge's tip breaks off: a bead left where it reached
         for (const f of d.fingers) {
           if (f.tipped) continue;
@@ -554,11 +609,12 @@ export function createDrips(opts = {}) {
         for (let i = 0; i < P.length; i++) {
           const b = beadOf(s, P[i].s);
           if (b < 0.6 || (i && beadOf(s, P[i - 1].s) > b) || (i < P.length - 1 && beadOf(s, P[i + 1].s) >= b)) continue;
-          makeDrop(P[i].x, P[i].y, s.w * P[i].k * U(0.95, 1.5), 'bead', { a: 0.38, milk: 0.5, dryAt: U(1.0, 3.0), dryDur: U(0.8, 1.6), slide: false });
+          makeDrop(P[i].x, P[i].y, s.w * P[i].k * U(0.95, 1.5), 'bead', { a: 0.38, milk: s.goo ? 1.2 : 0.5, dryAt: s.goo ? Infinity : U(1.0, 3.0), dryDur: U(0.8, 1.6), slide: false });
         }
       }
     }
     for (const p of trail) p.age += dt;
+    for (const g of gdrips) g.age += dt;
     let j = 0;
     for (let i = 0; i < drops.length; i++) if (!drops[i].dead) drops[j++] = drops[i];
     drops.length = j;
@@ -601,8 +657,27 @@ export function createDrips(opts = {}) {
         const c = Math.max(0, beadOf(s, q.s)), b = c * c;
         const rr = s.w * q.k * (1 - 0.6 * k + 0.9 * k * b);
         const h = s.w * q.k * 0.5 * (1 - 0.75 * k + 1.5 * k * b);
-        bump(q.x, q.y, rr, rr, 0, h * s.step / (1.0667 * rr), wet, 2, s.w * q.k, 0, 0.6, false);
+        bump(q.x, q.y, rr, rr, 0, h * s.step / (1.0667 * rr), wet, 2, s.w * q.k, 0, s.milk, false);
       }
+    }
+    // goo's drips: a neck from the gob's edge down to a fat drop, stretching slower and slower (the drop swells a
+    // little as goo runs down into it)
+    for (const g of gdrips) {
+      const t = g.age - g.t0;
+      if (t <= 0) continue;
+      const wet = 1 - smooth(0, 1, Math.min(1, fk * 1.4));
+      const k = 1 - Math.exp(-t / g.tau), len = g.L * k * smooth(0, 0.35, t);
+      const rb = g.rb * (0.75 + 0.35 * k), ex = g.x + g.sway * len, ey = g.y + len;
+      const step = Math.max(1, g.w0 * 0.3);
+      for (let s = 0; s < len; s += step) {
+        const u = s / Math.max(len, 1e-3);
+        // wide where it leaves the gob, a neck above the drop
+        const rr = Math.max(1, g.w0 * (1 - 0.62 * smooth(0, 0.8, u)) + rb * 0.25 * smooth(0.75, 1, u));
+        bump(g.x + g.sway * s, g.y + s, rr, rr, 0, 0.42 * rr * step / (1.0667 * rr), wet, 2, rr, 0, g.milk, false);
+      }
+      lcx = ex; lcy = ey + rb * 0.15;
+      bump(ex, ey + rb * 0.15, rb * 0.95, rb * 1.12, 0, 0.46 * rb, wet, 1.5, rb, 0, g.milk);
+      lcx = lcy = NaN;
     }
     for (const d of drops) {
       if (d.dead || d.delay > 0) continue;
@@ -656,7 +731,7 @@ export function createDrips(opts = {}) {
       }
       if (d.lobes) {
         // surface tension slowly pulls the splat rounder, faster once it slides
-        const relax = Math.min(1, d.age / 5 + d.travel / (r * 3));
+        const relax = Math.min(1, d.age / (d.goo ? 14 : 5) + d.travel / (r * 3));
         const ls = s * (1 + 0.15 * Math.max(0, s - 1)) * (1 - 0.45 * relax), lr = 1 + 0.2 * relax;
         for (const l of d.lobes) {
           bump(x + Math.cos(l.ang) * l.d * r * ls, y + Math.sin(l.ang) * l.d * r * ls, l.rr * r * s * lr, l.rr * r * s * lr, 0, A * l.aa, wet, 1.5, r * s, 0, milk);
@@ -665,7 +740,7 @@ export function createDrips(opts = {}) {
       if (d.fingers) {
         // wedges shoot out in 40 ms, then pull back to lumps, and in completely once it slides
         const t = d.age;
-        const out = t < 0.04 ? easeOut(t / 0.04) : 1 - 0.82 * smooth(0.05, 0.45, t);
+        const out = t < 0.04 ? easeOut(t / 0.04) : 1 - (d.goo ? 0.3 * smooth(0.05, 1.2, t) : 0.82 * smooth(0.05, 0.45, t));
         const keep = 1 - Math.min(1, d.travel / (r * 0.8));
         for (const f of d.fingers) {
           const L = f.len * out * keep, W = f.wid * (0.7 + 0.3 * out) * (0.4 + 0.6 * keep);
@@ -673,12 +748,20 @@ export function createDrips(opts = {}) {
           // a spike: a wide root sunk in the rim, narrowing to a point
           const c = Math.cos(f.fa), sn = Math.sin(f.fa), base = r * 0.7 * s;
           const a1 = 0.34 * W * 1.4;
+          if (d.goo) {
+            // a rope of goo with a round gob at its end
+            bump(x + c * (base + L * 0.15), y + sn * (base + L * 0.15), L * 0.32 + W * 1.1, W * 1.25, f.fa, a1 * 1.25, wet, 1.5, Math.max(W, 1.5), 0, milk);
+            bump(x + c * (base + L * 0.55), y + sn * (base + L * 0.55), L * 0.3 + W * 0.4, W * 0.8, f.fa, a1 * 0.9, wet, 1.5, Math.max(W, 1.2), 0, milk);
+            bump(x + c * (base + L), y + sn * (base + L), W * 1.15, W * 1.05, f.fa, a1 * 1.3, wet, 1.5, Math.max(W * 1.1, 1.5), 0, milk);
+            continue;
+          }
           bump(x + c * (base + L * 0.08), y + sn * (base + L * 0.08), L * 0.3 + W * 1.2, W * 1.5, f.fa, a1 * 1.2, wet, 1.5, Math.max(W, 1.5), 0, milk);
           bump(x + c * (base + L * 0.45), y + sn * (base + L * 0.45), L * 0.42 + W * 0.2, W * 0.62, f.fa, a1 * 0.55, wet, 1.5, Math.max(W * 0.6, 1.2), 0, milk);
           bump(x + c * (base + L * 0.86), y + sn * (base + L * 0.86), L * 0.18 + W * 0.1, W * 0.32, f.fa, a1 * 0.3, wet, 1.5, Math.max(W * 0.3, 1), 0, milk);
         }
       }
-      bump(x, y, rx, ry, ang, A, wet, 1.5, r * s, 0, milk);
+      const core = d.goo ? 0.78 : 1;
+      bump(x, y, rx * core, ry * core, ang, A, wet, 1.5, r * s, 0, milk);
       lcx = lcy = NaN;
       if (d.bubbles) {
         const sx = rx, sy = ry;
@@ -779,7 +862,7 @@ export function createDrips(opts = {}) {
       fadeOut(1600);
     }
     // nothing left on the glass (and nothing on its way): the overlay removes itself
-    if (splats && !drops.length && !trail.length && !strands.length) { dispose(); return; }
+    if (splats && !drops.length && !trail.length && !strands.length && !gdrips.length) { dispose(); return; }
     build();
     draw();
   }
@@ -801,7 +884,7 @@ export function createDrips(opts = {}) {
     let resolve;
     const promise = new Promise((r) => { resolve = r; });
     fade = { t: 0, dur: Math.max(0.05, ms / 1000), resolve, promise };
-    if (!drops.length && !trail.length && !strands.length) { dispose(); return promise; }
+    if (!drops.length && !trail.length && !strands.length && !gdrips.length) { dispose(); return promise; }
     kick();
     return promise;
   }
@@ -816,7 +899,7 @@ export function createDrips(opts = {}) {
     const lose = gl.getExtension('WEBGL_lose_context');
     if (lose && !gl.isContextLost()) lose.loseContext();
     canvas.remove();
-    drops.length = 0; trail.length = 0; strands.length = 0;
+    drops.length = 0; trail.length = 0; strands.length = 0; gdrips.length = 0;
     if (fade) { const r = fade.resolve; fade = null; r(); }
     doneResolve();
   }
@@ -845,10 +928,10 @@ export function createDrips(opts = {}) {
   return {
     canvas, done,
     splat: (x, y, size, o) => { splat(x, y, size, o); },
-    spray, update, step: update, fadeOut, dispose,
+    spray, goo, update, step: update, fadeOut, dispose,
     setSource(s, rect) { src = s || null; srcRect = rect || null; srcReady = false; srcDirty = true; },
     refreshSource() { srcDirty = !!src; },
-    get alive() { return drops.length + strands.length; },
+    get alive() { return drops.length + strands.length + gdrips.length; },
   };
 }
 
@@ -956,7 +1039,7 @@ void main() {
   if (cover > 0.0) {
     float film = clamp(w.film, 0.0, 1.0), drop = 1.0 - film;
     float S = max(w.S, 0.6);
-    float milk = clamp(w.milk, 0.0, 1.0);
+    float milk = clamp(w.milk, 0.0, 2.0); // (goo goes past 1: thick, cloudy saliva)
     float dd = max(d, 0.0);
     vec2 o2 = -w.g / gn;                        // outwards, towards the nearest edge
     float top = 0.5 - 0.5 * o2.y;               // 1 on a drop's top edge
@@ -1070,7 +1153,7 @@ function mulberry32(a) {
 function inert() {
   const nop = () => {};
   return {
-    canvas: null, done: Promise.resolve(), splat: nop, spray: nop, update: nop, step: nop, setSource: nop, refreshSource: nop,
+    canvas: null, done: Promise.resolve(), splat: nop, spray: nop, goo: nop, update: nop, step: nop, setSource: nop, refreshSource: nop,
     fadeOut: () => Promise.resolve(), dispose: nop, get alive() { return 0; },
   };
 }

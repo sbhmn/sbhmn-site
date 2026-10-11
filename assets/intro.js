@@ -859,8 +859,8 @@ async function start() {
     const mp = mouth.clone().project(camera);
     const from = [((mp.x + 1) / 2) * innerWidth, ((1 - mp.y) / 2) * innerHeight];
     try {
+      // (the goo itself comes when the paper smashes into the glass, below)
       drips = createDrips({ auto: false, seed: 5, onSplat: (x, y, s) => sfx.any(['splat1', 'splat2', 'splat3'], { gain: Math.min(0.7, 0.18 + s / 300), pan: (x / innerWidth) * 2 - 1 }) });
-      drips.spray(10, undefined, { delay: 0.12, from });
     } catch (e) { drips = null; }
     tween(300, (t) => { monster.position.y = m0 + 0.06 * (1 - t); pitch.rotation.x = lift(monster.position.y) - 0.16 * (1 - easeOut(t)); eyeL.scale.y = eyeR.scale.y = 0.45 + 0.55 * t; });
     const sp = sheet ?? await Promise.race([sheetP, new Promise((r) => setTimeout(() => r(null), 2500))]);
@@ -868,8 +868,13 @@ async function start() {
     if (sp) {
       await sp.spit({
         camera, from: mouth, sequence: 'full',
-        // (no crinkle on every stop-motion frame any more: a tick 12 times a second that the owner didn't like)
-        onFrame: ({ slap }) => { if (slap) { sfx.play('thud2', { gain: 0.45, rate: 1.3 }); shake = Math.max(shake, 0.012); } },
+        // (no crinkle on every stop-motion frame any more: a tick 12 times a second that the owner didn't like) It
+        // smashes into the glass: a thud, and a gob of goo where it hit, thick saliva that drips (drips.goo)
+        onFrame: ({ slap, at }) => {
+          if (!slap) return;
+          sfx.play('thud2', { gain: 0.45, rate: 1.3 }); shake = Math.max(shake, 0.012);
+          if (at) drips?.goo(at.x, at.y, Math.max(90, at.size * 0.7), { from });
+        },
       });
       if (aborted) return;
       await wait(140); if (aborted) return;
