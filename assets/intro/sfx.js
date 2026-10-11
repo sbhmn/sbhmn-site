@@ -3,8 +3,9 @@
 // visitor's first touch has unlocked audio. 'slurp' (1.93 s: a long rising suck that runs into the wet smack as the
 // tip goes in, at ~1.51-1.55 s, then gulps) is the tongue's only sound. (Its other sounds, lick1-3, drip1-3,
 // splash1-3, goo1-2 and squeeze, are still in assets/audio, unused.) 'letter-bang' (0.42 s: a bin hit, the letters
-// slamming into it) and 'unfold' (2.1 s: paper drawn out with a rustle, the paper unfolding on the glass) are the
-// owner's picks, cut from the files in dev/sfx-src.
+// slamming into it), 'unfold' (2.1 s: paper drawn out with a rustle, the paper unfolding on the glass) and 'wipe1',
+// 'wipe2' (~0.9 s each: a squeegee dragged across a window, the hand's two strokes) are the owner's picks, cut from
+// the files in dev/sfx-src.
 //
 //   const sfx = createSfx();           // starts fetching every clip
 //   sfx.attach(audioContext);          // on the first pointerdown / key (browsers need a gesture), decodes them all
@@ -16,7 +17,7 @@
 import { v } from '/assets/v.js';
 const NAMES = [
   'throw', 'paper-in', 'lid-slam', 'lid-clap', 'slurp', 'growl', 'thud1', 'thud2', 'spit1', 'spit2', 'splat1', 'splat2',
-  'splat3', 'crinkle1', 'crinkle2', 'crinkle3', 'crinkle4', 'letter-bang', 'unfold',
+  'splat3', 'crinkle1', 'crinkle2', 'crinkle3', 'crinkle4', 'letter-bang', 'unfold', 'wipe1', 'wipe2',
 ];
 
 export function createSfx({ base = '/assets/audio/', volume = 0.85 } = {}) {

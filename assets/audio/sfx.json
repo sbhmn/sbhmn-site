@@ -322,6 +322,22 @@
    "dur": 2.1,
    "source": "dev/sfx-src/360646-paper-drawn-with-rustle.wav (mafon2, \"paper drawn with rustle\", trimmed by the owner)",
    "license": "not checked (freesound.org unreachable from the build machine): see freesound.org/s/360646"
+  },
+  {
+   "name": "wipe1",
+   "id": "757518",
+   "t0": 0.5,
+   "dur": 0.95,
+   "source": "dev/sfx-src/757518-window-wipe.wav (greenlinker, \"window wipe\", trimmed by the owner)",
+   "license": "not checked (freesound.org unreachable from the build machine): see freesound.org/s/757518"
+  },
+  {
+   "name": "wipe2",
+   "id": "757518",
+   "t0": 2.6,
+   "dur": 0.9,
+   "source": "dev/sfx-src/757518-window-wipe.wav (greenlinker, \"window wipe\", trimmed by the owner)",
+   "license": "not checked (freesound.org unreachable from the build machine): see freesound.org/s/757518"
   }
  ]
 }

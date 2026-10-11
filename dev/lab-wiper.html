@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wiper lab</title>
+<!-- The intro's wiper hand, alone (not linked from the site), through its module assets/intro/wiper.js.
+     /dev/lab-wiper.html?view=model    the hand alone, turning (&yaw=deg &pitch=deg: fixed; &lean &roll &flex &twist &grip:
+                                       its pose, radians / 0..1; &bones: the bones drawn)
+                       ?view=wipe      the real thing: the live home page (an iframe), the print landed over it
+                                       (paper.land), and the hand wiping it off; &nopage: no page, a blue
+                                       background, to see what's wiped
+     &shot: don't run the clock (window.__lab.advance(s) steps it)
+     Screenshots: node dev/wiper-shot.cjs <out prefix> <view> <t1,t2,...> [--size 1280x800] -->
+<style>
+  html, body { margin: 0; height: 100%; background: #fff; overflow: hidden; }
+  canvas { position: fixed; inset: 0; display: block; width: 100%; height: 100%; z-index: 2; }
+  iframe { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; z-index: 1; pointer-events: none; }
+  #hud { position: fixed; left: 10px; bottom: 8px; z-index: 3; font: 12px/1.35 ui-monospace, Consolas, monospace; color: #999; white-space: pre; pointer-events: none; }
+</style>
+<script type="importmap">{ "imports": { "three": "/assets/vendor/three/three.module.min.js" } }</script>
+</head>
+<body>
+<div id="hud"></div>
+<script type="module">
+import * as THREE from 'three';
+import { createWiper } from '/assets/intro/wiper.js';
+import { createPaper } from '/assets/intro/paper.js';
+
+const q = new URLSearchParams(location.search);
+const VIEW = q.get('view') ?? 'model';
+const SHOT = q.has('shot');
+const hud = document.getElementById('hud');
+const deg = THREE.MathUtils.degToRad;
+const num = (k, d) => (q.has(k) ? +q.get(k) : d);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.append(renderer.domElement);
+const size = () => [window.innerWidth, window.innerHeight];
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(30, 1, 0.02, 100);
+function resize() { const [w, h] = size(); renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+resize();
+window.addEventListener('resize', resize);
+
+const wiper = await createWiper({ viewport: size });
+let clock = 0, update = () => {}, draw = () => {};
+
+if (VIEW === 'model') {
+  renderer.setClearColor(0xeeeeee, 1);
+  const hold = new THREE.Group();
+  scene.add(hold);
+  hold.add(wiper.root);
+  wiper.root.visible = true;
+  wiper.root.position.set(0, 0, 0); wiper.root.quaternion.identity(); wiper.root.scale.setScalar(1);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x8c8478, 1.7));
+  const key = new THREE.DirectionalLight(0xffffff, 2.1); key.position.set(-2.5, 3.5, 4); scene.add(key);
+  if (q.has('bones')) { const h = new THREE.SkeletonHelper(wiper.root); h.material.depthTest = false; scene.add(h); }
+  update = () => {
+    wiper.pose({ lean: num('lean', 0), roll: num('roll', 0), flex: num('flex', 0), twist: num('twist', 0), grip: num('grip', 0) });
+    hold.rotation.set(deg(num('pitch', 0)), deg(num('yaw', 0)) + (q.has('yaw') ? 0 : clock * 0.6), 0);
+    camera.position.set(0, 0, 4.2); camera.lookAt(0, 0, -0.6);
+    hud.textContent = `wiper model  lean ${num('lean', 0)} flex ${num('flex', 0)} grip ${num('grip', 0)}`;
+  };
+  draw = () => renderer.render(scene, camera);
+} else {
+  // the page under the canvas, the print landed on its headline, wiped off
+  let iframe = null;
+  if (q.has('nopage')) document.body.style.background = '#9db4e8'; // what's wiped shows blue
+  else {
+    try { sessionStorage.setItem('sbhmn-intro', 'done'); } catch (e) {}
+    iframe = document.createElement('iframe');
+    iframe.src = '/?debug';
+    document.body.prepend(iframe);
+    await new Promise((r) => iframe.addEventListener('load', r, { once: true }));
+    await new Promise((r) => setTimeout(r, 600));
+    iframe.contentWindow.__stage?.stop?.();
+  }
+  const paper = await createPaper({ portrait: innerWidth < innerHeight, viewport: size, anchor: () => iframe?.contentDocument.querySelector('.hero h1') ?? null });
+  scene.add(paper.object3d);
+  camera.fov = 18; camera.position.set(0, 0.5, 6); camera.lookAt(0, 0.5, 0); camera.updateProjectionMatrix(); camera.updateMatrixWorld();
+  paper.land(camera);
+  paper.setWipe(wiper.mask, renderer);
+  renderer.setClearColor(0xffffff, 0);
+  let started = false;
+  update = (dt) => {
+    if (!started) { started = true; wiper.wipe(); }
+    wiper.update(dt);
+    paper.update(dt);
+    hud.textContent = `wipe  t ${clock.toFixed(2)}s  ${wiper.active ? 'wiping' : 'clean'}`;
+  };
+  draw = () => { renderer.render(scene, camera); };
+}
+
+function tick(dt) { clock += dt; update(dt); }
+let last = performance.now();
+function loop(now) { requestAnimationFrame(loop); tick(Math.min(0.05, (now - last) / 1000)); last = now; draw(); }
+window.__lab = {
+  advance(s) { const n = Math.round(s * 60); for (let i = 0; i < n; i++) tick(1 / 60); if (!n) tick(0); draw(); },
+  get clock() { return clock; }, wiper,
+};
+window.__ready = true;
+if (!SHOT) requestAnimationFrame(loop); else { tick(0); draw(); }
+</script>
+</body>
+</html>

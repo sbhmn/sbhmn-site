@@ -2,7 +2,8 @@
 // pops out under the lid and swoops across its top in one lick, the lid riding on it (assets/intro/tongue-model.js),
 // and slurps back in; the lid slams again. The camera comes round to the front, something rattles inside, then a black
 // thing rises and lifts the lid: red eyes, teeth. SBHMN slams into the bin letter by letter. It spits the paper back at
-// you; the paper uncrumples, stop motion, into a flat sheet that fills the screen, and that sheet becomes the page. The
+// you; the paper uncrumples, stop motion, into a flat sheet that fills the screen, and a hand wipes it off the glass
+// with a wiper blade: the page is under it. The
 // bin is low poly, built from the logo's own proportions (assets/3d/bin.glb; 1 unit = 500 logo px, standing on y = 0,
 // front facing +z); its letters and fangs are the logo's own outlines (assets/3d/bin-letters.json,
 // tools/art/sbhmn-site-assets.mjs in the game repo).
@@ -11,6 +12,7 @@ import { GLTFLoader } from '/assets/vendor/three/addons/loaders/GLTFLoader.js';
 import { mergeVertices } from '/assets/vendor/three/addons/utils/BufferGeometryUtils.js';
 import { createPaper, createPaperBall } from '/assets/intro/paper.js';
 import { createDrips } from '/assets/intro/drips.js';
+import { createWiper } from '/assets/intro/wiper.js';
 import { createSfx } from '/assets/intro/sfx.js';
 import { v } from '/assets/v.js';
 
@@ -46,7 +48,8 @@ async function start() {
   announce('sbhmn:intro-start');
   let renderer;
   try {
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    // (alpha: at the end the paper is wiped off the glass, and the page shows through where it is gone)
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   } catch (e) {
     markDone(); reveal(); return;
   }
@@ -100,8 +103,10 @@ async function start() {
   // The crumpled homepage you throw (small, needed now); the sheet it unfolds into and the tongue load meanwhile.
   const sfx = createSfx(); // real recorded sounds (CC0), fetched now, decoded on the first touch
   const ballP = createPaperBall().catch((e) => { console.warn('paper ball', e); return null; });
-  let sheet = null, tongue = null, drips = null;
+  let sheet = null, tongue = null, drips = null, wiper = null;
   const sheetP = createPaper({ viewport: size }).then((s) => { sheet = s; scene.add(s.object3d); return s; }).catch((e) => { console.warn('paper', e); return null; });
+  // the hand that wipes the screen clean at the end (assets/intro/wiper.js)
+  const wiperP = createWiper({ viewport: size }).catch((e) => { console.warn('wiper', e); return null; });
 
   // --- the bin
   const binMat = new THREE.MeshStandardMaterial({ color: 0x171717, roughness: 0.75, metalness: 0, flatShading: true });
@@ -337,6 +342,7 @@ async function start() {
     camera.lookAt(cam.target);
     camera.updateMatrixWorld();
     tongue?.update(dt);
+    wiper?.update(dt); // (first: it paints what it wipes, which the sheet and the goo then leave out; it draws itself)
     sheet?.update(dt); // after the camera: once landed, the sheet stays registered on the screen
     drips?.update(dt);
     renderer.render(scene, camera);
@@ -848,7 +854,7 @@ async function start() {
   // The finale: the thing rears up and spits the paper back at you. Spit hits the screen and runs down the glass while
   // the paper flies at the camera as a ball in stop motion (assets/intro/paper.js: the crumpled homepage, baked in
   // Blender), smashes onto the screen and unfolds there, flap after flap, exactly where the live page sits. That sheet
-  // is the page: the page goes in under it and the sheet fades off it.
+  // is the page: the page goes in under it and a hand wipes the sheet and the goo off the glass.
   async function spit() {
     const m0 = monster.position.y;
     await tween(240, (t) => {
@@ -877,6 +883,7 @@ async function start() {
         onFrame: ({ slap, at }) => {
           if (!slap) return;
           sfx.play('unfold', { gain: 0.9, vary: 0.02 }); shake = Math.max(shake, 0.012);
+          wiperP.then((w) => { if (!aborted) w?.prepare(); }); // its canvas and shaders, while the paper unfolds
           if (at) drips?.goo(at.x, at.y, Math.max(at.size * 0.8, Math.min(innerWidth, innerHeight) * 0.42), { from });
         },
       });
@@ -884,17 +891,36 @@ async function start() {
       await wait(140); if (aborted) return;
     }
     // The hand-off. The page goes in under the paper at once, all of it (html.intro-handoff cuts its fade-in: the
-    // opaque canvas hides it), its 3D drawn right now as the paper prints it (sbhmn:handoff: the home page's scenes
-    // stepped to the print's moment, its clock in paper.json, and held there), and only then does the paper fade: the
-    // only thing that fades, over that same picture. When it is gone the page comes alive (end(): sbhmn:reveal).
-    // (The paper used to fade out while the page faded in, and two layers fading against each other let the white
-    // behind them through: a third of the way to white at worst, ~0.2 s in. That was the flash. And the page's 3D,
-    // already moving, ghosted through the still print, after a first frame that a slow GPU, compiling its shaders, may
-    // take a while to draw: the fade now starts only once it has.)
+    // canvas, the paper on it covering the screen, hides it), its 3D drawn right now as the paper prints it
+    // (sbhmn:handoff: the home page's scenes stepped to the print's moment, its clock in paper.json, and held there).
+    // Then a hand wipes the screen: a wiper blade, its rubber edge on the glass, dragged across in two strokes, and
+    // wherever it has been the paper and the goo are gone and the page is there (assets/intro/wiper.js; the paper and
+    // the goo cut themselves out by its mask). Nothing fades: where the print and the live page differ a little (on a
+    // phone the page is fluid: some px lower down), the line between them is always under the blade. Once it is clean
+    // the page comes alive (end(): sbhmn:reveal).
+    // Without the hand (it failed to load): the paper fades off the page instead. (Once, the paper faded out while the
+    // page faded in, and two layers fading against each other let the white behind them through: a flash.)
     html.classList.add('intro-handoff');
     html.classList.remove('intro-on');
     stage.classList.add('leaving');
     document.dispatchEvent(new CustomEvent('sbhmn:handoff', { detail: { at: sp?.print?.clock ?? 0 } }));
+    const w = sp ? await Promise.race([wiperP, new Promise((r) => setTimeout(() => r(null), 1500))]) : null;
+    if (aborted) return;
+    if (w) {
+      // only the paper is left on the glass (it covers the screen: hiding the rest changes nothing you see), and
+      // behind it, nothing: the page
+      for (const o of scene.children) if (o !== sp.object3d && !o.isLight) o.visible = false;
+      scene.background = null;
+      renderer.setClearColor(0xffffff, 0);
+      sp.setWipe(w.mask, renderer);
+      drips?.setWipe(w.mask);
+      wiper = w;
+      // a squeegee dragged across a window, each stroke (the owner's pick)
+      await w.wipe({ onStroke: (i) => sfx.play(i ? 'wipe2' : 'wipe1', { gain: 0.85, vary: 0.02 }) });
+      if (aborted) return;
+      end(true); // (the goo is all wiped off too)
+      return;
+    }
     const fade = canvas.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 650, easing: 'ease-out', fill: 'forwards' });
     await fade.finished.catch(() => {});
     end();
@@ -902,7 +928,8 @@ async function start() {
 
 
 
-  // skipped: everything goes at once. Otherwise the spit on the glass keeps running down over the live page, then dries.
+  // skipped (or wiped clean): everything goes at once. Otherwise the spit on the glass keeps running down over the live
+  // page, then dries.
   function end(skipped = false) {
     aborted = true;
     cancelAnimationFrame(raf);
@@ -911,6 +938,8 @@ async function start() {
     tweens.clear();
     try { tongue?.stop?.(); tongue?.dispose?.(); } catch (e) {}
     try { sheet?.dispose?.(); ballMade?.dispose?.(); } catch (e) {}
+    wiperP.then((w) => w?.dispose()).catch(() => {});
+    wiper = null;
     stage.remove();
     scene.traverse((o) => { o.geometry?.dispose?.(); if (o.material) [].concat(o.material).forEach((m) => { m.map?.dispose?.(); m.dispose?.(); }); });
     renderer.dispose();
@@ -939,7 +968,7 @@ async function start() {
     sfx.play = (n, o) => { sfxLog.push([+(clock / 1000).toFixed(2), n]); return play0(n, o); };
     // paperAt(): where the paper is on screen (client px), for driving the throw with a real pointer; grab.read: how
     // the last release was read
-    window.__intro = { ball, grab, pitch, roll, cam, monster, eyeL, eyeR, letters, fangs, throwBall, paperAt: () => toScreen(paper.position), advance, sfx, audio, sfxLog, get tongue() { return tongue; }, get sheet() { return sheet; }, get drips() { return drips; }, get misses() { return misses; }, get done() { return done; }, get clock() { return clock; } };
+    window.__intro = { ball, grab, pitch, roll, cam, monster, eyeL, eyeR, letters, fangs, throwBall, paperAt: () => toScreen(paper.position), advance, sfx, audio, sfxLog, get tongue() { return tongue; }, get sheet() { return sheet; }, get drips() { return drips; }, get wiper() { return wiper; }, get misses() { return misses; }, get done() { return done; }, get clock() { return clock; } };
   }
 }
 

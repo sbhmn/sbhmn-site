@@ -74,6 +74,9 @@
 //                        weighted to the short side), mediums ~3-5%, flecks ~1-2%.
 //   update(dt) (alias step)  advance dt seconds (fixed 1/60 substeps, dt capped at 0.1) and draw.
 //   setSource(src | null, rect?), refreshSource()   swap / re-upload the refraction picture
+//   setWipe(mask | null)  wiped clean wherever mask (assets/intro/wiper.js: { canvas, version, w, h }: a canvas over
+//                        the screen's top-left w x h CSS px, white = wiped) is white: the water there is cut away
+//                        (re-uploaded whenever version changes)
 //   fadeOut(ms = 1400) -> Promise   all the water dries (films first, small drops, big drops shrink last), then
 //                        dispose(); calling it again returns the same promise
 //   dispose()            stop, free the GL context, remove the canvas (also on webglcontextlost)
@@ -138,9 +141,9 @@ export function createDrips(opts = {}) {
     shade = program(SHADE_VS, shadeFS(useFloat));
     bubProg = program(BUB_VS, BUB_FS);
   } catch (e) { console.warn(e); canvas.remove(); return inert(); }
-  const U1 = uniforms(bumpProg, ['u_css']);
+  const U1 = uniforms(bumpProg, ['u_css', 'u_wipe', 'u_wipeK']);
   const U2 = uniforms(shade, ['u_m0', 'u_m1', 'u_src', 'u_res', 'u_css', 'u_texel', 'u_hasSrc', 'u_srcRect', 'u_opacity']);
-  const U3 = uniforms(bubProg, ['u_css', 'u_px', 'u_opacity']);
+  const U3 = uniforms(bubProg, ['u_css', 'u_px', 'u_opacity', 'u_wipe', 'u_wipeK']);
 
   const quad = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, quad);
@@ -812,9 +815,29 @@ export function createDrips(opts = {}) {
     }
   }
 
+  // the wipe (setWipe): a mask of the screen, white where it has been wiped clean; the water there is gone
+  let wipe = null; // { mask, tex, version }
+  function uploadWipe() {
+    if (!wipe || wipe.version === wipe.mask.version) return;
+    wipe.version = wipe.mask.version;
+    gl.activeTexture(gl.TEXTURE3);
+    gl.bindTexture(gl.TEXTURE_2D, wipe.tex);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, wipe.mask.canvas);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.activeTexture(gl.TEXTURE0);
+  }
+  // the mask's uv from gl_FragCoord on a target of tw x th texels covering the window: (x scale, y scale, y offset, on)
+  function wipeK(loc, tw, th) {
+    if (!wipe) { gl.uniform4f(loc, 0, 0, 0, 0); return; }
+    const { w, h } = wipe.mask;
+    gl.uniform4f(loc, cssW / tw / w, cssH / th / h, 1 - cssH / h, 1);
+  }
+
   function draw() {
     if (!devW) return;
     if (srcDirty || (liveSource && src)) uploadSource();
+    uploadWipe();
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.disable(gl.SCISSOR_TEST);
     gl.viewport(0, 0, devW, devH);
@@ -833,6 +856,8 @@ export function createDrips(opts = {}) {
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.useProgram(bumpProg);
     gl.uniform2f(U1.u_css, cssW, cssH);
+    gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, wipe ? wipe.tex : null); gl.activeTexture(gl.TEXTURE0);
+    gl.uniform1i(U1.u_wipe, 3); wipeK(U1.u_wipeK, mapW, mapH);
     gl.enable(gl.BLEND);
     if (useFloat) gl.blendEquation(gl.FUNC_ADD); else gl.blendEquationSeparate(gl.FUNC_ADD, gl.MAX);
     gl.blendFunc(gl.ONE, gl.ONE);
@@ -865,6 +890,7 @@ export function createDrips(opts = {}) {
       gl.uniform2f(U3.u_css, cssW, cssH);
       gl.uniform1f(U3.u_px, cssW / devW);
       gl.uniform1f(U3.u_opacity, opacity);
+      gl.uniform1i(U3.u_wipe, 3); wipeK(U3.u_wipeK, devW, devH);
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
       gl.bindBuffer(gl.ARRAY_BUFFER, bbuf);
@@ -967,6 +993,16 @@ export function createDrips(opts = {}) {
     splat: (x, y, size, o) => { splat(x, y, size, o); },
     spray, goo, update, step: update, fadeOut, dispose,
     setSource(s, rect) { src = s || null; srcRect = rect || null; srcReady = false; srcDirty = true; },
+    setWipe(mask) {
+      if (disposed) return;
+      if (!mask) { if (wipe) gl.deleteTexture(wipe.tex); wipe = null; return; }
+      const tex = gl.createTexture();
+      gl.activeTexture(gl.TEXTURE3);
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+      gl.activeTexture(gl.TEXTURE0);
+      wipe = { mask, tex, version: -1 };
+    },
     refreshSource() { srcDirty = !!src; },
     get alive() { return drops.length + strands.length + gdrips.length; },
   };
@@ -995,13 +1031,17 @@ function bumpFS(isFloat) {
   return `#version 300 es
 precision highp float;
 in vec2 v_l; flat in vec4 v_p; flat in vec4 v_q; flat in vec2 v_lc;
+uniform sampler2D u_wipe; uniform vec4 u_wipeK;
 ${isFloat ? 'layout(location = 0) out vec4 o0; layout(location = 1) out vec4 o1;' : 'out vec4 o0;'}
 void main() {
   float q2 = dot(v_l, v_l);
   if (q2 >= 1.0) discard;
+  // wiped off (setWipe)
+  float wk = u_wipeK.w > 0.5 ? 1.0 - texture(u_wipe, gl_FragCoord.xy * u_wipeK.xy + vec2(0.0, u_wipeK.z)).r : 1.0;
+  if (wk <= 0.002) discard;
   float b = 1.0 - q2, e = v_q.x;
-  float h = v_p.w * pow(b, e);
-${isFloat ? `  vec2 gl = -v_p.w * e * pow(b, e - 1.0) * 2.0 * v_l / v_p.xy;
+  float h = v_p.w * pow(b, e) * wk;
+${isFloat ? `  vec2 gl = -v_p.w * wk * e * pow(b, e - 1.0) * 2.0 * v_l / v_p.xy;
   float c = cos(v_p.z), s = sin(v_p.z);
   vec2 g = vec2(c * gl.x - s * gl.y, s * gl.x + c * gl.y);
   vec2 dl = v_l * v_p.xy;
@@ -1157,6 +1197,7 @@ const BUB_FS = `#version 300 es
 precision highp float;
 in vec2 v_p; flat in vec2 v_ra;
 uniform float u_px; uniform float u_opacity;
+uniform sampler2D u_wipe; uniform vec4 u_wipeK;
 out vec4 o;
 vec4 over(vec4 acc, vec3 rgb, float a) { return vec4(rgb * a + acc.rgb * (1.0 - a), a + acc.a * (1.0 - a)); }
 void main() {
@@ -1175,7 +1216,8 @@ void main() {
   vec2 hp = v_p - vec2(-0.36, -0.4) * r;
   float hr = max(r * 0.26, u_px * 0.7);
   acc = over(acc, vec3(1.0), clamp(0.5 - (length(hp) - hr) / u_px, 0.0, 1.0) * 0.9);
-  o = acc * v_ra.y * u_opacity;
+  float wk = u_wipeK.w > 0.5 ? 1.0 - texture(u_wipe, gl_FragCoord.xy * u_wipeK.xy + vec2(0.0, u_wipeK.z)).r : 1.0;
+  o = acc * v_ra.y * u_opacity * wk;
 }`;
 
 function mulberry32(a) {
@@ -1190,7 +1232,7 @@ function mulberry32(a) {
 function inert() {
   const nop = () => {};
   return {
-    canvas: null, done: Promise.resolve(), splat: nop, spray: nop, goo: nop, update: nop, step: nop, setSource: nop, refreshSource: nop,
+    canvas: null, done: Promise.resolve(), splat: nop, spray: nop, goo: nop, update: nop, step: nop, setSource: nop, refreshSource: nop, setWipe: nop,
     fadeOut: () => Promise.resolve(), dispose: nop, get alive() { return 0; },
   };
 }

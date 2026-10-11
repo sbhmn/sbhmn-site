@@ -7,6 +7,8 @@
 //                five bangs
 //   unfold       360646 (mafon2, "paper drawn with rustle"): 0.95-3.05 s, a crinkle at once (the paper smashing into
 //                the glass), its loudest rustle near the end (the paper coming flat)
+//   wipe1, wipe2 757518 (greenlinker, "window wipe"): two of its strokes, 0.5-1.45 s and 2.6-3.5 s (the hand's two
+//                strokes across the screen, assets/intro/wiper.js)
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -19,6 +21,8 @@ const PICKS = [
   { name: 'growl', id: '366837', file: '366837-growl-and-roar.mp3', by: 'jofae, "growl and roar"', t0: 0.1, dur: null, fadeIn: 0.01, fadeOut: 0.25 },
   { name: 'letter-bang', id: '440944', file: '440944-bin7.wav', by: 'l_q, "bin7"', t0: 0, dur: 0.42, fadeIn: 0, fadeOut: 0.22, curve: 1.5 },
   { name: 'unfold', id: '360646', file: '360646-paper-drawn-with-rustle.wav', by: 'mafon2, "paper drawn with rustle"', t0: 0.95, dur: 2.1, fadeIn: 0.01, fadeOut: 0.25, curve: 1.5 },
+  { name: 'wipe1', id: '757518', file: '757518-window-wipe.wav', by: 'greenlinker, "window wipe"', t0: 0.5, dur: 0.95, fadeIn: 0.03, fadeOut: 0.2, curve: 1.5 },
+  { name: 'wipe2', id: '757518', file: '757518-window-wipe.wav', by: 'greenlinker, "window wipe"', t0: 2.6, dur: 0.9, fadeIn: 0.03, fadeOut: 0.2, curve: 1.5 },
 ];
 const json = join(out, 'sfx.json');
 const meta = JSON.parse(readFileSync(json, 'utf8'));

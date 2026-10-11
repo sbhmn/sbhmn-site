@@ -62,6 +62,8 @@
 //   setPose(k, { wet })    a pose by hand: 0 = the ball ... T-1 = 'settle'; -1 = the flat sheet (base mesh).
 //                          Sets the shading for that pose too; wet 0..1 (default: as it was). Don't mix with spit().
 //   bounds(k)              a pose's bounds (THREE.Box3, sheet units)
+//   setWipe(mask, renderer)  wiped off the glass where mask (assets/intro/wiper.js: { canvas, version }, the canvas's
+//                          own box, white = wiped) is white: see-through there (the renderer needs alpha). null: off
 //   poses                  the pose names; info: paper.json; print: the chosen print; landed: on the screen
 //   dispose()              geometry, materials, the print
 // createPaperBall -> { object3d, dispose() }
@@ -167,6 +169,7 @@ function paperMaterial(U, { map = null, color = 0xffffff, side = THREE.FrontSide
     sh.fragmentShader = sh.fragmentShader
       .replace('#include <common>', `#include <common>
 uniform float uLift, uRim, uWet; uniform sampler2D uWetMap;
+uniform sampler2D uWipe; uniform float uWipeOn; uniform vec2 uWipeRes;
 varying float vPWet; varying vec2 vPUv;`)
       .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
 vec3 paperFlat = diffuseColor.rgb;
@@ -185,7 +188,10 @@ gl_FragColor.rgb = min(gl_FragColor.rgb, vec3(0.52)) + 0.33 * (1.0 - exp(-pover 
 // wet: soaked darker (after the knee, so it shows on lit facets too) with a darker tide line at the edge; the low
 // roughness above gives the soaked facets the sun's sheen
 gl_FragColor.rgb *= (1.0 - 0.3 * pwet) * (1.0 - 0.2 * pring);
-gl_FragColor.rgb = mix(gl_FragColor.rgb, paperFlat, uLift);`);
+gl_FragColor.rgb = mix(gl_FragColor.rgb, paperFlat, uLift);`)
+      // wiped off the glass (setWipe): see-through there, the page behind it (the canvas is premultiplied: all four)
+      .replace('#include <dithering_fragment>', `#include <dithering_fragment>
+if (uWipeOn > 0.5) gl_FragColor *= 1.0 - texture2D(uWipe, gl_FragCoord.xy / uWipeRes).r;`);
   };
   m.customProgramCacheKey = () => (flat ? 'sbhmn-paper-flat' : 'sbhmn-paper');
   return m;
@@ -301,7 +307,10 @@ function makeMeshes(geo, U, tex, castShadow) {
 }
 
 function uniforms(wetTex) {
-  return { uLift: { value: 0 }, uRim: { value: 0.5 }, uWet: { value: 0 }, uWetMap: { value: wetTex } };
+  return {
+    uLift: { value: 0 }, uRim: { value: 0.5 }, uWet: { value: 0 }, uWetMap: { value: wetTex },
+    uWipe: { value: wetTex }, uWipeOn: { value: 0 }, uWipeRes: { value: new THREE.Vector2(1, 1) },
+  };
 }
 
 // ------------------------------------------------------------------------------------------------- the throw's ball
@@ -582,20 +591,37 @@ export async function createPaper(opts = {}) {
     place(camera, landing(camera), ident);
   }
 
+  // The wipe (assets/intro/wiper.js): a mask of the canvas, white where the paper has been wiped off the glass
+  let wipe = null;
+  function setWipe(mask, renderer) {
+    if (!mask) { U.uWipeOn.value = 0; wipe?.tex.dispose(); wipe = null; return; }
+    const tex = new THREE.CanvasTexture(mask.canvas);
+    tex.colorSpace = THREE.NoColorSpace; tex.generateMipmaps = false; tex.minFilter = THREE.LinearFilter;
+    wipe = { mask, renderer, tex, version: -1 };
+    U.uWipe.value = tex; U.uWipeOn.value = 1;
+    syncWipe();
+  }
+  function syncWipe() {
+    if (!wipe) return;
+    if (wipe.version !== wipe.mask.version) { wipe.version = wipe.mask.version; wipe.tex.needsUpdate = true; }
+    wipe.renderer.getDrawingBufferSize(U.uWipeRes.value);
+  }
+
   const paper = {
     object3d, info, print: P, poses: names, landed: false, ballRadius: info.ballRadius,
     setPose: (k, o) => setPose(k, o),
     bounds,
-    spit, land,
+    spit, land, setWipe,
     update(dt) {
       if (show) stepShow(dt);
       else if (landedCam) place(landedCam, landing(landedCam), ident);
+      syncWipe();
     },
     dispose() {
       show = null; landedCam = null;
       object3d.removeFromParent();
       geo.dispose(); src.geometry.dispose(); front.material.dispose(); back.material.dispose(); core.geometry.dispose();
-      core.material.dispose(); wetTex.dispose(); tex.dispose(); cache.delete(`tex:${P.url}:${portrait}`);
+      core.material.dispose(); wetTex.dispose(); tex.dispose(); wipe?.tex.dispose(); cache.delete(`tex:${P.url}:${portrait}`);
     },
   };
   return paper;
