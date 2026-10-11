@@ -1,8 +1,9 @@
-// Screenshots of the tongue lab (dev/lab-tongue.html) at chosen moments, stepped deterministically (headless Edge).
+// Screenshots of the tongue lab (dev/lab-tongue.html) at chosen moments, stepped deterministically
+// (headless Edge or Chromium: dev/browser.cjs).
 //   node dev/tongue-shot.cjs <out prefix> <t1,t2,...> [--view both|throw|front|side|three] [--size 1600x800]
 //        [--sheet cols] [--cell 480] [--port 8787] [--q "speed=1&mirror&spread=0.76&fps=20&fxscene"]
 // Times are seconds after the lick starts. --sheet: one contact sheet <prefix>-sheet.png instead of one PNG a moment.
-const { chromium } = require('C:/Ideas/Shapeshot/node_modules/playwright-core');
+const { launch } = require('./browser.cjs');
 const fs = require('fs');
 const args = process.argv.slice(2);
 const [prefix, times = '0'] = args;
@@ -11,7 +12,7 @@ const opt = (k, d) => { const i = args.indexOf(k); return i > 0 ? args[i + 1] : 
   const [w, h] = opt('--size', '1600x800').split('x').map(Number);
   const at = 0.1;
   const url = `http://localhost:${opt('--port', '8787')}/dev/lab-tongue.html?shot&at=${at}&view=${opt('--view', 'both')}${opt('--q') ? '&' + opt('--q') : ''}`;
-  const b = await chromium.launch({ channel: 'msedge', headless: true, args: ['--use-angle=d3d11', '--enable-unsafe-swiftshader'] });
+  const b = await launch();
   const p = await (await b.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1 })).newPage();
   const errors = [];
   p.on('pageerror', (e) => errors.push(String(e)));

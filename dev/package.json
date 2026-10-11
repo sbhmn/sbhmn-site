@@ -1,0 +1,9 @@
+{
+  "name": "sbhmn-site-dev",
+  "private": true,
+  "description": "The dev scripts' tools (headless browser, image encoding); the site itself has no build step.",
+  "devDependencies": {
+    "playwright-core": "^1.63.0",
+    "sharp": "^0.35.5"
+  }
+}

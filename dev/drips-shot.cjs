@@ -1,4 +1,5 @@
-// Screenshots of the drips lab (dev/lab-drips.html) at chosen moments, stepped deterministically, plus a contact sheet.
+// Screenshots of the drips lab (dev/lab-drips.html) at chosen moments, stepped deterministically, plus a contact sheet
+// (headless Edge or Chromium: dev/browser.cjs).
 //   node dev/drips-shot.cjs <out prefix> <t1,t2,...> [--bg white|home|live|image|intro] [--seed 7] [--n 10] [--src 0]
 //        [--at 9.42]   (bg intro) the intro's time when the spray starts;  [--from x,y]  where the spit comes from
 //        [--fade 2.5] [--fadems 1400]   start drips.fadeOut at 2.5 s;  [--float 0]  the 8-bit fallback;  [--rm 1]
@@ -6,8 +7,8 @@
 //        [--size 1280x800] [--dpr 1] [--port 8787] [--clip x,y,w,h] [--sheet]
 // Times are seconds after the spray. --clip crops every shot (CSS px); --sheet also writes <prefix>-sheet.png, all the
 // shots side by side with their times. Needs the local server (python -m http.server 8787 --directory <site>).
-const { chromium } = require('C:/Ideas/Shapeshot/node_modules/playwright-core');
-const sharp = require('C:/Ideas/Shapeshot/node_modules/sharp');
+const { launch, dep } = require('./browser.cjs');
+const sharp = dep('sharp');
 const args = process.argv.slice(2);
 const [prefix, times = '0'] = args;
 const opt = (k, d) => { const i = args.indexOf(k); return i > 0 ? args[i + 1] : d; };
@@ -17,7 +18,7 @@ const opt = (k, d) => { const i = args.indexOf(k); return i > 0 ? args[i + 1] : 
   const q = new URLSearchParams({ bg: opt('--bg', 'white'), seed: opt('--seed', '7'), n: opt('--n', '10') });
   for (const k of ['src', 'fade', 'fadems', 'float', 'at', 'from', 'rm', 'one', 'gpu']) if (opt('--' + k)) q.set(k, opt('--' + k));
   const url = `http://localhost:${opt('--port', '8787')}/dev/lab-drips.html?${q}&shot`;
-  const b = await chromium.launch({ channel: 'msedge', headless: true, args: ['--use-angle=d3d11', '--enable-unsafe-swiftshader'] });
+  const b = await launch();
   const p = await (await b.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: dpr })).newPage();
   const errors = [];
   p.on('pageerror', (e) => errors.push(String(e)));

@@ -1,13 +1,14 @@
-// Screenshots of the intro (the bin game) at chosen moments after a perfect throw, stepped deterministically.
+// Screenshots of the intro (the bin game) at chosen moments after a perfect throw, stepped deterministically
+// (headless Edge or Chromium: dev/browser.cjs).
 //   node dev/intro-shot.cjs <out prefix> <t1,t2,...> [--size 1280x800] [--port 8787] [--q tongue=low]
 // It waits for the tongue and the paper sheet to load first (they load in the background on the real page).
-const { chromium } = require('C:/Ideas/Shapeshot/node_modules/playwright-core');
+const { launch } = require('./browser.cjs');
 const args = process.argv.slice(2);
 const [prefix, times = '0'] = args;
 const opt = (k, d) => { const i = args.indexOf(k); return i > 0 ? args[i + 1] : d; };
 (async () => {
   const [w, h] = opt('--size', '1280x800').split('x').map(Number);
-  const b = await chromium.launch({ channel: 'msedge', headless: true });
+  const b = await launch();
   const p = await (await b.newContext({ viewport: { width: w, height: h } })).newPage();
   const errors = [];
   p.on('pageerror', (e) => errors.push(String(e)));

@@ -10,3 +10,6 @@ Static site, no build step: GitHub Pages serves `main` as is (CNAME `sbhmn.com`)
   imports need nothing (they go through the import map).
 - The intro's paper is a print of the live home page: after a visible change to the top of the home page, re-render
   the prints with `node dev/paper-shots.cjs` (local server on port 8787), then stamp.
+- The screenshot scripts in `dev/` drive headless Edge on Windows and Chromium elsewhere (`dev/browser.cjs`). Set them
+  up once with `cd dev && npm install`, plus `npx playwright-core install chromium` there if no Chromium is at
+  `$CHROME_PATH` or `$PLAYWRIGHT_BROWSERS_PATH/chromium` (a Claude Code cloud container has one there).

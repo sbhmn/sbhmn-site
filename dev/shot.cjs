@@ -1,14 +1,14 @@
-// Screenshots of a lab scene at chosen moments, stepped deterministically (headless Edge via playwright-core).
+// Screenshots of a lab scene at chosen moments, stepped deterministically (headless Edge or Chromium: dev/browser.cjs).
 //   node dev/shot.cjs "<lab url with &shot>" <out prefix> <t1,t2,...> [--size 1280x800] [--pointer x,y] [--click x,y] [--dpr 1]
 // Times are seconds of scene time; --pointer / --click are CSS px in the window (pointer is set before the first shot).
-// The local server: python -m http.server 8787 --directory C:\Ideas\sbhmn-site  (or .claude/launch.json "sbhmn-site").
-const { chromium } = require('C:/Ideas/Shapeshot/node_modules/playwright-core');
+// The local server: python -m http.server 8787 --directory <site>  (or .claude/launch.json "sbhmn-site").
+const { launch } = require('./browser.cjs');
 const args = process.argv.slice(2);
 const [url, prefix, times = '0'] = args;
 const opt = (k, d) => { const i = args.indexOf(k); return i > 0 ? args[i + 1] : d; };
 (async () => {
   const [w, h] = opt('--size', '1280x800').split('x').map(Number);
-  const b = await chromium.launch({ channel: 'msedge', headless: true, args: ['--use-angle=d3d11', '--enable-unsafe-swiftshader'] });
+  const b = await launch();
   const p = await (await b.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: +opt('--dpr', '1') })).newPage();
   const errors = [];
   p.on('pageerror', (e) => errors.push(String(e)));

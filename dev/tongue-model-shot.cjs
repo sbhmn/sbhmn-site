@@ -1,5 +1,5 @@
 // Screenshots of the tongue-model lab (dev/lab-tongue-model.html) at chosen moments, stepped deterministically
-// (headless Edge).
+// (headless Edge or Chromium: dev/browser.cjs).
 //   node dev/tongue-model-shot.cjs <out prefix> <t1,t2,...> [--view lick,lickp,front (default) | lick | lickp | throw |
 //        phone | front | side | left | top | close | tclose | pclose | fclose | cam | any list]
 //        [--size 1700x800] [--sheet cols] [--cell 480] [--port 8787] [--q "speed=1&mirror&bones"] [--check]
@@ -9,7 +9,7 @@
 // --check: at each moment, count the tongue's vertices that go through the bin or the lid (rim, walls, lid and its
 // edge wherever the tongue comes out, under it, the base, the floor; 'at' lists a few of them), and its reach in front
 // of the lid; the time printed is the lick time actually reached (the lab steps whole 60 Hz frames).
-const { chromium } = require('C:/Ideas/Shapeshot/node_modules/playwright-core');
+const { launch } = require('./browser.cjs');
 const fs = require('fs');
 const args = process.argv.slice(2);
 const [prefix, times = '0'] = args;
@@ -18,7 +18,7 @@ const opt = (k, d) => { const i = args.indexOf(k); return i > 0 ? args[i + 1] : 
   const [w, h] = opt('--size', '1700x800').split('x').map(Number);
   const at = 0.1;
   const url = `http://localhost:${opt('--port', '8787')}/dev/lab-tongue-model.html?shot&at=${at}&view=${opt('--view', 'lick,lickp,front')}${opt('--q') ? '&' + opt('--q') : ''}`;
-  const b = await chromium.launch({ channel: 'msedge', headless: true, args: ['--use-angle=d3d11', '--enable-unsafe-swiftshader'] });
+  const b = await launch();
   const p = await (await b.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1 })).newPage();
   const errors = [];
   p.on('pageerror', (e) => errors.push(String(e)));

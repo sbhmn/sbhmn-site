@@ -1,5 +1,6 @@
-// The print on the intro's paper: the live home page (intro skipped), screenshotted at the real viewport sizes of
-// desktops and phones, each laid on an A4 sheet with white margins, saved as the paper's textures.
+// The print on the intro's paper: the live home page (intro skipped), screenshotted (headless Edge or Chromium:
+// dev/browser.cjs) at the real viewport sizes of desktops and phones, each laid on an A4 sheet with white margins,
+// saved as the paper's textures.
 //   node dev/paper-shots.cjs [--port 8787] [--at 0.3] [--q 82] [--only <name>] [--raw <dir>]
 //
 // Writes (upright, top of the page at the top of the image; the print centred on the sheet):
@@ -23,8 +24,8 @@
 // Re-run it whenever the home page changes. Needs the local server (python -m http.server 8787 --directory <site>).
 const fs = require('fs');
 const path = require('path');
-const { chromium } = require('C:/Ideas/Shapeshot/node_modules/playwright-core');
-const sharp = require('C:/Ideas/Shapeshot/node_modules/sharp');
+const { launch, dep } = require('./browser.cjs');
+const sharp = dep('sharp');
 
 const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : d; };
@@ -44,7 +45,7 @@ const shots = [
 ];
 
 (async () => {
-  const browser = await chromium.launch({ channel: 'msedge', headless: true });
+  const browser = await launch();
   const prints = [];
   for (const s of shots) {
     if (only && s.name !== only) continue;
