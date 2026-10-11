@@ -836,7 +836,10 @@ async function start() {
     }, easeIn);
     if (aborted) return;
     m.position.copy(home); m.rotation.set(LEAN, 0, 0);
-    sfx.any(['thud1', 'thud2'], { gain: 0.9 }); shake = Math.max(shake, 0.02);
+    // a bang on the bin for each letter, each its own: a pitch of its own, from where it hits
+    const k = Math.max(0, letters.indexOf(m));
+    sfx.play('letter-bang', { gain: 0.95, rate: [1, 0.9, 1.1, 0.94, 1.05][k % 5], pan: THREE.MathUtils.clamp(home.x * 1.4, -0.7, 0.7), vary: 0.015 });
+    shake = Math.max(shake, 0.02);
     burst(new THREE.Vector3(home.x, home.y, home.z + 0.03), 5);
     tween(150, (t) => { const k = Math.sin(Math.PI * t); m.scale.set(1 + 0.08 * k, 1 + 0.08 * k, 1 - 0.5 * k); bin.position.z = -0.022 * k; });
     tween(140, (t) => { eyeL.scale.y = eyeR.scale.y = 1 - 0.65 * Math.sin(Math.PI * t); });
@@ -868,11 +871,12 @@ async function start() {
     if (sp) {
       await sp.spit({
         camera, from: mouth, sequence: 'full',
-        // (no crinkle on every stop-motion frame any more: a tick 12 times a second that the owner didn't like) It
-        // smashes into the glass: a thud, and a gob of goo where it hit, thick saliva that drips (drips.goo)
+        // It smashes into the glass: goo splatters out from where it hit, thick saliva that drips (drips.goo; its splat
+        // is the sound), and as it unfolds there, one rustle of paper drawn out (the owner's pick; no crinkle on every
+        // stop-motion frame any more, and no thud: little sounds the owner didn't like)
         onFrame: ({ slap, at }) => {
           if (!slap) return;
-          sfx.play('thud2', { gain: 0.45, rate: 1.3 }); shake = Math.max(shake, 0.012);
+          sfx.play('unfold', { gain: 0.9, vary: 0.02 }); shake = Math.max(shake, 0.012);
           if (at) drips?.goo(at.x, at.y, Math.max(at.size * 0.8, Math.min(innerWidth, innerHeight) * 0.42), { from });
         },
       });

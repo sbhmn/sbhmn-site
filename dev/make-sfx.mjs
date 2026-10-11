@@ -3,7 +3,8 @@
 // script can be re-run on the same previews.
 //   node dev/make-sfx.mjs <folder with the downloaded previews, named <id>-<cue>.mp3> assets/audio
 // The big wet ones (slurp, splash1-3, goo1-2) are layered by dev/make-sfx-wet.mjs, which runs on its own sources;
-// each script keeps the other's entries in sfx.json.
+// each script keeps the other's entries in sfx.json. The owner's own picks (growl, letter-bang, unfold) are cut by
+// dev/make-sfx-picks.mjs from dev/sfx-src: run it after this one (this one still makes the old growl, 676482).
 // splat1 was re-levelled by hand afterwards: the levelling here reads the peak at 22 kHz, which missed a few
 // single-sample spikes in its transient, and the MP3 decoded to +3.5 dBFS with samples past full scale. The shipped
 // file is that one through a limiter (ceiling 0.8) and a fresh MP3 encode (mono, 44.1 kHz, 96 kbps): peak ~0.85

@@ -38,12 +38,6 @@
    "dur": 0.39
   },
   {
-   "name": "growl",
-   "id": "676482",
-   "t0": 0.505,
-   "dur": 1.81
-  },
-  {
    "name": "thud1",
    "id": "275160",
    "t0": 0,
@@ -304,6 +298,30 @@
      "at": 0
     }
    ]
+  },
+  {
+   "name": "growl",
+   "id": "366837",
+   "t0": 0.1,
+   "dur": 1.677,
+   "source": "dev/sfx-src/366837-growl-and-roar.mp3 (jofae, \"growl and roar\", trimmed by the owner)",
+   "license": "not checked (freesound.org unreachable from the build machine): see freesound.org/s/366837"
+  },
+  {
+   "name": "letter-bang",
+   "id": "440944",
+   "t0": 0,
+   "dur": 0.42,
+   "source": "dev/sfx-src/440944-bin7.wav (l_q, \"bin7\", trimmed by the owner)",
+   "license": "not checked (freesound.org unreachable from the build machine): see freesound.org/s/440944"
+  },
+  {
+   "name": "unfold",
+   "id": "360646",
+   "t0": 0.95,
+   "dur": 2.1,
+   "source": "dev/sfx-src/360646-paper-drawn-with-rustle.wav (mafon2, \"paper drawn with rustle\", trimmed by the owner)",
+   "license": "not checked (freesound.org unreachable from the build machine): see freesound.org/s/360646"
   }
  ]
 }
