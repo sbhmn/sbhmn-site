@@ -53,12 +53,13 @@
 //   float       false forces the 8-bit water map (testing the fallback for GPUs without float render targets)
 //
 // methods
-//   goo(x, y, size = 160, { delay = 0, dir, from })  a gob of goo (thick, cloudy saliva) at viewport CSS px: a heavy
-//                        lumpy blob with ropy arms and froth, clumps round it joined by thick sagging strings that
-//                        slowly bead up (2.5-7 s), and 3-5 drips creeping down from its lower edge, stretching into
-//                        long necks with a fat drop at the end and hanging there (slower and slower: ~1.5-3 s to
-//                        most of their length, 0.4-2.4 x the blob's radius). size = the blob's diameter. None of it
-//                        slides off or dries: it stays until fadeOut (or maxLife).
+//   goo(x, y, size = 160, { delay = 0, dir, from, spread = 1.6 })  a splatter of goo (thick, cloudy saliva) flung out
+//                        from a hit at viewport CSS px: a gob where it hit (~size / 2 across), 9-13 gobs round it out
+//                        to ~spread * size (big near, small far, a few much further), flecks further out, thick
+//                        strings between neighbours that sag and slowly bead up (2.5-7 s), and drips creeping down
+//                        from the bigger gobs, stretching into long necks with a fat drop at the end and hanging there
+//                        (slower and slower: ~1.5-3 s to most of their length). Every gob is lumpy, ropy and frothy.
+//                        None of it slides off or dries: it stays until fadeOut (or maxLife).
 //   splat(x, y, size = 64, { delay = 0, dir, from })  one splat at viewport CSS px. size = the diameter the blob
 //                        settles to (~0.5 s; lumps +-10%; at impact it spreads ~15% past it, and droplets and mist land
 //                        out to ~2-3 sizes away). dir = [dx, dy] the spit's travel on screen: the blob
@@ -357,7 +358,7 @@ export function createDrips(opts = {}) {
       const rr = Math.max(1.2, R * (goo ? U(0.06, 0.16) : U(0.05, 0.2)) * (1.3 - (dist / R - 1.1) * 0.3));
       makeDrop(x + Math.cos(fa) * dist, y + Math.sin(fa) * dist, rr, 'sat', {
         delay, fly: { x0: x + Math.cos(fa) * R * 0.45, y0: y + Math.sin(fa) * R * 0.45, t0: U(0, 0.025), dur: U(0.05, 0.11) },
-        a: goo ? 0.46 : 0.4, milk: goo ? U(1.0, 1.4) : U(0.3, 0.6), dryAt: goo ? Infinity : rr < SLIDE_R ? U(1.4, 3.6) : Infinity,
+        a: goo ? 0.3 : 0.4, milk: goo ? U(1.4, 1.8) : U(0.3, 0.6), dryAt: goo ? Infinity : rr < SLIDE_R ? U(1.4, 3.6) : Infinity,
         dryDur: U(1.0, 2.2), hold: U(0.9, 1.8), ...(goo ? { slide: false } : {}),
       });
     }
@@ -422,40 +423,76 @@ export function createDrips(opts = {}) {
     }
   }
 
-  // A gob of goo: what the paper leaves where it smashes into the glass. A heavy, lumpy blob of thick, cloudy saliva
-  // with ropy arms and froth, clumps flung round it, joined to it by thick strings that sag and slowly bead up, and drips
-  // that creep down from its lower edge: each stretches into a long neck with a fat drop at its end, slower and
-  // slower, and hangs there. Nothing of it slides off or dries: it stays till it is wiped (or fadeOut).
+  // Goo: what the paper leaves where it smashes into the glass. A splatter of thick, cloudy saliva flung out from the
+  // hit: a gob where it hit, gobs of every size thrown out round it (big ones near, small ones far, smeared the way
+  // they flew, a few thrown much further), flecks further out still, thick strings between neighbours that sag and
+  // slowly bead up, and drips that creep down from the bigger gobs, stretching into long necks with a fat drop at the
+  // end. Every gob is lumpy, ropy and frothy. Nothing of it slides off or dries: it stays till it is wiped (or fadeOut).
+  // size: the gob at the hit is about half that across; the splatter reaches out to ~spread * size (default 1.6).
   function goo(x, y, size = 160, o = {}) {
     if (disposed) return;
-    const R = size / 1.4, delay = Math.max(0, o.delay || 0);
+    const delay = Math.max(0, o.delay || 0), S = size * (o.spread ?? 1.6);
     const m = (2 * Math.min(cssW, cssH) + Math.max(cssW, cssH)) / 3 * 0.85;
-    splat(x, y, size, { ...o, goo: true });
-    const placed = [];
-    const nc = 4 + Math.floor(rnd() * 3);
-    for (let i = 0; i < nc; i++) {
-      const fa = (i / nc) * TAU + U(-0.45, 0.45), dist = R * U(1.05, 1.75), cs = size * U(0.16, 0.32);
-      const cx = x + Math.cos(fa) * dist, cy = y + Math.sin(fa) * dist;
-      splat(cx, cy, cs, { delay: delay + U(0.01, 0.05), dir: [cx - x, cy - y], goo: true, silent: true });
-      placed.push([cx, cy, cs / 1.4, delay + 0.05, 0]);
+    const { da } = dirOf(x, y, o);
+    const c0 = size * 0.55;
+    splat(x, y, c0, { ...o, goo: true });
+    const placed = [[x, y, c0 / 1.4, delay, 0]]; // [x, y, reach, delay, tier]
+    // the gobs: the best of a few candidates each, clear of the ones already there
+    const ng = 9 + Math.floor(rnd() * 5);
+    for (let i = 0; i < ng; i++) {
+      let best = null, bestD = -Infinity;
+      for (let k = 0; k < 14; k++) {
+        const far = rnd() < 0.18;
+        const dd = far ? S * U(0.95, 1.35) : S * Math.sqrt(U(0.08, 0.85));
+        const fa = rnd() < 0.5 ? da + U(-1.1, 1.1) : U(0, TAU);
+        const c = [x + Math.cos(fa) * dd, y + Math.sin(fa) * dd * 0.85];
+        const cs = size * (0.42 - 0.28 * Math.min(1, dd / S)) * U(0.7, 1.25);
+        let dmin = Infinity;
+        for (const p of placed) dmin = Math.min(dmin, Math.hypot(c[0] - p[0], c[1] - p[1]) - p[2] - cs / 1.4);
+        if (dmin > bestD) { bestD = dmin; best = [c[0], c[1], cs]; }
+      }
+      const [cx, cy, cs] = best;
+      const dl = delay + U(0.01, 0.06);
+      splat(cx, cy, cs, { delay: dl, dir: [cx - x, cy - y], goo: true, silent: true });
+      placed.push([cx, cy, cs / 1.4, dl, Math.hypot(cx - x, cy - y) < S * 0.6 ? 0 : 1]);
     }
+    // flecks further out
+    const nf = 14 + Math.floor(rnd() * 10);
+    for (let i = 0; i < nf; i++) {
+      const fa = rnd() < 0.5 ? da + U(-1.3, 1.3) : U(0, TAU), dd = S * U(0.5, 1.5);
+      // (flat and cloudy: goo, not clear beads)
+      const r = size * U(0.012, 0.032);
+      makeDrop(x + Math.cos(fa) * dd, y + Math.sin(fa) * dd * 0.85, r, 'sat', {
+        delay, fly: { x0: x + Math.cos(fa) * c0 * 0.4, y0: y + Math.sin(fa) * c0 * 0.4, t0: U(0, 0.03), dur: U(0.06, 0.12) },
+        a: 0.26, milk: U(1.5, 1.9), slide: false,
+      });
+    }
+    // strings: between close neighbours
     if (!reducedMotion) {
-      const me = [x, y, R, delay, 0];
-      for (const c of placed) if (rnd() < 0.7) makeStrand(me, c, m, delay + U(0.03, 0.08), true);
-      for (let i = 0; i < placed.length; i++) {
-        const a = placed[i], b = placed[(i + 1) % placed.length];
-        if (rnd() < 0.35) makeStrand(a, b, m, delay + U(0.05, 0.1), true);
+      const pairs = [];
+      for (let i = 0; i < placed.length; i++) for (let j = i + 1; j < placed.length; j++) {
+        const a = placed[i], b = placed[j], dd = Math.hypot(a[0] - b[0], a[1] - b[1]);
+        if (dd > 1.25 * (a[2] + b[2]) && dd < 3.2 * (a[2] + b[2])) pairs.push([dd / (a[2] + b[2]), a, b]);
+      }
+      pairs.sort((p, q) => p[0] - q[0]);
+      for (let k = 0; k < Math.min(pairs.length, 6 + Math.floor(rnd() * 4)); k++) {
+        const [, a, b] = pairs[k];
+        makeStrand(a, b, m, Math.max(a[3], b[3]) + U(0.02, 0.06), true);
       }
     }
-    // the drips: from the blob's lower edge, a few long ones, a few short
-    const nd = reducedMotion ? 0 : 3 + Math.floor(rnd() * 3);
-    for (let i = 0; i < nd; i++) {
-      const fa = Math.PI / 2 + U(-0.95, 0.95) * (i / Math.max(1, nd - 1) - 0.5) * 2 + U(-0.12, 0.12);
-      const long = i % 2 === 0;
-      gdrips.push({
-        x: x + Math.cos(fa) * R * 0.62, y: y + Math.sin(fa) * R * 0.6, w0: R * U(0.1, 0.16), rb: R * U(0.1, 0.17),
-        L: R * (long ? U(1.2, 2.4) : U(0.4, 0.9)), tau: U(1.4, 3.2), t0: delay + U(0.25, 0.9), age: 0, sway: U(-0.08, 0.08),
-        milk: U(1.2, 1.5),
+    // the drips: from the bigger gobs' lower edges, a few long ones, a few short
+    if (!reducedMotion) {
+      const big = [...placed].sort((p, q) => q[2] - p[2]).slice(0, 5);
+      big.forEach((g, i) => {
+        const n = i === 0 ? 2 : rnd() < 0.7 ? 1 : 0;
+        for (let k = 0; k < n; k++) {
+          const R = g[2], fa = Math.PI / 2 + U(-0.7, 0.7), long = rnd() < 0.5;
+          gdrips.push({
+            x: g[0] + Math.cos(fa) * R * 0.62, y: g[1] + Math.sin(fa) * R * 0.6, w0: R * U(0.12, 0.18), rb: R * U(0.12, 0.2),
+            L: R * (long ? U(1.6, 3.2) : U(0.5, 1.2)), tau: U(1.4, 3.2), t0: g[3] + U(0.25, 0.9), age: 0, sway: U(-0.08, 0.08),
+            milk: U(1.2, 1.5),
+          });
+        }
       });
     }
     kick();

@@ -873,7 +873,7 @@ async function start() {
         onFrame: ({ slap, at }) => {
           if (!slap) return;
           sfx.play('thud2', { gain: 0.45, rate: 1.3 }); shake = Math.max(shake, 0.012);
-          if (at) drips?.goo(at.x, at.y, Math.max(90, at.size * 0.7), { from });
+          if (at) drips?.goo(at.x, at.y, Math.max(at.size * 0.8, Math.min(innerWidth, innerHeight) * 0.42), { from });
         },
       });
       if (aborted) return;
