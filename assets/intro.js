@@ -342,10 +342,11 @@ async function start() {
     camera.lookAt(cam.target);
     camera.updateMatrixWorld();
     tongue?.update(dt);
-    wiper?.update(dt); // (first: it paints what it wipes, which the sheet and the goo then leave out; it draws itself)
+    wiper?.update(dt); // (first: it paints what it wipes, which the sheet and the goo then leave out)
     sheet?.update(dt); // after the camera: once landed, the sheet stays registered on the screen
     drips?.update(dt);
     renderer.render(scene, camera);
+    wiper?.render(renderer); // over the paper (the goo, on the glass, is an overlay above it all)
   }
   raf = requestAnimationFrame(frame);
 
@@ -883,7 +884,7 @@ async function start() {
         onFrame: ({ slap, at }) => {
           if (!slap) return;
           sfx.play('unfold', { gain: 0.9, vary: 0.02 }); shake = Math.max(shake, 0.012);
-          wiperP.then((w) => { if (!aborted) w?.prepare(); }); // its canvas and shaders, while the paper unfolds
+          wiperP.then((w) => { if (!aborted) w?.prepare(renderer); }); // its shaders, while the paper unfolds
           if (at) drips?.goo(at.x, at.y, Math.max(at.size * 0.8, Math.min(innerWidth, innerHeight) * 0.42), { from });
         },
       });

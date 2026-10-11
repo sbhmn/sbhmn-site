@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Wiper lab</title>
 <!-- The intro's wiper hand, alone (not linked from the site), through its module assets/intro/wiper.js.
-     /dev/lab-wiper.html?view=model    the hand alone, turning (&yaw=deg &pitch=deg: fixed; &lean &roll &flex &twist &grip:
+     /dev/lab-wiper.html?view=model    the hand alone, turning (&yaw=deg &pitch=deg: fixed; &lean &flex &twist &grip:
                                        its pose, radians / 0..1; &bones: the bones drawn)
                        ?view=wipe      the real thing: the live home page (an iframe), the print landed over it
                                        (paper.land), and the hand wiping it off; &nopage: no page, a blue
@@ -59,7 +59,7 @@ if (VIEW === 'model') {
   const key = new THREE.DirectionalLight(0xffffff, 2.1); key.position.set(-2.5, 3.5, 4); scene.add(key);
   if (q.has('bones')) { const h = new THREE.SkeletonHelper(wiper.root); h.material.depthTest = false; scene.add(h); }
   update = () => {
-    wiper.pose({ lean: num('lean', 0), roll: num('roll', 0), flex: num('flex', 0), twist: num('twist', 0), grip: num('grip', 0) });
+    wiper.pose({ lean: num('lean', 0), flex: num('flex', 0), twist: num('twist', 0), grip: num('grip', 0) });
     hold.rotation.set(deg(num('pitch', 0)), deg(num('yaw', 0)) + (q.has('yaw') ? 0 : clock * 0.6), 0);
     camera.position.set(0, 0, 4.2); camera.lookAt(0, 0, -0.6);
     hud.textContent = `wiper model  lean ${num('lean', 0)} flex ${num('flex', 0)} grip ${num('grip', 0)}`;
@@ -91,7 +91,7 @@ if (VIEW === 'model') {
     paper.update(dt);
     hud.textContent = `wipe  t ${clock.toFixed(2)}s  ${wiper.active ? 'wiping' : 'clean'}`;
   };
-  draw = () => { renderer.render(scene, camera); };
+  draw = () => { renderer.render(scene, camera); wiper.render(renderer); };
 }
 
 function tick(dt) { clock += dt; update(dt); }
