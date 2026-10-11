@@ -97,13 +97,7 @@ if (VIEW === 'ball') {
     const cols = VIEW === 'grid' ? Math.ceil(Math.sqrt(list.length * 1.6)) : 1, rows = Math.ceil(list.length / cols);
     const cell = 1;
     const yaw = deg(+(q.get('yaw') ?? 0)) + (q.has('back') ? Math.PI : 0), pitch = deg(+(q.get('pitch') ?? 0));
-    const geo = paper.object3d.getObjectByProperty('isMesh', true).geometry;
-    const P = geo.attributes.position, M = geo.morphAttributes.position;
-    const bounds = (k) => {
-      const box = new THREE.Box3(), v = new THREE.Vector3(), d = new THREE.Vector3();
-      for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i); if (k >= 0) v.add(d.fromBufferAttribute(M[k], i)); box.expandByPoint(v); }
-      return box.getBoundingSphere(new THREE.Sphere());
-    };
+    const bounds = (k) => paper.bounds(k).getBoundingSphere(new THREE.Sphere());
     const papers = [];
     for (let n = 0; n < list.length; n++) {
       const p = n === 0 ? paper : await createPaper({ portrait: PHONE, base, viewport: size, seed: 7 + n, edge });

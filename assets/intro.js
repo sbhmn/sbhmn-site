@@ -843,9 +843,9 @@ async function start() {
   }
 
   // The finale: the thing rears up and spits the paper back at you. Spit hits the screen and runs down the glass while
-  // the paper comes at the camera in stop motion (assets/intro/paper.js: the crumpled homepage, baked in Blender) and
-  // unfolds flat onto the screen, exactly where the live page sits. That sheet is the page: the page goes in under it
-  // and the sheet fades off it.
+  // the paper flies at the camera as a ball in stop motion (assets/intro/paper.js: the crumpled homepage, baked in
+  // Blender), smashes onto the screen and unfolds there, flap after flap, exactly where the live page sits. That sheet
+  // is the page: the page goes in under it and the sheet fades off it.
   async function spit() {
     const m0 = monster.position.y;
     await tween(240, (t) => {

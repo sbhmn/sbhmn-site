@@ -1,41 +1,47 @@
 # The intro's paper: a real A4 sheet, crumpled into a ball, baked as stop-motion poses (glTF morph targets).
 #
 #   "C:\Program Files\Blender Foundation\Blender 5.2\blender.exe" -b --factory-startup -P dev/models/paper.py -- [options]
-#     --seed N        the crumple and its crease network (default 11)
-#     --res R         mesh spacing in metres (default 0.0052: 1910 vertices, 3624 triangles)
+#     --seed N        the folds, the crumple and its crease network (default 11)
+#     --res R         mesh spacing in metres (default 0.0052: ~1970 vertices, ~3740 triangles)
 #     --bake-only     skip the simulation: re-pick and re-write the poses from the last run's cache (seconds)
-#     --raw N         debug: write N evenly spaced raw frames of the unfold as targets (no pose design; PAPER_RAWRANGE a:b)
+#     --raw N         debug: write N evenly spaced raw frames of the show as targets (no pose design; PAPER_RAWRANGE a:b)
 #     --net           debug: write the crease network and mesh as an SVG beside the cache, and stop
 #     --test          check the hinge gradient against finite differences and stop
 #   Environment (defaults = the shipped bake): PAPER_OUT (write elsewhere: the GLBs and the JSON go together),
-#   PAPER_CACHE (the simulation cache, default %TEMP%/sbhmn-paper-<seed>.npz), PAPER_* tuning knobs (see Sheet,
-#   crumple, bake). About a minute on a desktop CPU; deterministic (the same seed gives the same files).
+#   PAPER_CACHE (the simulation cache, default %TEMP%/sbhmn-paper-<seed>.npz), PAPER_* tuning knobs (see fold_plan,
+#   Sheet, crumple, fold_up, bake). Two or three minutes on a desktop CPU; deterministic (the same seed gives the same
+#   files on the same machine).
 #
-# Writes assets/3d/paper.glb (333 KB; mesh "paper": the flat sheet + 17 poses as morph targets + attribute _wet),
-# assets/3d/paper-ball.glb (31 KB; pose 0 alone, its visible layers only, quantized: the throw's ball) and
-# assets/3d/paper.json (names, timing, shading, sizes; its "prints" belong to dev/paper-shots.cjs and are kept).
+# Writes assets/3d/paper.glb (342 KB; mesh "paper": the flat sheet + 17 poses as morph targets + attribute _wet),
+# assets/3d/paper-ball.glb (26 KB; pose 0 alone, its visible layers only, quantized: the throw's ball) and
+# assets/3d/paper.json (names, timing, shading, sizes, the crease web; its "prints" belong to dev/paper-shots.cjs and
+# are kept).
 # Played by assets/intro/paper.js; looked at in dev/lab-paper.html.
 #
 # HOW: Blender is used for its constrained Delaunay triangulation (mathutils) and its BVH ray casts; the sheet is
-# simulated here in numpy.
-#   - The crease network first: real crumpled paper, smoothed out, shows a web of STRAIGHT crease lines (a few long ones
-#     from the first big folds, shorter ones branching off them) with flat facets between. So the mesh is built on such
-#     a web: random long lines and branches, cut into each other, as constrained edges of the triangulation.
+# simulated here in numpy. (Blender as a Python module works too: pip install bpy==5.2.2, then
+# python -c "import bpy, runpy, sys; sys.argv = ['paper.py', '--']; runpy.run_path('dev/models/paper.py', run_name='__main__')")
+#   - The folds first: the page is folded up flap by flap (edge flaps and corner flaps, each folded over behind the rest,
+#     always away from the page's middle, so the packet, and the ball, end up about its middle), tracked exactly as a
+#     flat folding, so each fold's line traces back onto the flat page: a crease segment per layer it cuts through.
+#   - The crease network: real crumpled paper, smoothed out, shows a web of STRAIGHT crease lines (the folds' lines, a
+#     few long ones, shorter ones branching off them) with flat facets between. So the mesh is built on such a web, as
+#     constrained edges of the triangulation (the folds crease cleanly along them instead of zigzagging across).
 #   - The sheet can't stretch (edge lengths held by Gauss-Seidel projection). Its hinges bend and creases are PLASTIC
 #     (bent past a yield angle, a hinge keeps its new rest angle and gets weaker). Hinges on the web's lines are weak
 #     and crease early; the facets between are stiff with a high yield: they stay flat, or crease only when forced.
 #     That gives long sharp ridges between flat panels: paper, not cloth or foil.
-#   - Crumpled by a shrinking, lumpy, turning ellipsoid (two hands) plus a pull toward the middle early on (so the
-#     inside folds too), with self-collision; then the hands loosen and the ball settles.
-#   - The bake: crumple a fresh page once (A) so the web learns its folds (mountain or valley, how deep); lay that page
-#     nearly flat (C: a crumpled page smoothed out by hand); crumple C again (B), along its creases, into the ball.
-#     B played backwards is the unfold, ending on C.
-#   - De-rotated: every frame is turned (Kabsch) to best match the next one, back from C matched to the flat sheet. So
-#     no tumble is baked in: the paper opens in place and the late poses face +z, upright; the player adds the spin.
-#   - Poses are picked along the unfold by how much the shape changes (bigger steps where it bursts open), plus four
-#     evenly timed poses through the flattening (no jump from cupped to flat); each is denoised (Taubin smoothing off
-#     the crease web: no triangle-sized buckles, creases kept sharp). Then the landing: 'slap' (creases pressed to 45%)
-#     and 'settle' (15%) on the exact flat outline; the base mesh, perfectly flat, is the last frame.
+#   - The bake: crumple a fresh page once (A: a shrinking, lumpy, turning ellipsoid, two hands, plus a pull toward the
+#     middle, with self-collision) so the web learns its folds; lay that page nearly flat (C: a crumpled page smoothed
+#     out by hand) and stick it to the glass (the screen: the plane in front of it) in the flat sheet's own place; fold
+#     it up flap by flap behind the glass (G: each flap swung over about its line, the rest held stuck); crush the
+#     packet into the ball behind the glass, touching it (B). Played backwards, G and B are the show: the ball hits the
+#     glass, spreads into the packet, the flaps open one after another, and it lies there as C.
+#   - Poses: 'ball' (B's end, centred: the flight; the player tumbles it), 'impact' (the same, in place), the smash
+#     (B backwards: picked by how much the shape changes), each flap opening in one to three poses (more for the bigger
+#     ones, a little at random: an uneven beat), 'creased' (C), 'settle' (C's creases at 15% on the exact flat outline);
+#     each denoised (Taubin smoothing off the crease web: no triangle-sized buckles, creases kept sharp). The base mesh,
+#     perfectly flat, is the last frame. Everything from 'impact' on lies in the flat sheet's own place.
 #   - _wet: how much of each point was on the ball's outside (ray casts from all round): the spit's damp patches.
 import sys, os, math, json, struct, time, tempfile
 import numpy as np
@@ -57,9 +63,10 @@ def env(k, d):
 
 
 # ----------------------------------------------------------------------------------------------- the crease network
-def crease_network(rng, n_long, n_branch, n_star):
-    """Straight segments on the sheet: n_long lines across (most of) it, n_branch shorter ones each starting on an
-    earlier segment and heading off at an angle (a crease runs until it meets another)."""
+def crease_network(rng, n_long, n_branch, n_star, first=()):
+    """Straight segments on the sheet: the given ones first (the folds' lines), n_long lines across (most of) it,
+    n_branch shorter ones each starting on an earlier segment and heading off at an angle (a crease runs until it meets
+    another)."""
     def clip(p, d):
         ts = []
         for ax, half, other in ((0, W / 2, H / 2), (1, H / 2, W / 2)):
@@ -69,7 +76,7 @@ def crease_network(rng, n_long, n_branch, n_star):
                     if abs(p[1 - ax] + t * d[1 - ax]) <= other + 1e-9:
                         ts.append(t)
         return min(ts), max(ts)
-    segs = []
+    segs = [(np.asarray(a, float), np.asarray(b, float)) for a, b in first]
     for _ in range(n_long):
         p = rng.uniform([-W * 0.4, -H * 0.4], [W * 0.4, H * 0.4])
         a = rng.uniform(0, math.pi)
@@ -253,10 +260,10 @@ def poisson_points(r, rng, seeds):
     return pts, web
 
 
-def build_mesh(r, rng):
+def build_mesh(r, rng, first=()):
     from mathutils import Vector
     from mathutils.geometry import delaunay_2d_cdt
-    segs = crease_network(rng, env('PAPER_LONG', 8), env('PAPER_BRANCH', 130), env('PAPER_STAR', 12))
+    segs = crease_network(rng, env('PAPER_LONG', 5), env('PAPER_BRANCH', 60), env('PAPER_STAR', 5), first)
     wp, we = arrange(segs, 0.9 * r, 1e-7)
     pts, web = poisson_points(r, rng, wp)
     cons = [(web[a], web[b]) for a, b in we if web[a] is not None and web[b] is not None]
@@ -473,10 +480,14 @@ class Sheet:
         pr = s.pairs(x, h) if conf.get('collide', True) else None
         s.contact[:] = False
         for it in range(iters):
+            if conf.get('drive'):
+                conf['drive'](x)
             if conf.get('on'):
                 s.confine(x, conf)
             if conf.get('zmax') is not None:
                 s.press(x, conf['zmax'])
+            if conf.get('glass') is not None:
+                np.minimum(x[:, 2], conf['glass'], out=x[:, 2])
             if pr is not None:
                 s.collide(x, pr, h)
             s.bend(x, conf.get('bend', 1.0))
@@ -523,7 +534,7 @@ def kick_field(rng, X0, amp):
 
 
 def crumple(s, frames, r_end, rng, record=False, substeps=3, log='', release=0.2, pull=0.0, kick_amp=0.05, loosen=0.0,
-            press=None):
+            press=None, ctr=None, glass=None):
     """Squeeze the sheet in a shrinking lumpy ellipsoid that turns as it goes (two hands), with an optional pull of every
     point toward the middle (so the inside folds too, not only what touches the hands), then let go (the last
     `release` part of the frames) and let it spring back a little."""
@@ -532,7 +543,7 @@ def crumple(s, frames, r_end, rng, record=False, substeps=3, log='', release=0.2
     spin = rng.uniform(1.2, 2.0)
     lumps = [(v / np.linalg.norm(v), a, w) for v, a, w in zip(rng.normal(size=(7, 3)), rng.uniform(-0.16, 0.16, 7), rng.uniform(0.15, 0.4, 7))]
     aniso0 = np.array([0.88, 1.0, 1.0])
-    ctr = s.x.mean(0)
+    ctr = s.x.mean(0) if ctr is None else np.asarray(ctr, float)
     r_start = float(np.linalg.norm(s.x - ctr, axis=1).max()) * 1.04
     kick = kick_field(rng, s.X0, kick_amp)
     t0 = time.time()
@@ -559,7 +570,7 @@ def crumple(s, frames, r_end, rng, record=False, substeps=3, log='', release=0.2
                 dv -= g * d / dist * sh.dt
             return dv
         conf = {'on': True, 'R': R, 'A': A, 'c': ctr, 'lumps': lumps if u > 0.5 else (), 'h': h, 'kick': push,
-                'grip': 0.3 if on else 0.6, 'k': 0.5 if on else 0.25}
+                'grip': 0.3 if on else 0.6, 'k': 0.5 if on else 0.25, 'glass': glass}
         if press is not None and f < press[1]:
             conf['zmax'] = press[0] + 0.12 * smooth(f / press[1], 0, 1) ** 2
         s.damp = 0.965 if on else 0.9
@@ -596,23 +607,184 @@ def lay_flat(s, th0, plast, alpha, frames=80, zmax=0.005):
     return s.x.copy()
 
 
+# ------------------------------------------------------------------------------------------------------ the folds
+def clip_poly(Q, n, c):
+    """The part of the convex polygon Q (k x 2) where q . n <= c (None if nothing is left)."""
+    out, k = [], len(Q)
+    d = Q @ n - c
+    for i in range(k):
+        j = (i + 1) % k
+        if d[i] <= 0:
+            out.append(Q[i])
+        if (d[i] <= 0) != (d[j] <= 0):
+            out.append(Q[i] + (Q[j] - Q[i]) * (d[i] / (d[i] - d[j])))
+    return np.array(out) if len(out) >= 3 else None
+
+
+def poly_area(Q):
+    if Q is None:
+        return 0.0
+    x, y = Q[:, 0], Q[:, 1]
+    return 0.5 * abs(float(np.dot(x, np.roll(y, -1)) - np.dot(y, np.roll(x, -1))))
+
+
+def fold_plan(rng, n_max, stop, margin):
+    """How the page is folded up before it is crushed into the ball: flap after flap (the part where q . n > c, q in the
+    plane of the page as it lies folded so far) folded over behind the rest, edge flaps and corner flaps, till it is
+    small enough (`stop` across). First the strips along its long edges (`margin` wide: on every print the screen
+    shows the middle ~68% of the page across, so those open off the screen; folded first, they open last, in a frame).
+    Every flap is folded away from the page's middle, so it stays put and the packet, and the ball, end up about it (it
+    smashes onto the middle of the screen). Tracked exactly as a flat folding (pieces of the page, each with the
+    reflection that takes it to where it lies now), so each fold's line can be traced back onto the flat page: one
+    crease segment per layer it cuts through. Those go into the mesh as edges, and the folds crease cleanly along them
+    (a fold across the triangles would zigzag). Returns the folds [(n, c)], how many are margins, and the segments."""
+    rect = np.array([[-W / 2, -H / 2], [W / 2, -H / 2], [W / 2, H / 2], [-W / 2, H / 2]])
+    pieces = [(rect, np.eye(2), np.zeros(2))]
+    folds, segs = [], []
+    q0 = np.zeros(2)  # where the page's middle lies now (it never moves)
+    corners = env('PAPER_CORNERS', 0.35)
+
+    def apply(n, c):
+        nonlocal pieces
+        R, t = np.eye(2) - 2 * np.outer(n, n), 2 * c * n
+        new = []
+        for p, M, b in pieces:
+            fp = p @ M.T + b
+            keep, flap = clip_poly(fp, n, c), clip_poly(fp, -n, -c)
+            if keep is not None and flap is not None:
+                d, m = fp @ n - c, len(fp)
+                hits = [fp[k] + (fp[(k + 1) % m] - fp[k]) * (d[k] / (d[k] - d[(k + 1) % m]))
+                        for k in range(m) if (d[k] <= 0) != (d[(k + 1) % m] <= 0)]
+                if len(hits) >= 2:
+                    a0, a1 = (hits[0] - b) @ M, (hits[1] - b) @ M  # back onto the page (M is orthogonal)
+                    if np.linalg.norm(a1 - a0) > 1e-4:
+                        segs.append((a0, a1))
+            if keep is not None:
+                new.append(((keep - b) @ M, M, b))
+            if flap is not None:
+                new.append(((flap - b) @ M, R @ M, R @ b + t))
+        pieces = new
+        folds.append((n, c))
+    for side in rng.permutation([1.0, -1.0]):
+        a = side * math.pi / 2 + rng.uniform(-0.035, 0.035)
+        n = np.array([math.cos(a), math.sin(a)])
+        apply(n, H / 2 * abs(n[1]) - margin)
+    n_margin = len(folds)
+    prev = None
+    for _ in range(n_max - n_margin):
+        Q = np.concatenate([p @ M.T + b for p, M, b in pieces])
+        ext = Q.max(0) - Q.min(0)
+        if ext.max() < stop:
+            break
+        for _try in range(60):
+            corner = rng.uniform() < corners
+            if corner:
+                a = int(rng.integers(4)) * math.pi / 2 + math.pi / 4 + rng.uniform(-0.3, 0.3)
+                f, amin = rng.uniform(0.2, 0.34), 0.0015
+            else:
+                a = (0.0 if ext[0] >= ext[1] else math.pi / 2) + (math.pi if rng.uniform() < 0.5 else 0.0) + rng.uniform(-0.3, 0.3)
+                f, amin = rng.uniform(0.3, 0.46), 0.004
+            if prev is not None and abs(wrap(a - prev)) < 0.4:
+                continue  # not the same fold twice running
+            n = np.array([math.cos(a), math.sin(a)])
+            pr = Q @ n
+            c = pr.max() - f * (pr.max() - pr.min())
+            if q0 @ n > c - 0.012:
+                continue  # the middle would go with the flap
+            if sum(poly_area(clip_poly(p @ M.T + b, -n, -c)) for p, M, b in pieces) >= amin:
+                break
+        else:
+            break  # no fold left that keeps the middle
+        apply(n, c)
+        prev = a
+    Q = np.concatenate([p @ M.T + b for p, M, b in pieces])
+    print(f'folds: {len(folds)} ({n_margin} margins), {len(segs)} crease segments, folded {np.ptp(Q[:, 0])*1000:.0f} x '
+          f'{np.ptp(Q[:, 1])*1000:.0f} mm, {len(pieces)} pieces', flush=True)
+    return folds, n_margin, segs
+
+
+def fold_members(P, folds):
+    """For each point of the page and each fold: is it in the flap (folded over then), and how far past the line."""
+    q = P.copy()
+    memb = np.zeros((len(P), len(folds)), bool)
+    dist = np.zeros((len(P), len(folds)))
+    for i, (n, c) in enumerate(folds):
+        d = q @ n - c
+        dist[:, i] = d
+        m = d > 1e-6
+        memb[:, i] = m
+        q[m] -= 2 * d[m, None] * n
+    return memb, dist
+
+
+def align(x, X0):
+    """x turned and moved (rigidly) to best match X0; the transform too."""
+    cx, c0 = x.mean(0), X0.mean(0)
+    R = kabsch(x - cx, X0 - c0)
+    return (x - cx) @ R.T + c0, R, cx, c0
+
+
+def fold_up(s, folds, memb, dist, zg, rng, substeps=3, log='G'):
+    """The creased page, stuck flat to the glass (it is wet; the glass is the plane z = zg in front of it, +z), folded
+    up flap by flap: each flap swung over behind the rest about its line (a door closing away from you), quickly,
+    then a moment for it to settle, the paper held to the glass all along. Returns the frames and, per fold, the frame
+    before it starts and the frame it lies folded in."""
+    out, spans = [], []
+    stick = env('PAPER_STICK', 3.0)
+
+    def push(sh):
+        dv = np.zeros_like(sh.x)
+        dv[:, 2] = stick * sh.dt
+        return dv
+
+    def frame(conf):
+        for _ in range(substeps):
+            s.step(conf)
+        out.append(s.x.copy())
+    for i, (n2, c) in enumerate(folds):
+        dur = int(rng.integers(env('PAPER_FOLD_MIN', 10), env('PAPER_FOLD_MAX', 16) + 1))
+        rest = int(rng.integers(3, 7))
+        Fm = memb[:, i]
+        w = np.clip(dist[Fm, i] / env('PAPER_HINGE', 0.006), 0, 1) ** 0.5
+        # the axis: along the fold's line where its crease lies now (the points on it, on any layer), behind the stack
+        n = np.array([n2[0], n2[1], 0.0])
+        t = np.array([-n2[1], n2[0], 0.0])
+        on = np.abs(dist[:, i]) < 0.0006
+        near = (np.abs(dist[:, i]) < 0.02) & ~Fm
+        p0 = s.x[on].mean(0) if on.any() else np.array([c * n2[0], c * n2[1], 0.0])
+        za = max(float(s.x[near, 2].min() if near.any() else s.x[~Fm, 2].min()), zg - 0.04) - 0.6 * s.h
+        p0 = np.array([p0[0], p0[1], za])
+        xs = s.x[Fm].copy()
+        # (the rest stays where it is, stuck to the glass: without that the swinging flap dragged it off, further
+        # back with every fold)
+        Rm = ~Fm
+        xr = s.x[Rm].copy()
+        hw = np.clip(np.abs(dist[Rm, i]) / 0.015, 0, 1)[:, None] * 0.15
+        f0 = len(out) - 1
+        for f in range(dur + rest):
+            u = smooth((f + 1) / dur, 0, 1)
+            Rt = rot(t, math.pi * u)
+            tgt = (xs - p0) @ Rt.T + p0
+            k = 0.3 if f < dur else 0.08
+
+            def drive(x, tgt=tgt, k=k):
+                x[Fm] += (k * w)[:, None] * (tgt - x[Fm])
+                x[Rm] += hw * (xr - x[Rm])
+            frame({'drive': drive, 'glass': zg, 'kick': push, 'h': s.h, 'grip': 0.5, 'plastic': True})
+            if f == dur - 1:
+                spans.append((f0 + 1, len(out)))  # (frames from the page: out[i] is frame i + 1)
+        print(f'{log} fold {i + 1}/{len(folds)}: {int(Fm.sum())} points, {dur} frames, z {s.x[:, 2].min()*1000:.0f}..'
+              f'{s.x[:, 2].max()*1000:.0f} mm, outline {np.ptp(s.x[:, 0])*1000:.0f} x {np.ptp(s.x[:, 1])*1000:.0f} mm, '
+              f'strain {s.strain()[0]*100:.2f}%/{s.strain()[1]*100:.1f}%', flush=True)
+    return out, spans
+
+
 # ------------------------------------------------------------------------------------------------------ analysis
 def kabsch(Pm, Q):
     """The rotation R (det +1) that best turns centred points Pm onto centred points Q: Pm @ R.T ~ Q."""
     U, S, Vt = np.linalg.svd(Pm.T @ Q)
     d = np.sign(np.linalg.det(Vt.T @ U.T))
     return Vt.T @ np.diag([1, 1, d]) @ U.T
-
-
-def derotate(frames, X0):
-    """Every frame centred and turned to best match the next one; the last (the creased page) matched to the flat sheet."""
-    out = [None] * len(frames)
-    q = X0 - X0.mean(0)
-    for i in range(len(frames) - 1, -1, -1):
-        p = frames[i] - frames[i].mean(0)
-        out[i] = p @ kabsch(p, q).T
-        q = out[i]
-    return out
 
 
 def rays_from_outside(x, F, ndir=160, grid=56):
@@ -774,10 +946,13 @@ def main():
         z = np.load(cache)
         P, F, unfold = z['P'], z['F'], list(z['unfold'].astype(np.float64))
         crease = {(int(a), int(b)) for a, b in z['C']}
+        spans, n_crumple, zg = [tuple(int(v) for v in sp) for sp in z['spans']], int(z['n_crumple']), float(z['zg'])
+        n_margin = int(z['n_margin']) if 'n_margin' in z else 0
         print(f'cache {cache}: {len(P)} vertices, {len(F)} triangles, {len(unfold)} frames', flush=True)
     else:
         rng = np.random.default_rng(o['seed'])
-        P, F, crease, segs = build_mesh(o['res'], rng)
+        folds, n_margin, fsegs = fold_plan(rng, env('PAPER_FOLDS', 10), env('PAPER_PACKET', 0.105), env('PAPER_MARGIN', 0.028))
+        P, F, crease, segs = build_mesh(o['res'], rng, fsegs)
         print(f'mesh: {len(P)} vertices, {len(F)} triangles, {len(crease)} web edges ({len(segs)} creases)', flush=True)
         if o['net']:
             svg_network(cache.replace('.npz', '.svg'), P, F, crease, segs); print('net ->', cache.replace('.npz', '.svg')); return
@@ -789,36 +964,39 @@ def main():
         s.x[:, 2] += kick_field(rng, s.X0, 0.002)[:, 2] + rng.normal(size=s.N) * 2e-4
         crumple(s, env('PAPER_FA', 220), r_end, rng, log='A', pull=pull, kick_amp=kick)
         thA, plA = s.th0.copy(), s.plast.copy()
-        # C: that page smoothed out flat: the crease network, shallow
+        # C: that page smoothed out flat: the crease network, shallow; then stuck to the glass (in the flat sheet's own
+        # place, so the frames from here on are where the sheet lands on the screen)
         xC = lay_flat(s, thA, plA, env('PAPER_ALPHA', 0.3))
+        s.x = align(xC, s.X0)[0]
+        zg = float(s.x[:, 2].max()) + 0.0005
+        stick = env('PAPER_STICK', 3.0)
+        for _ in range(20):
+            for _ in range(3):
+                s.step({'glass': zg, 'kick': lambda sh: np.c_[np.zeros((sh.N, 2)), np.full(sh.N, stick * sh.dt)], 'plastic': False})
+        s.v[:] = 0
+        xC = s.x.copy()
         print(f'C: laid flat, z range {np.ptp(xC[:, 2])*1000:.1f} mm, outline {np.ptp(xC[:, 0])*1000:.0f} x {np.ptp(xC[:, 1])*1000:.0f} mm', flush=True)
-        # B: crumple the creased page again (it folds along its creases): the frames, reversed, are the unfold
-        framesB = crumple(s, env('PAPER_FB', 260), r_end, rng, record=True, log='B', pull=pull, kick_amp=kick, press=(0.005, 36))
-        unfold = ([xC] + framesB)[::-1]
-        np.savez_compressed(cache, P=P, F=F, C=np.array(sorted(crease), np.int64).reshape(-1, 2), unfold=np.array(unfold, np.float32))
+        # G: folded up behind the glass, flap after flap; B: that packet crushed into the ball, behind the glass,
+        # touching it. Played backwards: the ball hits the glass, spreads into the packet, the flaps open one by one.
+        memb, dist = fold_members(P, folds)
+        framesG, spans = fold_up(s, folds, memb, dist, zg, rng)
+        cx, cy = s.x[:, 0].mean(), s.x[:, 1].mean()
+        framesB = crumple(s, env('PAPER_FB', 200), r_end, rng, record=True, log='B', pull=pull, kick_amp=kick,
+                          ctr=(cx, cy, zg - r_end), glass=zg)
+        n_crumple = len(framesB)
+        unfold = ([xC] + framesG + framesB)[::-1]
+        L = len(unfold)
+        spans = [(L - 1 - b, L - 1 - a) for a, b in spans[::-1]]  # unfold order: [folded, open] per flap
+        np.savez_compressed(cache, P=P, F=F, C=np.array(sorted(crease), np.int64).reshape(-1, 2), unfold=np.array(unfold, np.float32),
+                            spans=np.array(spans, np.int64).reshape(-1, 2), n_crumple=n_crumple, zg=zg, n_margin=n_margin)
         print('cache ->', cache, flush=True)
     if o['raw']:
-        al = derotate(unfold, np.c_[P, np.zeros(len(P))])
-        a, b = (int(v) for v in os.environ.get('PAPER_RAWRANGE', f'0:{len(al) - 1}').split(':'))
+        a, b = (int(v) for v in os.environ.get('PAPER_RAWRANGE', f'0:{len(unfold) - 1}').split(':'))
         sel = np.linspace(a, b, o['raw']).round().astype(int)
-        n = write_paper_glb(out, P, F, [al[i] for i in sel], [f'raw{i:03d}' for i in sel], np.zeros(len(P)))
+        n = write_paper_glb(out, P, F, [unfold[i] for i in sel], [f'raw{i:03d}' for i in sel], np.zeros(len(P)))
         print('raw frames', list(sel), '->', out, n, 'bytes')
         return
-    bake(P, F, crease, unfold, out, o['seed'])
-
-
-def pick(al, fracs, gamma):
-    """Frames (unfold order, de-rotated) -> indices at the given fractions of the total visible change. The change of a
-    step = what the eye catches (90th percentile of how far the points move) relative to the paper's size ** gamma."""
-    d = [0.0]
-    for a, b in zip(al[:-1], al[1:]):
-        size = np.linalg.norm(b, axis=1).mean()
-        d.append(float(np.percentile(np.linalg.norm(b - a, axis=1), 90)) / size ** gamma)
-    cum = np.cumsum(d); cum /= cum[-1]
-    idx = [int(np.argmin(np.abs(cum - f))) for f in fracs]
-    for i in range(1, len(idx)):  # strictly increasing
-        idx[i] = max(idx[i], idx[i - 1] + 1)
-    return idx, cum
+    bake(P, F, crease, unfold, spans, n_crumple, zg, n_margin, out, o['seed'])
 
 
 def denoise(x, sh, iters, lam=0.5, mu=-0.53):
@@ -844,33 +1022,56 @@ def denoise(x, sh, iters, lam=0.5, mu=-0.53):
             if pr is not None:
                 sh.collide(y, pr, 0.0016)
             sh.stretch(y)
-    return y - y.mean(0)
+    return y
 
 
-def bake(P, F, crease, unfold, out, seed):
+def pick_span(fr, a, b, fracs):
+    """Frames a..b -> the frames at the given fractions of the visible change from a to b (what the eye catches: the
+    90th percentile of how far the points move, frame to frame)."""
+    d = [0.0] + [float(np.percentile(np.linalg.norm(fr[i + 1] - fr[i], axis=1), 90)) for i in range(a, b)]
+    cum = np.cumsum(d)
+    cum /= max(cum[-1], 1e-12)
+    idx = [a + int(np.argmin(np.abs(cum - f))) for f in fracs]
+    for i in range(1, len(idx)):  # strictly increasing
+        idx[i] = max(idx[i], idx[i - 1] + 1)
+    return [min(b, i) for i in idx]
+
+
+def bake(P, F, crease, unfold, spans, n_crumple, zg, n_margin, out, seed):
+    """The poses, from the unfold (the ball at 0, then the crumple backwards to the folded packet, then each fold
+    backwards, flap after flap, to the creased page): 'ball' (centred: the flight), 'impact' (the same ball where it
+    hits the glass, in the sheet's place), the smash (it spreads on the glass into the packet), each flap opening in one
+    to three poses, 'creased', 'settle'. Everything from 'impact' on is in the flat sheet's own place."""
     X0 = np.c_[P, np.zeros(len(P))]
-    al = derotate(unfold, X0)
-    # The unfold, in visible change from the ball (0) to the creased page (1): bigger steps where it bursts open, finer
-    # where it eases through the middle. Then the flattening (the last stretch, seen closest: the paper is filling the
-    # screen by then) gets PAPER_TAIL poses evenly spaced in time, so the page doesn't jump from cupped to flat.
-    fr = json.loads(os.environ.get('PAPER_FRACS', '[0, 0.05, 0.13, 0.22, 0.32, 0.42, 0.52, 0.62, 0.71, 0.8]'))
-    idx, cum = pick(al, fr, env('PAPER_GAMMA', 0.3))
-    tail = env('PAPER_TAIL', 4)
-    last = len(al) - 1
-    idx += [int(round(idx[-1] + (last - idx[-1]) * (j + 1) / (tail + 1))) for j in range(tail)] + [last]
+    rng = np.random.default_rng(seed + 1)
     sh = Sheet(P, F, crease, np.random.default_rng(0))
     dn = env('PAPER_DENOISE', 10)
-    poses = [denoise(al[i], sh, dn // 3 if j == 0 else dn) if dn else al[i] for j, i in enumerate(idx)]
-    n_open = len(poses) - 2
-    names = ['ball'] + [f'open{k:02d}' for k in range(1, n_open + 1)] + ['creased']
-    xC = al[-1]
-    # The landing. Built on the exact flat outline (so the sheet's edges sit where the flat sheet's will), with the
-    # crease relief's height only: 'slap' = it hits, the creases pressed to 45%; 'settle' = 15%. (The player adds the
-    # overshoot: a touch too big and turned on the slap, back past home on the settle.)
+    poses, names, frames = [], [], []
+
+    def add(i, name, it=dn, x=None):
+        y = unfold[i] if x is None else x
+        poses.append(denoise(y, sh, it) if it else y); names.append(name); frames.append(int(i))
+        return len(poses) - 1
+    k_imp = add(0, 'impact', dn // 3)
+    c0 = poses[k_imp].mean(0)
+    poses.insert(0, poses[k_imp] - c0); names.insert(0, 'ball'); frames.insert(0, 0); k_imp = 1
+    smash = pick_span(unfold, 0, n_crumple, json.loads(os.environ.get('PAPER_SMASH', '[0.55, 1.0]')))
+    smash_k = [add(i, f'smash{j + 1}' if j < len(smash) - 1 else 'packet') for j, i in enumerate(smash)]
+    # each flap swings open in one to three poses, more for the bigger ones (they move further), a little at random:
+    # an uneven beat, one flap after another
+    flap_k = []
+    for j, (a, b) in enumerate(spans):
+        move = float(np.percentile(np.linalg.norm(unfold[b] - unfold[a], axis=1), 90))
+        m = int(np.clip((1 if move < 0.06 else 2 if move < 0.14 else 3) + rng.integers(-1, 1), 1, 3))
+        if j >= len(spans) - n_margin:
+            m = 1  # the margins: off the screen
+        fr = {1: [1.0], 2: [rng.uniform(0.62, 0.78), 1.0], 3: [rng.uniform(0.45, 0.55), rng.uniform(0.75, 0.85), 1.0]}[m]
+        flap_k.append([add(i, f'flap{j + 1}{"abc"[n]}') for n, i in enumerate(pick_span(unfold, a, b, fr))])
+    xC = unfold[-1]
+    k_cr = add(len(unfold) - 1, 'creased')
     relief = xC[:, 2] - xC[:, 2].mean()
-    slap = X0.copy(); slap[:, 2] = 0.45 * relief
     settle = X0.copy(); settle[:, 2] = 0.15 * relief
-    poses += [slap, settle]; names += ['slap', 'settle']
+    k_set = add(len(unfold) - 1, 'settle', 0, settle)
     T = len(poses)
     ball = poses[0]
     rad = np.linalg.norm(ball, axis=1)
@@ -898,54 +1099,59 @@ def bake(P, F, crease, unfold, out, seed):
     nbytes = write_paper_glb(out, P, F, poses, names, wet)
     ball_path = os.path.join(os.path.dirname(out), 'paper-ball.glb')
     bbytes, bv, bt = write_ball_glb(ball_path, ball, P, ballF)
-    # Stop motion at 12 fps, holds in frames. The ball sits in the mouth, twitches open and snaps shut (anticipation),
-    # bursts open on ones (big steps), eases through the middle on twos, flattens on ones as it reaches the screen,
-    # slaps down, settles, lies flat (-1 = the base mesh). 'short' skips poses for a ~1.4 s spit.
-    k = {name: i for i, name in enumerate(names)}
-    o = lambda i: k[f'open{i:02d}']
-    nm = len(fr) - 1  # open01 .. open<nm>: the picked part; the rest (the tail) is the flattening
-    land = [[k['creased'], 1], [k['slap'], 2], [k['settle'], 2], [-1, 3]]
-    full = ([[0, 3], [o(1), 1], [0, 2]] + [[o(i), 1] for i in range(1, 5)] + [[o(i), 2] for i in range(5, nm)]
-            + [[o(i), 1] for i in range(nm, n_open + 1)] + land)
-    short = ([[0, 1], [o(1), 1], [0, 1], [o(2), 1], [o(4), 1], [o(6), 2], [o(nm - 1), 1], [o(nm), 1]]
-             + [[o(i), 1] for i in range(nm + 2, n_open + 1, 2)] + [[k['creased'], 1], [k['slap'], 1], [k['settle'], 2], [-1, 2]])
+    # Stop motion at 12 fps, holds in frames: the ball flies at the screen (it stays a ball: 'ball', the player moves it
+    # every frame), hits the glass ('impact': the player squashes it), spreads into the packet, the flaps open one after
+    # another (on ones; now and then one holds a frame), the creased page, pressed flat, the print (-1).
+    hold = lambda: 2 if rng.uniform() < 0.2 else 1
+    full = [[0, env('PAPER_FLIGHT', 8)], [k_imp, 1]] + [[k, 1] for k in smash_k]
+    for ks in flap_k:
+        full += [[k, 1] for k in ks[:-1]] + [[ks[-1], hold()]]
+    full += [[k_cr, 1], [k_set, 1], [-1, 2]]
+    short = [[0, 6], [k_imp, 1]] + [[k, 1] for k in smash_k] + [[ks[-1], 1] for ks in flap_k] + [[k_set, 1], [-1, 2]]
     unlit = [0.0] * T
-    unlit[k['creased']] = 0.05; unlit[k['slap']] = 0.25; unlit[k['settle']] = 0.6
+    unlit[k_cr] = 0.08; unlit[k_set] = 0.6
+    creases = [int(v) for e in sorted(crease) for v in e]
     jp = out.replace('.glb', '.json')
     try:
         old = json.load(open(jp))
     except Exception:
         old = {}
+    rnd = lambda v: [round(float(a), 5) for a in v]
     info = {
         'mesh': 'paper',
-        'version': 2,
+        'version': 3,
         'targets': T,
         'names': names,
         'fps': 12,
         'sequences': {'short': short, 'full': full},
-        'landingPose': k['slap'],
+        'landingPose': k_imp,
         'unlit': unlit,
         'ballRadius': round(ball_r, 4),
-        'core': {'radius': round(core_r, 4), 'poses': [0]},
+        'core': {'radius': round(core_r, 4), 'poses': [0, k_imp], 'centres': [[0, 0, 0], rnd(c0)]},
+        'impact': {'pose': k_imp, 'centre': rnd(c0)},
+        'glass': round(zg, 5),
         'sheet': [W, H],
         'vertices': len(P),
         'triangles': len(F),
         'ball': {'file': 'paper-ball.glb', 'vertices': bv, 'triangles': bt},
         'orientation': 'Base mesh = the flat sheet, A4 landscape 0.297 x 0.21 units, centred on the origin in the XY '
                        'plane, printed side facing +Z. UV (0,0) = bottom-left, (1,1) = top-right (three.js convention, '
-                       'v up: TextureLoader with the default flipY). Morph targets = the poses, one-hot, positions only '
-                       '(flatShading): 0 = the ball ... creased, slap, settle; all influences 0 = the perfectly flat '
-                       'sheet. Poses are centred on the origin and de-rotated (no tumble baked in; the late poses face '
-                       '+Z, upright). Sequences are [pose, frames] at fps, pose -1 = the flat sheet. unlit[k]: 0 = lit '
-                       'paper, 1 = the plain print. Played by assets/intro/paper.js.',
+                       'v up: TextureLoader with the default flipY). Morph targets = the poses, one-hot, positions only: '
+                       '0 = the ball, centred (the flight); from landingPose (the impact) on, the poses are in the flat '
+                       "sheet's own place (it lands there: the glass is the plane z = glass in front of it); all "
+                       'influences 0 = the perfectly flat sheet. Sequences are [pose, frames] at fps, pose -1 = the '
+                       'flat sheet. unlit[k]: 0 = lit paper, 1 = the plain print. creases: the crease web, vertex '
+                       'pairs (sharp in the shading). Played by assets/intro/paper.js.',
+        'creases': '__CREASES__',
         'prints': old.get('prints', []),
         'seed': seed,
-        'frames': idx,
+        'frames': frames,
     }
-    with open(jp, 'w') as fh:
-        json.dump(info, fh, indent=1)
-    print(f'baked {T} poses from unfold frames {idx}: {out} ({nbytes} bytes), {ball_path} ({bbytes} bytes, {bt} of {len(F)} '
-          f'triangles), short {sum(f for _, f in short)} frames, full {sum(f for _, f in full)} frames', flush=True)
+    with open(jp, 'w') as fh:  # (the crease list on one line)
+        fh.write(json.dumps(info, indent=1).replace('"__CREASES__"', json.dumps(creases, separators=(',', ':'))))
+    print(f'baked {T} poses ({", ".join(names)}) from unfold frames {frames}: {out} ({nbytes} bytes), {ball_path} '
+          f'({bbytes} bytes, {bt} of {len(F)} triangles), short {sum(f for _, f in short)} frames, full '
+          f'{sum(f for _, f in full)} frames', flush=True)
 
 
 if __name__ == '__main__':
