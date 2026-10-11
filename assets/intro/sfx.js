@@ -1,9 +1,8 @@
 // The intro's sound effects: real recordings (all CC0, freesound.org; see assets/audio/sfx.json, dev/make-sfx.mjs and,
 // for the big wet layered ones, dev/make-sfx-wet.mjs), fetched as soon as the intro starts and decoded once the
-// visitor's first touch has unlocked audio. The wet ones: 'slurp' (1.93 s: a long rising suck that runs into the wet
-// smack as the tip goes in, at ~1.51-1.55 s, then gulps), 'splash1'-'splash3' (the tongue slapping down hard, saliva
-// splashing out; bigger and wetter than the splats) and 'goo1', 'goo2' (slimy squelches: spit strings stretching, the
-// tongue peeling off).
+// visitor's first touch has unlocked audio. 'slurp' (1.93 s: a long rising suck that runs into the wet smack as the
+// tip goes in, at ~1.51-1.55 s, then gulps) is the tongue's only sound. (Its other sounds, lick1-3, drip1-3,
+// splash1-3, goo1-2 and squeeze, are still in assets/audio, unused.)
 //
 //   const sfx = createSfx();           // starts fetching every clip
 //   sfx.attach(audioContext);          // on the first pointerdown / key (browsers need a gesture), decodes them all
@@ -14,9 +13,8 @@
 // A clip that hasn't decoded yet is simply skipped.
 import { v } from '/assets/v.js';
 const NAMES = [
-  'throw', 'paper-in', 'lid-slam', 'lid-clap', 'squeeze', 'lick1', 'lick2', 'lick3', 'slurp', 'drip1', 'drip2', 'drip3',
-  'growl', 'thud1', 'thud2', 'spit1', 'spit2', 'splat1', 'splat2', 'splat3',
-  'crinkle1', 'crinkle2', 'crinkle3', 'crinkle4', 'splash1', 'splash2', 'splash3', 'goo1', 'goo2',
+  'throw', 'paper-in', 'lid-slam', 'lid-clap', 'slurp', 'growl', 'thud1', 'thud2', 'spit1', 'spit2', 'splat1', 'splat2',
+  'splat3', 'crinkle1', 'crinkle2', 'crinkle3', 'crinkle4',
 ];
 
 export function createSfx({ base = '/assets/audio/', volume = 0.85 } = {}) {

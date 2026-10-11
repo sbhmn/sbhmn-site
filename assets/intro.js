@@ -1,10 +1,10 @@
 // The sbhmn.com intro: throw the paper in the bin. The lid slams; the camera cranes up over the bin as a tongue
-// squeezes out under the lid and licks it all round, the lid riding on it (assets/intro/tongue-model.js), and slurps
-// back in; the lid slams again. The camera comes round to the front, something rattles inside, then a black thing
-// rises and lifts the lid: red eyes, teeth. SBHMN slams into the bin letter by letter. It spits the paper back at you;
-// the paper uncrumples, stop motion, into a flat sheet that fills the screen, and that sheet becomes the page. The bin
-// is low poly, built from the logo's own proportions (assets/3d/bin.glb; 1 unit = 500 logo px, standing on y = 0, front
-// facing +z); its letters and fangs are the logo's own outlines (assets/3d/bin-letters.json,
+// pops out under the lid and swoops across its top in one lick, the lid riding on it (assets/intro/tongue-model.js),
+// and slurps back in; the lid slams again. The camera comes round to the front, something rattles inside, then a black
+// thing rises and lifts the lid: red eyes, teeth. SBHMN slams into the bin letter by letter. It spits the paper back at
+// you; the paper uncrumples, stop motion, into a flat sheet that fills the screen, and that sheet becomes the page. The
+// bin is low poly, built from the logo's own proportions (assets/3d/bin.glb; 1 unit = 500 logo px, standing on y = 0,
+// front facing +z); its letters and fangs are the logo's own outlines (assets/3d/bin-letters.json,
 // tools/art/sbhmn-site-assets.mjs in the game repo).
 import * as THREE from 'three';
 import { GLTFLoader } from '/assets/vendor/three/addons/loaders/GLTFLoader.js';
@@ -210,27 +210,18 @@ async function start() {
   // --- the tongue: the owner's rigged model by default (assets/intro/tongue-model.js), the low-poly one with
   // ?tongue=low or if the model fails. It licks the paper in, then the lid slams.
   const tongueKind = new URLSearchParams(location.search).get('tongue') === 'low' ? 'low' : 'model';
-  const LICKS = ['lick1', 'lick2', 'lick3'], DRIPS = ['drip1', 'drip2', 'drip3'], SPLASHES = ['splash1', 'splash2', 'splash3'], GOO = ['goo1', 'goo2'];
-  // The tongue's sounds. The small ones (a lick, a slap, a drop landing) sit under the big wet splashes. The slurp's
-  // clip (1.93 s) is a long rising suck that runs into a wet smack at SMACK s, then gulps: the tongue's pull in is
-  // much shorter, so the clip starts part way in, the suck under the pull, and its smack lands as the tip vanishes
-  // (info.in: how long until then; the low-poly tongue sends none: it is gone ~0.18 s after it starts its slurp). The
-  // lid then slams shut: a real slam, and the slurp fades out from just after its smack, before the gulps, so the slam
-  // punches (the slurp is mastered much louder: -13 LUFS, the slam -25; the low-poly tongue's lid slams in the show
-  // below, so there the slurp fades on its own).
+  // The tongue's sound: ONE long slurp (the owner: "just one long slurp sound"), the lick's only sound (no thunk as it
+  // pops the lid, no squelch, no slap, no knocks, no drops). The clip (1.93 s) is a long rising suck that runs into a
+  // wet smack at SMACK s, then gulps: it starts as the tongue pops out, part way in so that the suck runs under the
+  // whole swoop and its smack lands as the tip vanishes (info.in: how long until then; the low-poly tongue sends none:
+  // it is gone ~0.18 s after it starts its slurp). The lid then slams shut: a real slam, and the slurp fades out from
+  // just after its smack, before the gulps, so the slam punches (the slurp is mastered much louder: -13 LUFS, the slam
+  // -25; the low-poly tongue's lid slams in the show below, so there the slurp fades on its own).
   const SMACK = 1.53, LOW_IN = 0.18;
   let slurping = null;
   const onCue = (name, info = {}) => {
     const s = info.strength ?? 1;
-    if (name === 'pop') sfx.play('lid-clap', { gain: 0.35, rate: 1.15 });
-    else if (name === 'squeeze') sfx.play('squeeze', { gain: 0.9 });
-    else if (name === 'lick') sfx.any(LICKS, { gain: 0.3 + 0.3 * s });
-    else if (name === 'flick') sfx.any(LICKS, { gain: 0.3, rate: 1.25 });
-    else if (name === 'slap') sfx.any(['splat1', 'splat2'], { gain: 0.25 + 0.4 * s });
-    else if (name === 'splash') sfx.any(SPLASHES, { gain: 0.55 + 0.4 * s });
-    else if (name === 'goo') sfx.any(GOO, { gain: 0.4 });
-    else if (name === 'snap') sfx.any(GOO, { gain: 0.16, rate: 1.3 });
-    else if (name === 'slurp') {
+    if (name === 'slurp') {
       const h = slurping = sfx.play('slurp', { gain: 0.6, offset: Math.max(0, SMACK - (info.in ?? LOW_IN)), vary: 0.02 });
       // (its smack rings on ~0.1 s past the tip vanishing: faded from 40 ms after it, so the lid's slam right after
       // punches through it instead of landing in its tail)
@@ -241,8 +232,6 @@ async function start() {
       if (s < 0.7) sfx.play('lid-clap', { gain: 0.2 + 0.4 * s });
       else { sfx.play('lid-slam', { gain: 1.15 }); slurping?.stop(100); slurping = null; shake = Math.max(shake, 0.02); }
     }
-    else if (name === 'rattle') sfx.play('lid-clap', { gain: 0.1 + 0.22 * s, rate: 1.2 });
-    else if (name === 'splat' && info.size > 0.011) sfx.any(DRIPS, { gain: 0.14, vary: 0.15 }); // (only the bigger drops)
   };
   const tongueP = (async () => {
     const make = async (path) => (await import(path)).createTongue(THREE, { fxParent: scene, onCue });
@@ -767,14 +756,13 @@ async function start() {
     sfx.play('lid-slam'); shake = 0.06;
     monster.position.y = 0; monster.visible = true; // under the shut lid now, its head just below the rim
     if (gap) {
-      // The camera cranes up over the bin for the tongue (from the throw camera the lid's top is a sliver): one slow,
-      // gentle move, eased in and out (a sine: no lurch), starting as the slammed lid settles, so it is well up (~25
-      // degrees) by the first roll-over above the lid and settled (32) as the tongue leaves the top; it holds while the
-      // tongue flops down the front, licks the bottom, rests and slurps in, and the pan to the front starts from there
-      // the moment the lid has slammed.
+      // The camera cranes up over the bin for the tongue (from the throw camera the lid's top is a sliver): one gentle
+      // move, eased in and out (a sine: no lurch), starting as the slammed lid settles, so it is well up as the tongue
+      // lands on the top and settled (32 degrees down) just past the swoop's middle; it holds while the tongue is
+      // slurped in, and the pan to the front starts from there the moment the lid has slammed.
       phase = 'lick';
       const c0 = { pos: cam.pos.clone(), target: cam.target.clone(), fov: cam.fov };
-      tween(1650, (k) => {
+      tween(1000, (k) => {
         if (phase !== 'lick') return;
         const b = view.lick();
         cam.pos.lerpVectors(c0.pos, b.pos, k); cam.target.lerpVectors(c0.target, b.target, k); cam.fov = c0.fov + (b.fov - c0.fov) * k;
@@ -785,11 +773,10 @@ async function start() {
     pitch.rotation.x = 0;
     if (gap) {
       await wait(60); if (aborted) return;
-      // One quick take (~2.7 s): the tongue's base rides the gap round the lid's edge (out of the middle of the right
-      // side, round the front, to the left side, back round the front-left corner and on to the middle of the front),
-      // the lid riding up on it, while it licks the top (tilted licks) and rolls over above it twice, then rises off it,
-      // curls over to the left and flops down the front in one arc (never turning about its length), licks the bottom,
-      // rests, slurps in, and the lid slams. lid(p) lifts the front;
+      // One slurp (~1.2 s): the tongue pops out of the gap at the front's right part, lands on the top and swoops
+      // across it in one stroke, its base gliding along the front to its left part (faster and faster to the middle,
+      // slower and slower after it), the lid riding up on it, and is slurped back in; the lid slams. lid(p) lifts the
+      // front;
       // roll(r) tips the lid toward the tongue's side (r > 0: the right side up, pivoting on the left edge; r < 0: the
       // left side up, pivoting on the right edge). The last roll(0) leaves the pivot on the left, where the monster's
       // tipped-lid pose expects it.
@@ -881,7 +868,8 @@ async function start() {
     if (sp) {
       await sp.spit({
         camera, from: mouth, sequence: 'full',
-        onFrame: ({ slap, landed }) => { if (slap) { sfx.play('thud2', { gain: 0.45, rate: 1.3 }); shake = Math.max(shake, 0.012); } else if (!landed) sfx.any(['crinkle1', 'crinkle2', 'crinkle3', 'crinkle4'], { gain: 0.6, vary: 0.12 }); },
+        // (no crinkle on every stop-motion frame any more: a tick 12 times a second that the owner didn't like)
+        onFrame: ({ slap }) => { if (slap) { sfx.play('thud2', { gain: 0.45, rate: 1.3 }); shake = Math.max(shake, 0.012); } },
       });
       if (aborted) return;
       await wait(140); if (aborted) return;

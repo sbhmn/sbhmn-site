@@ -51,8 +51,8 @@
 //   object3d               the paper (a Group). spit() places it (position, quaternion); scale = radius / ballRadius.
 //   spit({ camera, from, sequence = 'short', spin = 1, onFrame }) -> Promise   from: a THREE.Vector3 (world).
 //                          spin: how much it tumbles out of the mouth (0 = none). onFrame({ step, pose, name, landed,
-//                          slap }) on every stop-motion frame (a crinkle sound); slap is true on the landing frame (a
-//                          thud, a camera shake). Calling spit() again restarts it.
+//                          slap }) on every stop-motion frame; slap is true on the landing frame (a thud, a camera
+//                          shake). Calling spit() again restarts it.
 //   update(dt)             steps the show; while landed, keeps the sheet on the screen. Call every frame, always.
 //   land(camera)           show the flat sheet on the screen at once (e.g. on skip, or to check the registration)
 //   setPose(k, { wet })    one-hot pose by hand: 0 = the ball ... T-1 = 'settle'; -1 = the flat sheet (base mesh).

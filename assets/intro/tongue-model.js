@@ -6,51 +6,28 @@
 // crumpled patch round its few small holes rebuilt, a stalk added at the root, skinned to a chain of 17 short bones,
 // with twin bones along the front that cup the tip).
 // The gap between the shut lid and the rim runs all round the lid's edge: it is a TRACK, and the tongue's base rides
-// it like a carriage (see TRK_SIDE). The lid has slammed shut on the paper. Then, as the owner asked, ONE quick, smooth
-// take of under 3 seconds (times at speed 1, after lick(); every move eased, no beat so short it reads as a glitch; the
-// intro cranes its camera up over the bin meanwhile, so the lid's top reads):
-//   0.04  POP: the lid's whole RIGHT edge is pushed up (shoved from inside at the middle of the right side; the lid
-//         tips up about its left edge) and rides up on the tongue as it squeezes out of the middle of the right side,
-//         a real opening with some leeway (the lid's edge ~0.15 up: the plump tongue fits through, squeezed only to
-//         about four fifths of its thickness in the gap; the pop throws the lid a little higher, ~0.18, and it knocks
-//         back down onto the tongue at 0.27), up the lid's edge and over onto its TOP, its front held up off it,
-//         feeling the air,
-//   0.30  and slaps down on it (a small splash): it lies on the top, its top up (the groove, the taste buds), licking,
-//         round and plump, a little wider there than anywhere else ('wide').
-//  0.30-1.44  LICKS THE TOP, its base gliding along the track under it from the right side round the front to the left
-//         side and back round the front-left corner, the lid riding on it and rocking over as it goes (a roll on a side,
-//         a pitch across the front's middle, a blend round a corner; lying on the top, its heading swings round a
-//         corner after its base, not with it). A ROLL-OVER above the lid (0.34-0.66), its base at the middle of the
-//         right side, lying across the top to the left: its front peels up off the top (strings of spit stretching and
-//         snapping), rises ~0.2 above it and rolls over about its length in the air (the turn spread smoothly along its
-//         front half: its pink top turns to face you, then its underside comes up), rolls back as it falls and slaps
-//         back down like a weight, squashed a little for an instant: a BIG SPLASH (0.66: milky drops of mixed sizes,
-//         many of them fat, thrown up well above the lid and raining back down onto it and the floor for half a second,
-//         and a fast fan of fine spray streaking wide; glossy wet spots left on the lid where they land and where it
-//         lay, a soft glint sliding over each as they dry; drool running down over its front edge, a fat bead at its
-//         foot that drips off, leaving a wet streak). Its base comes round to the FRONT-RIGHT CORNER (0.42-0.74) for a
-//         TILTED LICK (0.70-0.88), like a real tongue's: lying diagonally across the top toward the back-left, seen side
-//         on from the camera, banked onto its near edge (20-35 degrees at the front, its top turned toward you), its
-//         tip curled down into the top, it drags across it like a windscreen wiper, swinging further left, and lifts
-//         its front off (0.88), its base easing off along the front meanwhile. Still lifted, it is carried along the
-//         front as its base slides to the LEFT side (0.74-1.28, slowing round the front-left corner), and rolls over
-//         again there (0.98-1.28), lying across the top to the right: another BIG SPLASH (1.28). Its base glides back
-//         round the front-left corner: a last TILTED LICK (1.30-1.44), banked the other way (20-35 degrees), across the
-//         top's left part, dragging its tip back toward the edge. Wherever it lies licking, it leaves the lid wet.
-//  1.44-1.62  it COMES OFF THE TOP at the front's left end: its front peels up and it rises off the top, drawing in a
-//         little, till it leans up over the lid's front edge, its top to you;
-//  1.62-1.90  it FLOPS FORWARD and DOWN the front in one arc, its tip leading (falling, not lying along the gap first),
-//         swinging a little to the left (it never turns about its length: its faces keep their way, so as it falls
-//         forward over the edge its top comes onto the bin and its underside faces you: as wet and glossy as its top,
-//         a soft pink with a fold down its middle and two faint bluish veins) and slaps onto the bin's front, its tip
-//         down by the base (1.88),
-//  1.90-1.96  and LICKS THE BOTTOM: one sweep across the bottom of the bin's front, its tip laid flat on it, as its
-//         base slides to the middle (from standing over the edge to the end of this lick: 0.34 s);
-//  2.02-2.20  it draws up and RESTS in the MIDDLE of the front, a beat, its tip curling up and out toward you (the
-//         taste buds of its top showing at the tip), the lid's front edge held up as high as on the sides;
-//  2.20-2.58  it SLURPS back in through the gap in one steady pull, faster and faster, the lid settling down onto it
-//         (only in its last ~0.1 s) and bumping on it; the tip vanishes at 2.58 (the slurp's wet smack), and the lid,
-//         let go, SLAMS shut (2.67), bounces once and lies still. The promise resolves at ~2.69.
+// it like a carriage (see TRK_SIDE). The lid has slammed shut on the paper. Then, as the owner asked, ONE slurp: one
+// swoop across the top, faster and faster to its middle and slower and slower after it, never slowing on the way,
+// and slurped back in (times at speed 1, after lick(); every move eased; the intro cranes its camera up over the bin
+// meanwhile, so the lid's top reads):
+//   0.04  POP: the lid's front edge is pushed up on its right part (shoved from inside) and rides up on the tongue
+//         as it squeezes out there, a real opening with some leeway (the lid's edge ~0.15 up: the plump tongue fits
+//         through, squeezed only to about four fifths of its thickness in the gap; the pop throws the lid a little
+//         higher and it knocks back down onto the tongue at 0.27), up the lid's edge and over onto its TOP, reaching
+//         back toward the right corner, its front held up off it, feeling the air,
+//   0.30  and lands on it (a small splash), already moving: it lies on the top, its top up (the groove, the taste
+//         buds), round and plump, a little wider there than anywhere else ('wide').
+//  0.16-1.06  THE SWOOP: its base glides along the front from its right part to its left part (0.2 either side of the
+//         middle) in one run, its speed rising and falling as a half sine (fastest at the front's middle, ~0.6 in), the
+//         lid riding on it. It lies across the top like a wiper, swinging from reaching toward the right corner to
+//         reaching toward the left one in step with its base, so its tip sweeps across the top in one wide, even arc
+//         (~1.9 units/s at its fastest), its tip curled down into the top. It stays on the front: round a corner the
+//         fold over the lid's edge has to swing a quarter turn with the gap, and a swoop round the corners lurched at
+//         each one. It leaves the lid wet, drool running down over its front edge behind it.
+//  0.56-1.04  as the swoop slows it is SLURPED back in through the gap at the front's left part, in one pull, faster and
+//         faster, the lid settling down onto it and bumping on it; the tip vanishes at 1.04 (the slurp's wet smack)
+//         as the base stops, and the lid, let go, SLAMS shut (1.12), bounces once and lies still. The promise resolves
+//         at ~1.17.
 // It is short and fat, not a hose: at most 0.7 of it is ever out (0.77 would be all of it but the stalk; on the top a
 // good 0.2 of that is folded over the lid's edge), and it stretches a little to reach down the bin's front.
 // It is ROUND and PLUMP everywhere out of the gap: the full volume of the sculpt, its rounded top and edges; it is
@@ -124,7 +101,7 @@
 //   await tongue.lick({
 //     lid: (p) => { pitch.rotation.x = p; },
 //     roll: (r) => { const px = r < 0 ? 0.51 : -0.51; roll.position.x = px; lidMesh.position.x = -px; roll.rotation.z = r; },
-//   });                                         // ~2.7 s at speed 1 (don't open the lid yourself)
+//   });                                         // ~1.2 s at speed 1 (don't open the lid yourself)
 //   // the lid is shut again (the last lid() call was exactly 0, and the last roll() 0: its pivot back on the left
 //   // edge): carry on
 // `const tongue = await createTongue(...)` works too (it is not a promise; await just hands it back).
@@ -137,10 +114,9 @@
 // the dark there; the hidden part runs in from wherever it comes out, between straight in and toward the bin's
 // middle, down the inside of that wall and back along the bottom, narrow, within the intro's black monster block) and
 // comes out only through the gap, anywhere along the track: out of the right side, the front or the left side
-// (sideways out of a side, at a diagonal round a corner), straight or at a slant. It reaches (measured every 1/60 s)
-// ~0.58 above the rim (its front lifted, rolling over), ~0.11 past the rim's left side (rolling over at the left side;
-// ~0.10 past the right one, in the first tilted lick), ~0.44 in front of the rim (flopping forward in front of the
-// bin), and down the bin's front to just above the base (0.47 below the rim); mirrored, the other way round.
+// (sideways out of a side, at a diagonal round a corner), straight or at a slant (the lick uses the front only). It
+// reaches (measured every 1/60 s) ~0.42 above the rim (lying on the lid's top, the lid held up), 0.46 to either side of
+// the middle (never past the rim's sides, at +-0.554) and ~0.12 in front of the rim (folded over the lid's front edge).
 // Hidden until lick(); hidden again when it resolves.
 //
 // createTongue(THREE, opts):
@@ -156,29 +132,20 @@
 //                              time) for it, then gives up (the promise resolves, nothing shows, lid() is never called)
 //   onCue    (name, info) => {} for sounds. Times in seconds after lick() at speed 1 (measured at 60 fps, +-1 frame; at
 //                              speed s divide by s):
-//                              'pop'      0.05             the lid's right side is shoved up from inside (a thunk)
+//                              'pop'      0.05             the lid's front edge is shoved up from inside, on its
+//                                                      right part (a thunk)
+//                              'slurp'    { in } 0.05  the one long slurp: it pops out, swoops across the top and is
+//                                                      sucked back in; in: seconds (at the lick's speed) until the tip
+//                                                      vanishes (0.99 at speed 1: put a clip's smack there)
 //                              'squeeze'  0.08             the tongue squeezes out through the gap (a squelch)
-//                              'slap'     { strength } it lands on something, lightly: 0.30 (0.6: onto the lid's top),
-//                                                      1.88 (0.8: onto the bin's front, as it flops down it)
-//                              'splash'   { strength } it slaps back down on the top after a roll-over, hard, spit
-//                                                      flying: 0.67 (1), 1.28 (1)
-//                              'lick'     { strength } a stroke: across the top 0.38 (0.7), 0.78 (0.6, the first
-//                                                      tilted lick), 1.37 (0.5, the last); across the bottom 1.95 (0.9)
-//                              'goo'                   its front peels up off the top, strings of spit stretching:
-//                                                      0.38, 1.03, 1.48
-//                              'flick'    1.65, 2.08   it stands over the lid's front edge and curls over to the left;
-//                                                      the tip curls (resting)
-//                              'slurp'    { in } 2.22  sucked back in through the gap; in: seconds (at the lick's
-//                                                      speed) until the tip vanishes (0.36 at speed 1: put a clip's
-//                                                      smack there)
-//                              'clap'     { strength } the lid lands on the rim: 2.67 (1: it slams shut) and once more
-//                                                      after its bounce, 2.70 (0.39)
+//                              'slap'     { strength } 0.30 (0.6): it lands on the lid's top, lightly
+//                              'clap'     { strength } the lid lands on the rim: 1.12 (1: it slams shut) and once more
+//                                                      after its bounce, 1.17 (0.39)
 //                              'rattle'   { strength } the lid knocks back down on the tongue after a jolt threw it up:
-//                                                      0.27 (0.43: the pop threw it up), 0.50 (0.37), 1.13 (0.37),
-//                                                      1.62 (0.37)
+//                                                      0.27 (0.43: the pop threw it up), 0.77 (0.34)
 //                                                      (only real knocks: weaker ones, < 0.3, any within 0.22 s of the
 //                                                      last, and any during the pop, are not sent)
-//                              'snap'                  a string of spit breaks (~6 a lick; at most one per 0.12 s)
+//                              'snap'                  a string of spit breaks (~4 a lick; at most one per 0.12 s)
 //                              'splat'    { x, y, z, size } (fx space) a drop lands; at most one per 60 ms
 //                              Errors thrown by the hook are swallowed.
 // returns {
@@ -202,10 +169,10 @@
 //                              and is kept out of it). Pass it to see the right side pop up first and the lid rock
 //                              round with the tongue. Or read tongue.lidRoll.
 //                              speed: playback rate. mirror: left and right swapped (exact; the roll too: it comes out
-//                              of the left side and goes round to the right).
+//                              on the front's left part and swoops to the right).
 //                              mode: 'gap' (the only staging; anything else is treated as 'gap'). Called while busy:
 //                              returns the running lick's promise. Resolves once the lid has slammed shut and settled
-//                              (~2.69 s at speed 1).
+//                              (~1.17 s at speed 1).
 //   lidPitch, lidRoll          (getters) the lid pitch / roll it wants now (0 when idle; lidRoll stays 0 unless lick()
 //                              got roll)
 //   update(dt)                 dt clamped to 0.05; frame-rate independent (springs and the lid stepped at 240 Hz)
@@ -333,147 +300,81 @@ function trackAt(trk, tk) {
 // ta and every sideways number change sign.)
 const OUT_MAX = 0.7;
 const HIDDEN = { out: 0, reach: 1, push: 0, trk: 0, exit: 0, bend: 0, turn: 0, dpos: 0.05, dsig: 0.035, arch: 0, curl: 0, yaw: 0, hook: 0, roll: 0, wave: 0, ws: 1.6, cup: 0.15, stick: 0, over: 0, opos: 0.24, osig: 0.06, flat: 1, wl: 0, wf: 0, ta: 0, hd: 0, kc: 0, fd: 0, fk: 0, twist: 0, ttw: 0, aim: 0, lift: 0, spin: 0, wide: 0, flip: 1 };
-const R_MID = TRK_SIDE; // the middle of the right side
-const L_SIDE = -0.66, L_FRONT = -0.26; // on the left side, near its front; the front, near its left end
-const R_CORNER = 0.47; // round the front-right corner
+// THE SWOOP runs along the front: its base from SW_K (the front's right part, well short of the corner, where the way
+// out of the gap starts to turn round it, at TRK_FX - TRK_EASE) to -SW_K. (Round a corner the gap's way out turns a
+// quarter turn in a few hundredths of a unit: the fold over the edge has to swing round with it, so a swoop round the
+// corners lurched at each one, however its heading was set.) Lying across the top it heads SWING (radians) toward the
+// right corner as it comes out and as far toward the left one as it goes in, swinging across in step with its base
+// (see buildTracks): a wiper's fan, its tip sweeping across most of the top (with its base nearer a corner, or swung
+// further, the plump tongue hung over the lid's side)
+const SW_K = 0.2, SWING = 0.45;
 // How high it holds the lid's edge up where it comes out (push): a real opening, so the plump tongue plausibly fits
 // through it with some leeway, squeezed only to about four fifths of its thickness (the lid riding up on it with its
 // weight; at 0.115 it was squeezed to about three fifths and the lid looked clamped down on it)
 const PUSH = 0.15;
-// The beats (seconds at speed 1): T_POP the lid's right edge pops up; TA it lands on the top (the first slap); P1, P2
-// a roll-over starts (its front peels up), TB, TC it slaps back down (the big splashes); TL it peels off the top for
-// good (at the front's left end) and rises; TR it stands up over the lid's front edge, its top to you; TD it is
-// flopping forward and down the bin's front; TE its tip is down by the bin's base (a slap; the sweep across the
-// bottom); TS it rests in the middle; TP the slurp starts; TV the tip vanishes into the gap (the slurp's wet smack)
-const T_POP = 0.04, TA = 0.3, P1 = 0.34, TB = 0.66, P2 = 0.98, TC = 1.28, TL = 1.44, TR = 1.62, TD = 1.7, TE = 1.9, TS = 2.02, TP = 2.2, TV = 2.58;
+// The beats (seconds at speed 1): T_POP the lid's front edge pops up on its right part; TA it lands on the top;
+// SW0..SW1 THE SWOOP, its base gliding along the front from right to left in one run (see PACE:
+// faster and faster to the front's middle, slower and slower after it); TP the pull in starts, as the swoop slows; TV
+// the tip vanishes into the gap (the slurp's wet smack) as the base stops
+const T_POP = 0.04, TA = 0.3, SW0 = 0.16, SW1 = 1.06, TP = 0.56, TV = 1.04;
 const T_SLAM = TV + 0.005, SLAM_G = 2.6; // after T_SLAM (the tongue in) the lid falls SLAM_G times as hard: it slams
 const T_END = TV + 0.08; // (the lid has slammed and bounced by then; lick() resolves as it settles)
-// A ROLL-OVER on the top, from t0 to t1: it peels its front up off the top (strings of spit stretching), and as it
-// rises its front rolls over about its length in the air above the lid, w radians (its edge, then its underside comes
-// up), heading a (see ta); then it falls back onto the top like a weight let go at its highest, rolling back flat as it
-// comes down: it lands at speed, a slap, a big splash, squashed a little flatter and broader by the blow for an instant
-const rollOver = (t0, t1, w, a) => {
-  const D = t1 - t0;
-  return [
-    [t0 + 0.3 * D, { lift: 0.11, spin: 0.4 * w, curl: -0.1, ta: a }],
-    [t0 + 0.58 * D, { lift: 0.2, spin: w, curl: -0.2 }],
-    [t0 + 0.84 * D, { spin: 0.35 * w }],
-    [t1, { lift: [0, HIT], spin: 0, curl: -0.05, ta: a, flat: 0.8, wide: 1 }],
-    [t1 + 0.03, { flat: 0.68, wide: 1.3 }],
-    [t1 + 0.12, { flat: 0.86, wide: 1 }],
-  ];
-};
-// A TILTED LICK across the top, from t0 to t1, banked b radians onto one edge (like a real tongue licking: it comes at
-// the surface at an angle, its front held a little up off it, the tip curled down into it, dragged across and lifted
-// off), heading from a0 to a1 (ta); its front left lifted e at the end (0: lying on the top again). sp: how much of the
-// bank is spin (past the fold, the fold staying flat on the lid's edge), the rest twist (from the gap)
-const tiltLick = (t0, t1, b, a0, a1, e = 0, sp = 0.4) => {
-  const D = t1 - t0, tw = 1.15 - sp;
-  return [
-    [t0, { twist: 0, spin: 0, lift: 0, curl: 0.2, ta: a0 }],
-    [t0 + 0.3 * D, { twist: tw * b, spin: sp * b, lift: 0.05, curl: -0.45 }],
-    [t0 + 0.75 * D, { twist: tw * b, spin: sp * b, lift: 0.04, curl: -0.4 }],
-    [t1, { twist: 0, spin: 0, lift: e, curl: 0.2, ta: a1 }],
-  ];
-};
+const SW_MID = (SW0 + SW1) / 2; // the swoop's fastest moment: its base at the front's middle
+// when the base passes trk k on its run (see PACE)
+const passes = (k) => SW0 + (SW1 - SW0) * Math.acos(Math.max(-1, Math.min(1, k / SW_K))) / Math.PI;
 const POSES = [
-  [0, { ...HIDDEN, trk: R_MID, wl: 1, ta: 0.1, flat: 0.9, cup: 0.3 }],
+  [0, { ...HIDDEN, trk: SW_K, wl: 1, ta: 0, flat: 0.9, cup: 0.3 }],
   [T_POP - 0.01, { push: 0, out: 0 }],
-  // POP: shoved up from inside at the middle of the RIGHT side: the lid's whole right edge lifts, and rides up on the
-  // tongue as it squeezes out (pushed up by it, with its weight: not flung open)
+  // POP: shoved up from inside at the front, on its right part: the lid's front edge lifts there, and rides up on
+  // the tongue as it squeezes out (pushed up by it, with its weight: not flung open)
   [T_POP + 0.05, { push: 0.6 * PUSH, out: 0.03 }],
-  // SLIDES OUT of the middle of the right side, squeezed through the gap, up the lid's edge and over onto its top,
-  // its front held up off it, feeling the air...
+  // SLIDES OUT, squeezed through the gap, up the lid's edge and over onto its top, reaching back toward the right
+  // corner, its front held up off it, feeling the air...
   [0.18, { out: 0.34, lift: 0.11, curl: -0.45, reach: 1.04, push: PUSH }],
   [0.24, { out: 0.46, lift: 0.12, curl: -0.25 }],
-  // ...and SLAPS DOWN onto the top: it lies on it, its top up, licking, a little wider there
-  [TA, { out: 0.56, reach: 1.1, lift: [0, HIT], curl: 0.1, cup: 0.25, flat: 0.8, wide: 1.2, push: PUSH, ta: 0.1 }],
+  // ...and lands on the top, already moving: it lies on it, its top up, a little wider there
+  [TA, { out: 0.56, reach: 1.1, lift: [0, HIT], curl: 0.1, cup: 0.25, flat: 0.8, wide: 1.2, push: PUSH, ta: 0, ttw: 0 }],
   [TA + 0.06, { flat: 0.86, wide: 1 }],
-  // LICKS THE TOP, its base gliding along the track under it (from the right side round the front to the left side:
-  // see PACE), the lid riding on it. It lies ACROSS the top as it rolls over (from the camera, a roll about a length
-  // pointing away would be a fin): a stroke...
-  [P1, { ta: 0.25, out: 0.66, reach: 1.14, lift: 0, spin: 0, aim: 0 }],
-  [P1 + 0.1, { out: OUT_MAX }],
-  // ...at once a ROLL-OVER above the lid, lying across it to the left from the right side (its base still there: it
-  // lands on the top, in the middle of the camera's view of it)...
-  ...rollOver(P1, TB, -3.0, 0.25),
-  // ...its base waits at the front-right corner for a greedy tilted lick: lying diagonally across the top toward the
-  // back-left (side on to the camera: from the front's middle it would only show the fold, a lump), banked onto its
-  // near edge, its top turned toward you, its tip curled down into the top, it drags across it like a windscreen
-  // wiper, swinging further left, and lifts its front off; still lifted, it is carried along the front...
-  ...tiltLick(TB + 0.04, 0.88, -0.55, 0.15, 0.55, 0.07, 0.9),
-  [0.9, { out: OUT_MAX }],
-  // ...another ROLL-OVER, lying across to the right as its base comes to the LEFT side (slowing round the front-left
-  // corner: rounding it fast as it rose, the fold jolted)...
-  ...rollOver(P2, TC, 3.0, 0.0),
-  // ...and as its base glides back round the front-left corner, a last tilted lick, banked the other way, across the
-  // top's left part (its free pose keyed meanwhile as it lies there: up the lid's edge and over the top, for the
-  // hand-over to the air)
-  ...tiltLick(TC + 0.02, TL, -0.85, 0.05, 0, 0.05),
-  [TL, { spin: 0, wl: 1, wf: 0, out: 0.6, reach: 1.12, flat: 0.86, wide: 1, bend: 1.5, dpos: 0.05, dsig: 0.04, over: 1.1, opos: 0.22, osig: 0.07, arch: 0.5, push: PUSH, turn: 0, yaw: 0 }],
-  // COMES OFF THE TOP at the front's left end and DOWN THE FRONT, in one arc, its faces keeping their way (no roll: it
-  // never turns about its length): its front peels up off the top and it rises off it, drawing in a little, up over
-  // the lid's front edge till it leans up over it, its top to you (not too tall: standing straight up over the edge,
-  // its root read as a big lump)...
-  [TL + 0.02, { wl: 1 }],
-  [TL + 0.1, { curl: 0, bend: 1.1, dpos: 0.13, dsig: 0.06, over: 0.3, arch: 0.05, yaw: 0 }],
-  [TL + 0.14, { lift: 0.12 }],
-  [TL + 0.2, { wl: 0, wide: 0, flat: 1 }],
-  [TR, { bend: 0.85, dpos: 0.12, over: 0.05, arch: -0.1, yaw: -0.3, turn: -0.35, out: 0.44, reach: 1.02, push: PUSH }],
-  // ...and flops forward and down over the edge in one arc, onto the bin's front (a slap), swinging a little to the
-  // left, its tip leading the fall (a second bend further out, down: 'over'), so it never lies along the gap on the
-  // way (curled over to the left at the gap's height first, it lay there as a flat slab for a tenth of a second): it
-  // hangs down the front, its top on it, its underside out to you, licking it...
-  [TD, { bend: -0.25, dpos: 0.1, over: -0.45, arch: -0.45, yaw: -0.45, turn: -0.55, out: 0.43, reach: 1.03, curl: 0, wf: 0 }],
-  [TD + 0.1, { bend: -1.05, over: -0.35, arch: -0.55, yaw: -0.55, turn: -0.75, out: 0.47 }],
-  [TE, { wf: 1, bend: -1.3, dpos: 0.05, dsig: 0.04, over: 0, opos: 0.24, arch: -0.6, yaw: -0.8, turn: -1.15, out: 0.54, reach: 1.12, flat: 0.86, push: PUSH, fd: 0.3, curl: 0.05 }],
-  // ...and LICKS THE BOTTOM: one sweep across the bottom of the bin's front, its tip laid flat on it (not curled out:
-  // there the sculpt's tip folded into a ledge across it), as its base slides to the middle
-  [TE + 0.06, { fd: -0.15, curl: 0, ttw: 0.25, out: 0.54, reach: 1.12 }],
-  // it draws up and comes to rest in the MIDDLE of the front, a beat, the tip curling up and out toward you
-  [TS, { out: 0.45, reach: 1.06, fd: -0.06, curl: -0.3, cup: 0.2, ttw: 0, push: PUSH, wf: 1 }],
-  [TS + 0.08, { curl: -1.35 }],
-  [TS + 0.13, { curl: -1.3 }],
-  // SLURPS back in through the gap: one steady pull, faster and faster, the lid settling on it as it thins; the tip
-  // vanishes at TV, at speed
-  [TP, { out: 0.45, curl: -0.5, cup: 0.2, push: PUSH, wf: 1 }],
-  [TV - 0.1, { curl: 0, push: PUSH * 0.75 }],
-  [TV, { out: [0, HIT], push: PUSH * 0.4, wf: 1 }],
-  [TV + 0.03, { push: 0, wf: 0 }],
-  [T_END, { ...HIDDEN, trk: 0 }],
+  // THE SWOOP: one lick across the top, its base gliding along the front from its right part to its left part, the
+  // lid riding on it as it goes. It lies across the top like a wiper, swinging from reaching toward the right corner
+  // to reaching toward the left one, so its tip sweeps across the top in one wide arc, faster than its base, its tip
+  // curled down into the top...
+  [TA + 0.2, { out: OUT_MAX, reach: 1.14, curl: 0.05 }],
+  [SW_MID - 0.2, { curl: -0.1, ttw: -0.1 }],
+  [SW_MID, { curl: -0.14 }],
+  [SW_MID + 0.12, { ttw: 0.1 }],
+  [TP + 0.08, { curl: 0, ttw: 0, out: OUT_MAX - 0.04, reach: 1.12, push: PUSH }],
+  // ...and as it slows it is SLURPED back in through the gap at the front's left part: one pull, faster and faster, sliding
+  // back across the top, over the edge and in, the lid settling on it as it thins; the tip vanishes at TV, at speed,
+  // as the base stops
+  [TV - 0.12, { curl: 0.15, reach: 1.05, push: PUSH * 0.8 }],
+  [TV, { out: [0, HIT], push: PUSH * 0.4, wl: 1 }],
+  [TV + 0.03, { push: 0 }],
+  [T_END, { ...HIDDEN, trk: -SW_K }],
 ];
-// The base's way round the track (trk): it stays at the middle of the right side through the first roll-over, glides
-// round the front-right corner and waits there for the first tilted lick, then along the front to the left side,
-// arriving as the second roll-over lands, back round the front-left corner for the last tilted lick, and along the
-// front to the middle as it licks the bottom; each run easing in and out, slower round the corners (its way turns
-// there). [t0, t1, from, to]
-const PACE = [[0.42, 0.74, R_MID, R_CORNER], [0.74, 1.28, R_CORNER, L_SIDE], [TC + 0.02, TL + 0.12, L_SIDE, L_FRONT], [TE - 0.08, TE + 0.06, L_FRONT, 0]];
-// sounds (see the header). 'slurp' gets { in }: seconds (at the lick's speed) until the tip vanishes
-const CUES = [
-  [T_POP, 'pop'], [T_POP + 0.03, 'squeeze'],
-  [TA, 'slap', { strength: 0.6 }], [TA + 0.08, 'lick', { strength: 0.7 }],
-  [P1 + 0.04, 'goo'], [TB, 'splash', { strength: 1 }], [TB + 0.12, 'lick', { strength: 0.6 }],
-  [P2 + 0.04, 'goo'], [TC, 'splash', { strength: 1 }], [TC + 0.08, 'lick', { strength: 0.5 }],
-  [TL + 0.04, 'goo'], [TR + 0.02, 'flick'], [TE - 0.03, 'slap', { strength: 0.8 }], [TE + 0.04, 'lick', { strength: 0.9 }],
-  [TS + 0.05, 'flick'], [TP, 'slurp'],
-];
+// The base's way along the track (trk): one run, from SW_K on the front's right part to -SW_K on its left part, its
+// speed rising and falling as a half sine (nothing at the ends, ~1.6 times its average at the front's middle).
+// [t0, t1, from, to]
+const PACE = [[SW0, SW1, SW_K, -SW_K]];
+// sounds (see the header). 'slurp' gets { in }: seconds (at the lick's speed) until the tip vanishes: one long slurp,
+// from the pop to the tip going in
+const CUES = [[T_POP, 'pop'], [T_POP + 0.01, 'slurp'], [T_POP + 0.03, 'squeeze'], [TA, 'slap', { strength: 0.6 }]];
 // kicks: the tongue heaves up in the gap for an instant (time, how high it throws the lid's edge above where it holds
-// it, how long the jolt lasts): the lid hops, flies and lands back on it (a 'rattle'): as it pops the lid, as it
-// heaves its front up off the top, as it rises off it, as it is slurped in
-const KICKS = [[T_POP, 0.018, 0.06], [P1 + 0.04, 0.022, 0.05], [P2 + 0.04, 0.022, 0.05], [TL + 0.06, 0.025, 0.06], [TP + 0.18, 0.018, 0.05], [TV - 0.08, 0.026, 0.05]];
+// it, how long the jolt lasts): the lid hops, flies and lands back on it (a 'rattle'): as it pops the lid, as it is
+// slurped in
+const KICKS = [[T_POP, 0.018, 0.06], [TP + 0.1, 0.018, 0.05], [TV - 0.08, 0.026, 0.05]];
 // spit (time, how many, from where, how hard): squirted out of the gap beside the tongue as it squeezes and as it is
-// slurped in, flung off the tip as it flops over, a SPLASH as it slaps down (see splashBurst)
-const BURSTS = [[T_POP + 0.04, 3, 'gap'], [TA, 0, 'splash', 0.45], [TB, 0, 'splash', 1], [TC, 0, 'splash', 1],
-  [TR + 0.04, 2, 'tip'], [TE - 0.03, 0, 'splash', 0.6], [TP + 0.12, 2, 'gap'], [TV - 0.15, 3, 'gap'], [TV - 0.03, 3, 'gap']];
+// slurped in, a splash as it lands on the top (see splashBurst)
+const BURSTS = [[T_POP + 0.04, 3, 'gap'], [TA, 0, 'splash', 0.45], [TP + 0.08, 2, 'gap'], [TV - 0.15, 3, 'gap'], [TV - 0.03, 3, 'gap']];
 // strings of spit across the gap, from the rim to the lid's edge, beside the tongue (time, side): the lid pops and
 // they stretch and snap
 const STRINGS = [[T_POP + 0.01, -1], [T_POP + 0.02, 1]];
 // it peels its front off the top (time, how many strings): strings of spit from its face to the lid stretch as it
-// rises, and snap
-const PEELS = [[P1 + 0.03, 3], [P2 + 0.03, 3], [TL + 0.04, 2]];
-// drool runs down over the lid's front edge, near where it licked (time, where along the track: the front is
-// |trk| < TRK_FX, a front corner beyond it)
-const RUNS = [[TA + 0.2, 0.42], [TB + 0.06, 0.3], [TC + 0.04, -0.3], [TL + 0.06, -0.15]];
+// rises, and snap (the swoop never peels it off the top: none)
+const PEELS = [];
+// drool runs down over the lid's front edge where it licked, just after its base went by (time, where along the
+// track: the front is |trk| < TRK_FX)
+const RUNS = [0.18, -0.03, -0.2].map((k) => [passes(k) + 0.04, k]);
 
 let TRACKS = null; // (built once the module's constants are all defined)
 
@@ -691,7 +592,7 @@ export function createTongue(THREE, opts = {}) {
   let tgtFP, tgtFY, tgtFR, angFP, angFY, angFR, velFP, velFY, velFR; // (the free pose, sprung on its own)
   let contact, wasContact, cpt, cnr, conLid, cType;
   let tipPin = null, EMIT = [], emitPrev = [], emitAcc = new Float32Array(0);
-  const par = { out: 0, reach: 1, push: 0, trk: 0, exit: 0, bend: 0, turn: 0, dpos: 0.06, dsig: 0.05, arch: 0, curl: 0, yaw: 0, hook: 0, roll: 0, wave: 0, ws: 0, cup: 0, stick: 0, over: 0, opos: 0.3, osig: 0.06, flat: 1, wl: 0, wf: 0, ta: 0, hd: 0, kc: 0, fd: 0, fk: 0, twist: 0, ttw: 0, aim: 0, lift: 0, spin: 0, wide: 0, flip: 1, wlag: 0 };
+  const par = { out: 0, reach: 1, push: 0, trk: 0, exit: 0, bend: 0, turn: 0, dpos: 0.06, dsig: 0.05, arch: 0, curl: 0, yaw: 0, hook: 0, roll: 0, wave: 0, ws: 0, cup: 0, stick: 0, over: 0, opos: 0.3, osig: 0.06, flat: 1, wl: 0, wf: 0, ta: 0, hd: 0, kc: 0, fd: 0, fk: 0, twist: 0, ttw: 0, aim: 0, lift: 0, spin: 0, wide: 0, flip: 1 };
   let phase = 0, sx = 1, primed = false, uSlot = 0, kSlot = 0;
   // the gap where the tongue is: its spine's point there (p), its frame (q) and the rest frame turned to lie along it
   // (r0); the way it goes through (along), its top and up; the track there (n: out, t: along the track toward + trk,
@@ -1040,13 +941,10 @@ vCrush = cr;`)
   function evalPose(t) {
     for (const k in tracks) par[k] = tracks[k](t);
     par.push = pushAt(t);
-    // (out of the gap down the bin's face it points round the corner it is coming to; folded back over the lid's edge
-    // onto the top, it heads in leaning away from it: the same turn, the other way; in between, a blend; reared up in
-    // the air, straight out: slanted there it swung out sideways as it flopped over)
-    par.aim += tracks.aimA(t) * (clamp(par.wf, 0, 1) - 0.5 * clamp(par.wl, 0, 1));
-    par.wlag = tracks.wlag(t);
+    // (the swing: see buildTracks)
+    par.hd += tracks.sw(t); par.aim += clamp(tracks.sw(t), -SLANT, SLANT);
     par.trk *= sx; par.ta *= sx; par.turn *= sx; par.yaw *= sx; par.hook *= sx; par.roll *= sx; par.twist *= sx; par.ttw *= sx; par.spin *= sx;
-    par.hd *= sx; par.wlag *= sx; par.kc *= sx; par.fd *= sx; par.fk *= sx; par.aim *= sx;
+    par.hd *= sx; par.kc *= sx; par.fd *= sx; par.fk *= sx; par.aim *= sx;
     par.out = clamp(par.out, 0, Math.min(OUT_MAX, L - STALK - 0.02)); par.push = Math.max(0, par.push);
     trackAt(par.trk, TK); lid.px = TK.x; lid.pz = TK.z; lid.front = TK.front;
   }
@@ -1361,9 +1259,7 @@ vCrush = cr;`)
     // (headings: ph is the way it goes, (-sin ph, -cos ph) in lid space: 0 straight in from the front, + toward -x)
     const ph0 = Math.atan2(nx, nz);
     let ph = ph0 + aim, x = x0 + nx * ex - tx * flen * ta - Math.sin(ph) * STEP, z = z0 + nz * ex - tz * flen * ta - Math.cos(ph) * STEP, m = 0, edge = false;
-    // (the heading it wants lags the track's way round a corner (wlag): lying on the top, dragged round as its base
-    // rounds a corner of the lid, it swings round after it, not at once with it: at once, its tip whipped across the top)
-    const want = ph0 + par.ta + par.hd - par.wlag, kc = par.kc, rmin = turnMin(), d0 = railLen();
+    const want = ph0 + par.ta + par.hd, kc = par.kc, rmin = turnMin(), d0 = railLen();
     while (d0 + m * STEP < dMax && m < LMAX) {
       // (heading out over an edge: draped over it; lifted off the top there, it just goes on, in the air)
       if (liftAt(m * STEP) < 0.02 && oct2(Math.abs(x), Math.abs(z - 0.47), LID_HW, 0.53, 0.96) > -0.04 && -Math.sin(ph) * G2.x * Math.sign(x) - Math.cos(ph) * G2.y * Math.sign(z - 0.47) > 0.05) { edge = true; break; }
@@ -2540,7 +2436,7 @@ function pushAt(t) {
 
 // One track per number from the rows that key it (and trk from PACE), sampled at TRACK_HZ and smoothed: a gaussian
 // SMOOTH[k] seconds wide (GAUSS by default), so nothing has a corner at a key: every move eases in and out, a slap
-// only lands hard (lift's is a frame or two). Then aim gets AUTO_AIM added.
+// only lands hard (lift's is a frame or two). Then the swing (sw) is added.
 const TRACK_HZ = 240, GAUSS = 0.03;
 const SMOOTH = { lift: 0.005, push: 0.008, out: 0.015, trk: 0.04, wl: 0.02, wf: 0.02 };
 function buildTracks(rows) {
@@ -2551,43 +2447,28 @@ function buildTracks(rows) {
     for (let i = 0; i < n; i++) raw[i] = f(i / TRACK_HZ);
     tables[k] = gauss(raw, (SMOOTH[k] ?? GAUSS) * TRACK_HZ);
   }
-  // AUTO_AIM: round a corner of the track the way out of the gap turns a quarter turn; the tongue's way through it
-  // turns the same, but spread over AIM_SIG either side (it slants into the corner before it gets there and out of it
-  // after): aim += the way out there - that way, smoothed (at most 0.5)
-  const way = new Float32Array(n), tk = { x: 0, z: 0, nx: 0, nz: 1, tx: 1, tz: 0, front: 1 };
-  for (let i = 0; i < n; i++) { trackAt(tables.trk[i], tk); way[i] = Math.atan2(tk.nx, tk.nz); }
-  const ws = gauss(way, AIM_SIG * TRACK_HZ);
-  tables.aimA = new Float32Array(n);
-  for (let i = 0; i < n; i++) tables.aimA[i] = clamp(way[i] - ws[i], -0.5, 0.5);
-  // WLAG: how far the way out of the gap has turned ahead of where it was, eased over WLAG_SIG (see railLid)
-  const wl = gauss(way, WLAG_SIG * TRACK_HZ);
-  tables.wlag = new Float32Array(n);
-  for (let i = 0; i < n; i++) tables.wlag[i] = way[i] - wl[i];
+  // the SWING: lying across the top it heads SWING (2P - 1) from straight in (P: how far along its run its base is,
+  // 0..1; + toward - trk), in step with its base, so its tip sweeps across in one even arc, and it comes over the
+  // lid's edge already slanted that way (as far as the gap lets it, SLANT)
+  const [, , k0, k1] = PACE[0];
+  tables.sw = new Float32Array(n);
+  for (let i = 0; i < n; i++) tables.sw[i] = SWING * (2 * clamp((tables.trk[i] - k0) / (k1 - k0), 0, 1) - 1);
   for (const k in tables) {
     const a = tables[k];
     tracks[k] = (t) => { const x = clamp(t * TRACK_HZ, 0, n - 1), i = Math.min(n - 2, Math.floor(x)), f = x - i; return a[i] + (a[i + 1] - a[i]) * f; };
   }
   return tracks;
 }
-const AIM_SIG = 0.12, WLAG_SIG = 0.1;
-// trk (the rows' keys for it are not used): from PACE, between its times driven round the track steadily (held between
-// runs), at a speed that eases in and out over EASE_T (at most 0.4 of the run) and drops to CORNER_V of it round a
-// corner (where the way out of the gap turns), scaled so it gets to the end on time
-const EASE_T = 0.45, CORNER_V = 0.45;
+const SLANT = 0.55;
+// trk (the rows' keys for it are not used): from PACE, each run's way along the track covered with a speed that rises
+// and falls as a half sine (nothing at its ends, the most at its middle: k = k0 + (k1 - k0) (1 - cos(pi u)) / 2); held
+// between runs
 function paceTrack() {
-  const corner = (k) => { const s = Math.abs(k); return smooth(TRK_FX - 0.1, TRK_FX + 0.02, s) * (1 - smooth(TRK_FX + TRK_ARC - 0.02, TRK_FX + TRK_ARC + 0.1, s)); };
-  const runs = PACE.map(([t0, t1, k0, k1]) => {
-    const h = 1 / TRACK_HZ, N = Math.ceil((t1 - t0) / h), dir = Math.sign(k1 - k0), et = Math.min(EASE_T, 0.4 * (t1 - t0));
-    const run = (v0) => { const out = new Float32Array(N + 1); let k = k0; out[0] = k; for (let i = 1; i <= N; i++) { const t = t0 + i * h, e = smooth(t0, t0 + et, t) * (1 - smooth(t1 - et, t1, t)); k += dir * v0 * e * (1 - (1 - CORNER_V) * corner(k)) * h; out[i] = k; } return out; };
-    let lo = 0, hi = 20;
-    for (let it = 0; it < 40; it++) { const mid = (lo + hi) / 2; if ((run(mid)[N] - k1) * dir < 0) lo = mid; else hi = mid; }
-    return { t0, t1, N, h, out: run((lo + hi) / 2) };
-  });
   return (t) => {
-    let v = runs[0].out[0];
-    for (const r of runs) {
-      if (t >= r.t1) v = r.out[r.N];
-      else if (t > r.t0) { const x = (t - r.t0) / r.h, i = Math.min(r.N - 1, Math.floor(x)), f = x - i; return r.out[i] + (r.out[i + 1] - r.out[i]) * f; }
+    let v = PACE[0][2];
+    for (const [t0, t1, k0, k1] of PACE) {
+      if (t >= t1) v = k1;
+      else if (t > t0) { const u = (t - t0) / (t1 - t0); return k0 + (k1 - k0) * (1 - Math.cos(Math.PI * u)) / 2; }
     }
     return v;
   };
