@@ -62,6 +62,8 @@
 //   setPose(k, { wet })    a pose by hand: 0 = the ball ... T-1 = 'settle'; -1 = the flat sheet (base mesh).
 //                          Sets the shading for that pose too; wet 0..1 (default: as it was). Don't mix with spit().
 //   bounds(k)              a pose's bounds (THREE.Box3, sheet units)
+//   setLive(on, camera)    the printed face see-through wherever it lies flat in its own place on the glass (the live
+//                          page under it shows: the page must be laid out and drawn there; the renderer needs alpha)
 //   setWipe(mask, renderer)  wiped off the glass where mask (assets/intro/wiper.js: { canvas, version }, the canvas's
 //                          own box, white = wiped) is white: see-through there (the renderer needs alpha). null: off
 //   poses                  the pose names; info: paper.json; print: the chosen print; landed: on the screen
@@ -159,18 +161,27 @@ function wetMask(seed) {
 // Paper: lit, flat shaded, but never quite the page's white (a soft knee keeps lit facets just under it, so the sheet
 // reads on white), darker where a facet turns edge-on (an ink edge that follows the silhouette and the folds), wet
 // splotches darker and glossier. uLift = 1: the plain print, unlit: the page's own pixels.
-function paperMaterial(U, { map = null, color = 0xffffff, side = THREE.FrontSide, flat = false } = {}) {
+// live (the sheet's printed face): where it lies flat in its own place on the glass, and uLive is on, it is see-through:
+// the live page under it, the page itself, not its print. In its own place: taken back into the frame of the sheet as
+// it lies when landed (uFinalInv: the inverse of its model-view then), within uLiveEps of its own point on the flat
+// sheet (_flat) across the sheet, and between the sheet's plane and the glass (uGlass) through it (pressed on the
+// glass as it unfolds, the paper lies a hair in front of the flat sheet).
+function paperMaterial(U, { map = null, color = 0xffffff, side = THREE.FrontSide, flat = false, live = false } = {}) {
   const m = new THREE.MeshStandardMaterial({ map, color, side, roughness: 0.88, metalness: 0, flatShading: flat });
   m.onBeforeCompile = (sh) => {
     Object.assign(sh.uniforms, U);
     sh.vertexShader = sh.vertexShader
-      .replace('#include <common>', '#include <common>\nattribute float _wet;\nvarying float vPWet;\nvarying vec2 vPUv;')
+      .replace('#include <common>', '#include <common>\nattribute float _wet;\nvarying float vPWet;\nvarying vec2 vPUv;' +
+        (live ? '\nattribute vec3 _flat;\nuniform mat4 uFinalInv;\nuniform float uGlass;\nvarying float vLiveD;' : ''))
       .replace('#include <uv_vertex>', '#include <uv_vertex>\nvPWet = _wet;\nvPUv = uv;');
+    if (live) sh.vertexShader = sh.vertexShader.replace('#include <project_vertex>', `#include <project_vertex>
+vec3 pLive = (uFinalInv * mvPosition).xyz;
+vLiveD = max(distance(pLive.xy, _flat.xy), max(-0.002 - pLive.z, pLive.z - uGlass - 0.002));`);
     sh.fragmentShader = sh.fragmentShader
       .replace('#include <common>', `#include <common>
 uniform float uLift, uRim, uWet; uniform sampler2D uWetMap;
 uniform sampler2D uWipe; uniform float uWipeOn; uniform vec2 uWipeRes;
-varying float vPWet; varying vec2 vPUv;`)
+varying float vPWet; varying vec2 vPUv;${live ? '\nuniform float uLive, uLiveEps; varying float vLiveD;' : ''}`)
       .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
 vec3 paperFlat = diffuseColor.rgb;
 // damp patches: where the ball's outside was (vPWet), broken up by the blobs; they shrink as uWet dries
@@ -191,9 +202,10 @@ gl_FragColor.rgb *= (1.0 - 0.3 * pwet) * (1.0 - 0.2 * pring);
 gl_FragColor.rgb = mix(gl_FragColor.rgb, paperFlat, uLift);`)
       // wiped off the glass (setWipe): see-through there, the page behind it (the canvas is premultiplied: all four)
       .replace('#include <dithering_fragment>', `#include <dithering_fragment>
-if (uWipeOn > 0.5) gl_FragColor *= 1.0 - texture2D(uWipe, gl_FragCoord.xy / uWipeRes).r;`);
+if (uWipeOn > 0.5) gl_FragColor *= 1.0 - texture2D(uWipe, gl_FragCoord.xy / uWipeRes).r;${live ? `
+if (uLive > 0.5 && vLiveD < uLiveEps) gl_FragColor = vec4(0.0);` : ''}`);
   };
-  m.customProgramCacheKey = () => (flat ? 'sbhmn-paper-flat' : 'sbhmn-paper');
+  m.customProgramCacheKey = () => (flat ? 'sbhmn-paper-flat' : live ? 'sbhmn-paper-live' : 'sbhmn-paper');
   return m;
 }
 
@@ -299,8 +311,8 @@ function posesOf(src) {
   return { flat, poses };
 }
 
-function makeMeshes(geo, U, tex, castShadow) {
-  const front = new THREE.Mesh(geo, paperMaterial(U, { map: tex }));
+function makeMeshes(geo, U, tex, castShadow, live = false) {
+  const front = new THREE.Mesh(geo, paperMaterial(U, { map: tex, live }));
   const back = new THREE.Mesh(geo, paperMaterial(U, { color: 0xf1efea, side: THREE.BackSide }));
   for (const m of [front, back]) { m.castShadow = castShadow; m.frustumCulled = false; }
   return { front, back };
@@ -310,6 +322,7 @@ function uniforms(wetTex) {
   return {
     uLift: { value: 0 }, uRim: { value: 0.5 }, uWet: { value: 0 }, uWetMap: { value: wetTex },
     uWipe: { value: wetTex }, uWipeOn: { value: 0 }, uWipeRes: { value: new THREE.Vector2(1, 1) },
+    uLive: { value: 0 }, uLiveEps: { value: 0.004 }, uFinalInv: { value: new THREE.Matrix4() }, uGlass: { value: 0 },
   };
 }
 
@@ -380,10 +393,13 @@ export async function createPaper(opts = {}) {
   const { flat, poses } = posesOf(src.geometry);
   const mesh = cornerMesh(src.geometry, info.creases ?? []);
   const geo = mesh.geometry;
+  // each corner's point on the flat sheet (for 'live': where it lies once landed)
+  mesh.set(flat);
+  geo.setAttribute('_flat', new THREE.BufferAttribute(geo.attributes.position.array.slice(), 3));
 
   const wetTex = wetMask(seed);
   const U = uniforms(wetTex);
-  const { front, back } = makeMeshes(geo, U, tex, castShadow);
+  const { front, back } = makeMeshes(geo, U, tex, castShadow, true);
   const core = makeCore(info, U, castShadow);
   // object3d (placed by spit) > jig (the stop-motion nudges, the squash) > turn (portrait) > the meshes
   const object3d = new THREE.Group(); object3d.name = 'paper';
@@ -607,15 +623,37 @@ export async function createPaper(opts = {}) {
     wipe.renderer.getDrawingBufferSize(U.uWipeRes.value);
   }
 
+  // LIVE (setLive): the sheet's printed face, wherever it lies flat in its own place on the glass, is see-through: the
+  // live page under it (laid out in the same place: the print is registered on it). So as the paper unfolds, each part
+  // of it that comes down flat in its place is the page itself, not a picture of it, and where the print and the page
+  // differ a little (on a phone the page is fluid) nothing jumps: the print is only ever on the parts still moving.
+  let liveCam = null;
+  const finalM = new THREE.Matrix4(), finalS = new THREE.Vector3();
+  function setLive(on, camera) {
+    liveCam = on ? camera : null;
+    U.uLive.value = on ? 1 : 0;
+    syncLive();
+  }
+  function syncLive() {
+    if (!liveCam) return;
+    // the front mesh's model-view once landed: the sheet at its landing, the turn, nothing else (no jig); its inverse
+    // takes a point seen now back into the sheet's own frame as it will lie. (uLiveEps 0.004 sheet units: the
+    // stop-motion nudges are under half of it)
+    turn.updateMatrix();
+    U.uFinalInv.value.copy(finalM.compose(landing(liveCam), ident, finalS.setScalar(scale)).multiply(turn.matrix)).invert();
+    U.uGlass.value = glassZ;
+  }
+
   const paper = {
     object3d, info, print: P, poses: names, landed: false, ballRadius: info.ballRadius,
     setPose: (k, o) => setPose(k, o),
     bounds,
-    spit, land, setWipe,
+    spit, land, setWipe, setLive,
     update(dt) {
       if (show) stepShow(dt);
       else if (landedCam) place(landedCam, landing(landedCam), ident);
       syncWipe();
+      syncLive();
     },
     dispose() {
       show = null; landedCam = null;

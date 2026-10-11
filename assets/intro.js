@@ -875,6 +875,27 @@ async function start() {
     tween(300, (t) => { monster.position.y = m0 + 0.06 * (1 - t); pitch.rotation.x = lift(monster.position.y) - 0.16 * (1 - easeOut(t)); eyeL.scale.y = eyeR.scale.y = 0.45 + 0.55 * t; });
     const sp = sheet ?? await Promise.race([sheetP, new Promise((r) => setTimeout(() => r(null), 2500))]);
     if (aborted) return;
+    // The hand-off. The page goes in under the paper as it smashes into the glass, all of it (html.intro-handoff cuts
+    // its fade-in: the intro's canvas hides it), its 3D drawn right now as the paper prints it (sbhmn:handoff: the home
+    // page's scenes stepped to the print's moment, its clock in paper.json, and held there). And the paper is LIVE
+    // (paper.setLive): as it unfolds, every part of it that comes down flat in its own place shows the page itself
+    // there, not its print. So once it lies flat it is the page, exactly: nothing jumps where the print and the live
+    // page differ a little (on a phone the page is fluid: things lower down sit some px off a print made at another
+    // size); the print only ever shows on the flaps still moving. Then a hand wipes the goo off the screen (a wiper
+    // blade, its rubber edge on the glass, dragged across in two strokes: assets/intro/wiper.js; the paper and the goo
+    // leave out what it has wiped), and once it is clean the page comes alive (end(): sbhmn:reveal).
+    // Without the hand (it failed to load): the canvas fades off the page instead, the goo dries on it. (Once, the
+    // paper faded out while the page faded in, and two layers fading against each other let the white behind them
+    // through: a flash.)
+    let handed = false;
+    const handoff = () => {
+      if (handed) return;
+      handed = true;
+      html.classList.add('intro-handoff');
+      html.classList.remove('intro-on');
+      stage.classList.add('leaving');
+      document.dispatchEvent(new CustomEvent('sbhmn:handoff', { detail: { at: sp?.print?.clock ?? 0 } }));
+    };
     if (sp) {
       await sp.spit({
         camera, from: mouth, sequence: 'full',
@@ -883,6 +904,8 @@ async function start() {
         // stop-motion frame any more, and no thud: little sounds the owner didn't like)
         onFrame: ({ slap, at }) => {
           if (!slap) return;
+          handoff();
+          sp.setLive(true, camera);
           sfx.play('unfold', { gain: 0.9, vary: 0.02 }); shake = Math.max(shake, 0.012);
           wiperP.then((w) => { if (!aborted) w?.prepare(renderer); }); // its shaders, while the paper unfolds
           if (at) drips?.goo(at.x, at.y, Math.max(at.size * 0.8, Math.min(innerWidth, innerHeight) * 0.42), { from });
@@ -891,20 +914,7 @@ async function start() {
       if (aborted) return;
       await wait(140); if (aborted) return;
     }
-    // The hand-off. The page goes in under the paper at once, all of it (html.intro-handoff cuts its fade-in: the
-    // canvas, the paper on it covering the screen, hides it), its 3D drawn right now as the paper prints it
-    // (sbhmn:handoff: the home page's scenes stepped to the print's moment, its clock in paper.json, and held there).
-    // Then a hand wipes the screen: a wiper blade, its rubber edge on the glass, dragged across in two strokes, and
-    // wherever it has been the paper and the goo are gone and the page is there (assets/intro/wiper.js; the paper and
-    // the goo cut themselves out by its mask). Nothing fades: where the print and the live page differ a little (on a
-    // phone the page is fluid: some px lower down), the line between them is always under the blade. Once it is clean
-    // the page comes alive (end(): sbhmn:reveal).
-    // Without the hand (it failed to load): the paper fades off the page instead. (Once, the paper faded out while the
-    // page faded in, and two layers fading against each other let the white behind them through: a flash.)
-    html.classList.add('intro-handoff');
-    html.classList.remove('intro-on');
-    stage.classList.add('leaving');
-    document.dispatchEvent(new CustomEvent('sbhmn:handoff', { detail: { at: sp?.print?.clock ?? 0 } }));
+    handoff();
     const w = sp ? await Promise.race([wiperP, new Promise((r) => setTimeout(() => r(null), 1500))]) : null;
     if (aborted) return;
     if (w) {

@@ -225,10 +225,12 @@ html.intro-on { overflow: hidden; }
 html.intro-on header.site .brand img, html.logo-flying header.site .brand img { visibility: hidden; }
 html.intro-on main, html.intro-on footer.site, html.intro-on header.site nav, html.intro-on .tagline, html.intro-on .stage-canvas { opacity: 0; }
 main, footer.site, header.site nav, .tagline, .stage-canvas { transition: opacity 0.7s ease; }
-/* The end of the show: the page goes in under the landed paper at once, no fade (the paper covers it, then fades off
-   it). A page fading in under a paper fading out let the white behind both show through mid way: a flash. (The fade
-   above stays for Skip, the replay and the fallbacks.) */
+/* The end of the show: the page goes in under the paper as it smashes into the glass, at once, no fade (the intro's
+   canvas covers it; the paper shows it wherever it comes down flat). A page fading in under a paper fading out let the
+   white behind both show through mid way: a flash. (The fade above stays for Skip, the replay and the fallbacks.) */
 html.intro-handoff main, html.intro-handoff footer.site, html.intro-handoff header.site nav, html.intro-handoff .tagline, html.intro-handoff .stage-canvas { transition: none; }
+/* (and it holds still under the paper till the intro is over: no scrolling it away under the unfolding paper) */
+html.intro-handoff { overflow: hidden; }
 /* The live badges hold still until the paper is gone, then pulse from their first keyframe: the paper's print shows
    them there. */
 html.intro-on .status.live, html.intro-on .status.live i, html.intro-handoff .status.live, html.intro-handoff .status.live i { animation: none; }
