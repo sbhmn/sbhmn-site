@@ -2,10 +2,11 @@
 // dev/models/wiper-hand.py from the owner's Tripo model: a hand holding a car's windscreen wiper blade), seen from the
 // far side of the glass: the blade's rubber edge pressed flat on the screen, toward you (you see the blade from
 // underneath, the hand and the forearm behind it, off to one side, as in the owner's reference). It drags across the
-// screen in two strokes, an S: in from the side the arm is on, across, round, and back out. Wherever the rubber edge
-// has been is wiped: the paper (the print of the page, stuck to the glass with goo) and the goo come off, and the live
-// page is there under it. The edge of what is wiped is always under the blade, so the seam between the print and the
-// page doesn't show as a moving line.
+// screen in two strokes, an S, the wrist leading the way and the blade trailing (as the owner wipes: blade on the left
+// of the hand, the stroke goes left to right): in from one side, across, the handle flipped over to the other side at
+// the turn, and back out. Wherever the rubber edge has been is wiped: the paper (the print of the page, stuck to the
+// glass with goo) and the goo come off, and the live page is there under it. The edge of what is wiped is always under
+// the blade, so the seam between the print and the page doesn't show as a moving line.
 //
 //   const w = await createWiper({ viewport: () => [cssW, cssH] });
 //   w.mask                 { canvas, version, w, h }: white where wiped (the viewport's top-left w x h CSS px, scaled
@@ -23,7 +24,7 @@
 //
 // The hand (Y up, the rubber edge's middle at the origin facing +Z, the blade along X, 1 long, the hand behind it, -Z):
 // bones blade > hand > arm, fingers, thumb. Turning 'hand' about the blade's length leans the handle over to one side
-// (the blade stays flat on the glass): that is how far the arm is off to the side; 'arm' bends the wrist; 'fingers'
+// (the blade stays flat on the glass): that is which side the arm is on, and how far; 'arm' bends the wrist; 'fingers'
 // and 'thumb', turned toward each other about the handle's axis, squeeze it.
 import * as THREE from 'three';
 import { GLTFLoader } from '/assets/vendor/three/addons/loaders/GLTFLoader.js';
@@ -106,12 +107,16 @@ export async function createWiper({ url = '/assets/3d/wiper-hand.glb', viewport 
     b.quaternion.multiply(tq.setFromAxisAngle(ta, angle));
   }
   const X = new THREE.Vector3(1, 0, 0);
+  // the forearm's way round the blade at rest (radians from straight back, -Z, toward +Y): a lean of psi - PSI0 puts
+  // it at psi, either side alike
+  const c0 = new THREE.Vector3().fromArray(info.cut ?? [0, 0, -1.5]).sub(new THREE.Vector3().fromArray(info.joint ?? [0, 0, 0]));
+  const PSI0 = Math.atan2(c0.y, -c0.z);
   // the forearm, at rest: from the wrist to the cut; the wrist bends about the axis across it and the blade
   const fore = new THREE.Vector3().fromArray(info.cut ?? [0, 0, -1.5]).sub(new THREE.Vector3().fromArray(info.wrist ?? [0, 0, -0.9])).normalize();
   const flexAxis = new THREE.Vector3().crossVectors(fore, X).normalize();
   const gripAxis = new THREE.Vector3().fromArray(info.grip ?? [0, 1, 0]).normalize();
-  // lean: the handle over to the arm's side (radians, about the blade); flex: the wrist; twist: the forearm about its
-  // own length; grip 0..1
+  // lean: the handle over to one side (radians, about the blade; > 0 toward model +Y); flex: the wrist; twist: the
+  // forearm about its own length; grip 0..1
   function pose({ lean = 0, flex = 0, twist = 0, grip = 0 } = {}) {
     for (const [b, q] of rest) b.quaternion.copy(q);
     turn(bones.hand, X, lean);
@@ -128,7 +133,7 @@ export async function createWiper({ url = '/assets/3d/wiper-hand.glb', viewport 
   }
 
   // put the rubber edge's middle at screen point (x, y) (viewport CSS px), the blade along angle ang (screen radians,
-  // y down), the arm off toward screen direction side, the blade len px long
+  // y down), model +Y toward screen direction side, the blade len px long
   const bx = new THREE.Vector3(), by = new THREE.Vector3(), bz = new THREE.Vector3(), basis = new THREE.Matrix4();
   function place(x, y, ang, side, len, w, h) {
     const t = Math.tan(THREE.MathUtils.degToRad(FOV / 2));
@@ -153,25 +158,26 @@ export async function createWiper({ url = '/assets/3d/wiper-hand.glb', viewport 
   function makePlan() {
     const [w, h] = viewport();
     const land = w >= h, S = Math.min(w, h), L = BLADE * S;
-    // 'along': the first stroke's way; the arm is on the other side (it trails in from off the screen there)
+    // 'along': the first stroke's way (it comes in from the other side, the arm first, ahead of the blade)
     const along = land ? [-1, 0] : [0, -1], across = land ? [0, 1] : [1, 0];
     const span = land ? w : h;
-    const m0 = 0.1 * S, m1 = 0.06 * S; // how far off the screen it starts / turns round
+    const m0 = 0.1 * S, m1 = 0.06 * S; // how far off the screen the blade starts / turns round
     return {
       w, h, S, L, along, across, side: [-along[0], -along[1]],
-      // positions along 'along' from the screen's edge on the arm's side, and across from the screen's edge
-      s0: -m0, s1: span + m1, s2: -m0 * 1.2,
+      // positions along 'along' from the screen's edge it comes in at, and across from the screen's edge (it starts
+      // far enough out that the arm, leading, comes in from off the screen too)
+      s0: -m0 - 1.3 * L, s1: span + m1, s2: -m0 * 1.2,
       // (each band reaches ~0.03 of a side past its screen edge, tilted, drifted, at either end of its stroke)
       wA: 0.27 * S, wB: S - 0.27 * S,
       // the stroke's own small tilt off square (radians) and drift across (px over the stroke): out toward the edge
       tilt1: 0.1, tilt2: -0.08, drift1: -0.012 * S, drift2: 0.012 * S,
-      T1: 0.86, T2: 1.3, T3: 2.14,
+      T1: 1.0, T2: 1.42, T3: 2.26,
     };
   }
   function at(t) {
     const p = plan;
     let s;
-    if (t <= p.T1) s = p.s0 + (p.s1 - p.s0) * hermite(t / p.T1, 0.9, 0);
+    if (t <= p.T1) s = p.s0 + (p.s1 - p.s0) * hermite(t / p.T1, 1.1, 0);
     else if (t <= p.T2) s = p.s1;
     else s = p.s1 + (p.s2 - p.s1) * hermite(Math.min(1, (t - p.T2) / (p.T3 - p.T2)), 0, 1.0);
     // across: band A, round the corner to band B: only once the blade is past the screen's edge (the stroke slowing
@@ -180,10 +186,12 @@ export async function createWiper({ url = '/assets/3d/wiper-hand.glb', viewport 
     const d1 = p.drift1 * smooth(0, p.T1, t), d2 = p.drift2 * smooth(p.T2, p.T3, t);
     const wv = p.wA + (p.wB - p.wA) * k + d1 * (1 - k) + d2;
     const tilt = p.tilt1 + (p.tilt2 - p.tilt1) * smooth(p.T1 - 0.1, p.T2, t);
-    // the handle leans back toward the arm as it pushes away, further as it pulls back in; the wrist flicks round
-    // the corner; the fingers squeeze on each stroke and ease off at the turn
+    // the wrist leads, the blade trails: the arm on the side it is going (stroke 1: toward 'along', model -Y; stroke
+    // 2: back, +Y), the handle flipped over at the turn (through straight back, behind the blade); the wrist flicks
+    // round the corner; the fingers squeeze on each stroke and ease off at the turn
     const turnK = Math.sin(Math.PI * smooth(p.T1 - 0.22, p.T2 + 0.18, t));
-    const lean = 0.82 + 0.22 * smooth(p.T1 - 0.05, p.T2 + 0.1, t);
+    const psi = -1.22 + 2.48 * smooth(p.T1 - 0.08, p.T2 + 0.06, t);
+    const lean = psi - PSI0;
     const flex = 0.32 * turnK - 0.08 * smooth(0, 0.4, t) + 0.1 * smooth(p.T2, p.T3, t);
     const twist = 0.12 * turnK;
     const grip = 0.55 + 0.45 * Math.sin(t * 9.0) * (1 - 0.7 * turnK);
